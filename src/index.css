@@ -59,6 +59,10 @@ main {
   height: 100%;
 }
 
+a {
+  cursor: pointer;
+}
+
 .layout-top-bar {
   height: 4px;
 }
