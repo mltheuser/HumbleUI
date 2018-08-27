@@ -1,33 +1,11 @@
-import Tool from './Tool';
-import Sketch from './Sketch'
+import Tool from '../components/Tool';
+import Sketch from '../components/Sketch'
 
 const toolCollection = {
-    Default: new Tool(
-        'default',
-        {
-            handleMouseDown: function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            
-                return;
-            },
-            handleMouseMove: function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                return;
-            },
-            handleMouseUp: function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                return;
-            }
-        }
-    ),
+    Default: new Tool(),
     DrawSketch: new Tool(
-        'crosshair',
         {
+            cursor: 'crosshair',
             handleMouseDown: function(e) {
                 e.preventDefault();
                 e.stopPropagation();

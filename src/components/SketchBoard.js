@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import HumbleArray from './HumbleArray'
+import HumbleArray from '../datatypes/HumbleArray'
 
 class SketchBoard extends Component {
     constructor() {

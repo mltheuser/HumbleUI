@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import toolCollection from './ToolCollection'
+import toolCollection from '../data/ToolCollection'
 import cursor from '../cursor.svg';
 import add from '../add.svg';
 
