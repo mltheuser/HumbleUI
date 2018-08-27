@@ -7,17 +7,13 @@ class Sketch extends Component {
         this.state = {
             top,
             left,
+            initTop: top,
+            initLeft: left,
             width,
             height,
             refined: false,
             selected: false
         }
-    }
-
-    static addSketchToBoard(sketchBoard, top, left) {
-        sketchBoard.selected = new Sketch()
-        sketchBoard.sketches.push(sketchBoard.selected);
-        sketchBoard.update();
     }
 
     render() {

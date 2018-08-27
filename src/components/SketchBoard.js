@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Sketch from './Sketch';
+import HumbleArray from './HumbleArray'
 
 class SketchBoard extends Component {
     constructor() {
@@ -12,10 +13,9 @@ class SketchBoard extends Component {
         }
         this.mouseDown = false;
         this.state = {
-            selected: new Sketch(100, 100, 100, 100),
-            sketches: []
+            selected: null,
+            sketches: new HumbleArray()
         }
-        console.log(this.state.selected);
     }
 
     handleMouseDown(e) {
@@ -26,30 +26,19 @@ class SketchBoard extends Component {
         this.mousePositions.startX = parseInt(e.clientX, 10);
         this.mousePositions.startY = parseInt(e.clientY, 10) - 4;
 
-        console.log(this)
-
-        console.log(this.state.selected)
-
         this.setState((prevState) => {
-            prevState.selected.state.height = 2000;
-            return {selected: prevState.selected};
+            const tmp = new Sketch(this.mousePositions.startY, this.mousePositions.startX);
+            prevState.sketches.push(tmp);
+            return {
+                selected: tmp,
+                sketches: prevState.sketches
+            };
         });
-
-        /*
-        const tmp = new Sketch({top: this.mousePositions.startY, left: this.mousePositions.startX, width: 10, height: 10});
-        this.state.sketches.push(tmp);
-
-        this.setState({
-            selected: tmp,
-            sketches: this.state.sketches
-        })
-        */
 
         this.mouseDown = true;
     }
 
     handleMouseMove(e) {
-        /*
         e.preventDefault();
         e.stopPropagation();
 
@@ -60,8 +49,6 @@ class SketchBoard extends Component {
         // get the current mouse position
         this.mousePositions.currentX = parseInt(e.clientX, 10);
         this.mousePositions.currentY = parseInt(e.clientY, 10) - 4;
-
-        console.log('current position: (X:'+this.mousePositions.currentX+'Y:'+this.mousePositions.currentY+')');
 
         // Put your mousemove stuff here
 
@@ -78,33 +65,39 @@ class SketchBoard extends Component {
         if (height < 0)
             top = height
 
-        this.props.updateSketch(Math.abs(width), Math.abs(height), top, left);
-        */
+        this.setState((prevState) => {
+            prevState.selected.state.width = Math.abs(width);
+            prevState.selected.state.height = Math.abs(height);
+            if(top !== null)
+                prevState.selected.state.top = prevState.selected.state.initTop + top;
+            if(left !== null)
+                prevState.selected.state.left = prevState.selected.state.initLeft + left;
+            return {
+                selected: prevState.selected
+            }
+        });
     }
 
     handleMouseUp(e) {
-        /*
         e.preventDefault();
         e.stopPropagation();
 
         // the drag is over, clear the dragging flag
         this.mouseDown = false;
 
-        this.props.refineSketch();
-        */
-    }
-
-    unpackSketches(sketches) {
-        let i=0, len=sketches.length, tmp = new Array(len);
-        for(; i < len; ++i)
-            tmp[i] = <Sketch params={sketches[i]}/>;
-        return tmp;
+        this.setState((prevState) => {
+            prevState.selected.state.refined = true;
+            prevState.selected.state.selected = true;
+            return {
+                selected: prevState.selected
+            }
+        });
     }
 
     render() {
         return (  
             <main onMouseDown={this.handleMouseDown.bind(this)} onMouseMove={this.handleMouseMove.bind(this)} onMouseUp={this.handleMouseUp.bind(this)}>
-                {this.state.selected.render()}
+                {this.state.sketches.render()}
             </main>
         );
     }
