@@ -1,42 +1,65 @@
 import React, { Component } from 'react';
+import toolCollection from '../data/ToolCollection'
 
 class Selector extends Component {
+    constructor() {
+        super();
+        this.toolRepo = null;
+    }
+    componentDidMount() {
+        let tmp = document.getElementsByClassName('selector'), len = tmp.length, i = 0;
+        for (; i < len; ++i) {
+            tmp[i].addEventListener('mouseleave', () => {
+                if(this.props.app.state.tool.toolRepo === null || this.props.app.state.tool.mouseState.down === true)
+                    return;
+                this.props.app.updateTool(this.props.app.state.tool.toolRepo);
+                this.props.app.state.tool.toolRepo = null;
+            }, false);
+        }
+    }
+
+    handleMouseEnter(horizontalMode, verticalMode, selectorID) {
+        if(this.props.app.state.tool === toolCollection.Resize)
+            return;
+        toolCollection.Resize.toolRepo = this.props.app.state.tool;
+        toolCollection.Resize.horizontal = horizontalMode; 
+        toolCollection.Resize.vertical = verticalMode;
+        toolCollection.Resize.selectorID = selectorID;
+        this.props.app.updateTool(toolCollection.Resize);
+    }
+
     render() {
         let inline1 = {
-            top: (this.props.height/2 - 5 - 9)+'px',
-            cursor: 'ew-resize'
+            marginRight: (this.props.width/2 - 8)+'px',
         }
         let inline2 = {
-            top: (this.props.height/2 - 5 - 2*9)+'px',
-            cursor: 'ew-resize'
+            top: (this.props.height/2 - 5 - 9)+'px'
         }
         let inline3 = {
+            top: (this.props.height/2 - 5 - 2*9)+'px'
+        }
+        let inline4 = {
             top: (this.props.height - 23)+'px',
             cursor: 'nesw-resize'
         }
-        let inline4 = {
+        let inline5 = {
             top: (this.props.height - 32)+'px',
             cursor: 'nwse-resize'
         }
-        let inline5 = {
-            marginRight: (this.props.width/2 - 8)+'px',
-            cursor: 'ns-resize'
-        }
         let inline6 = {
             top: (this.props.height - 32)+'px',
-            marginRight: (this.props.width/2 - 8)+'px',
-            cursor: 'ns-resize'
+            marginRight: (this.props.width/2 - 8)+'px'
         }
         return (  
             <div className="selectCage">
-                <div className="selector top-left"></div>  
-                <div className="selector top-right"></div> 
-                <div className="selector top-right" style={inline5}></div>
-                <div className="selector top-left" style={inline1}></div>
-                <div className="selector top-right" style={inline2}></div> 
-                <div className="selector top-left" style={inline3}></div>
-                <div className="selector top-right" style={inline4}></div>
-                <div className="selector top-right" style={inline6}></div>
+                <div id="selector-top-left" className="selector left" onMouseEnter={(e) => {this.handleMouseEnter(1, 1, 'selector-top-left');}}></div>  
+                <div id="selector-top-right" className="selector right" onMouseEnter={(e) => {this.handleMouseEnter(2, 1, 'selector-top-right');}}></div> 
+                <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={(e) => {this.handleMouseEnter(0, 1, 'selector-top-middle');}}></div>
+                <div id="selector-middle-left" className="selector left middel-vertical" style={inline2} onMouseEnter={(e) => {this.handleMouseEnter(1, 0, 'selector-middle-left');}}></div>
+                <div id="selector-middle-right" className="selector right middel-vertical" style={inline3} onMouseEnter={(e) => {this.handleMouseEnter(2, 0, 'selector-middle-right');}}></div> 
+                <div id="selector-bottom-left" className="selector left" style={inline4} onMouseEnter={(e) => {this.handleMouseEnter(1, 2, 'selector-bottom-left');}}></div>
+                <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={(e) => {this.handleMouseEnter(2, 2, 'selector-bottom-right');}}></div>
+                <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={(e) => {this.handleMouseEnter(0, 2, 'selector-bottom-middle');}}></div>
             </div>
         );
     }

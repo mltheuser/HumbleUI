@@ -119,14 +119,22 @@ a {
   background: #fff;
 }
 
-.selector.top-left {
+.selector.left {
   top: -5px;
   left: -5px;
   cursor: nwse-resize;
 }
-.selector.top-right {
+.selector.right, .selector.middel {
   float: right;
   top: -14px;
   margin-right: -5px;
   cursor: nesw-resize;
+}
+
+.selector.middel-horizontal {
+  cursor: ns-resize;
+}
+
+.selector.middel-vertical {
+  cursor: ew-resize;
 }

@@ -12,7 +12,7 @@ class SketchBoard extends Component {
 
     render() {
         return (  
-            <main onMouseDown={this.props.tool.handleMouseDown.bind(this)} onMouseMove={this.props.tool.handleMouseMove.bind(this)} onMouseUp={this.props.tool.handleMouseUp.bind(this)}>
+            <main onMouseDown={this.props.app.state.tool.handleMouseDown.bind(this)} onMouseMove={this.props.app.state.tool.handleMouseMove.bind(this)} onMouseUp={this.props.app.state.tool.handleMouseUp.bind(this)}>
                 {this.state.sketches.render()}
             </main>
         );

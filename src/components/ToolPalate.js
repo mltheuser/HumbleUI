@@ -12,10 +12,10 @@ class ToolPalate extends Component {
         return (  
             <div className="tool-palate">
                 <nav className="mdl-navigation">
-                    <a className="nav-item" onClick={() => {this.props.updateTool(toolCollection.Default)}}>
+                    <a className="nav-item" onClick={() => {this.props.app.updateTool(toolCollection.Default)}}>
                         <img className="test5" style={inline1} src={cursor} alt="Icon"/>
                     </a>
-                    <a className="nav-item" onClick={() => {this.props.updateTool(toolCollection.DrawSketch)}}>
+                    <a className="nav-item" onClick={() => {this.props.app.updateTool(toolCollection.DrawSketch)}}>
                         <img className="test5" src={add} alt="Icon"/>
                     </a>
                     <a className="nav-item" href="">

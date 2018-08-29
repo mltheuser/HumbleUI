@@ -20,6 +20,7 @@ class App extends Component {
     }
 
     render() {
+        this.updateTool = this.updateTool.bind(this);
         const inline1 = {
             cursor: this.state.tool.cursor
         }
@@ -28,8 +29,8 @@ class App extends Component {
                 <div className="layout">
                     <div className="layout-top-bar"></div>
                     <div className="layout-content">
-                        <ToolPalate updateTool={this.updateTool.bind(this)}/>
-                        <SketchBoard tool={this.state.tool}/>
+                        <ToolPalate app={this}/>
+                        <SketchBoard app={this}/>
                         <Info/>
                     </div>
                 </div>

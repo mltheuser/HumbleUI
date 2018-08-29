@@ -2,15 +2,16 @@ import React, { Component } from 'react';
 import Selctor from '../components/Selector'
 
 class Sketch extends Component {
-    constructor(top, left, width=0, height=0) {
+    constructor(app) {
         super();
+        this.app = app;
         this.state = {
-            top,
-            left,
-            initTop: top,
-            initLeft: left,
-            width,
-            height,
+            top: app.state.tool.mouseState.startY,
+            left: app.state.tool.mouseState.startX,
+            initTop: app.state.tool.mouseState.startY,
+            initLeft: app.state.tool.mouseState.startX,
+            width: 0,
+            height: 0,
             refined: false,
             selected: false
         }
@@ -31,7 +32,7 @@ class Sketch extends Component {
         }
         return (  
             <div className="sketch" style={inline}>
-                {this.state.selected === true ? <Selctor width={this.state.width} height={this.state.height}/> : null}
+                {this.state.selected === true ? <Selctor app={this.app} setParentState={this.setState.bind(this)} width={this.state.width} height={this.state.height}/> : null}
             </div>  
         );
     }
