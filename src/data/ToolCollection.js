@@ -2,21 +2,108 @@ import Tool from '../components/Tool';
 import Sketch from '../components/Sketch'
 
 const toolCollection = {
-    Default: new Tool(),
+    Default: new Tool(
+        {
+            cursor: 'default',
+            handleMouseDown: function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (e.target.tagName === 'MAIN') {
+                    // update initTop and initLeft for all Sketches
+                    for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
+                        this.state.sketches.data[i].updateInits(0);
+
+                    this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
+                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - 4;
+
+                    this.props.app.state.tool.mouseState.down = true;
+                    this.props.app.state.tool.cursor = 'grabbing';
+
+                    this.props.app.updateTool(this.props.app.state.tool);
+                }
+            },
+            handleMouseMove: function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // if we're not dragging, just return
+                if (this.props.app.state.tool.mouseState.down === false)
+                    return;
+
+                // get the current mouse position
+                this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10);
+                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
+
+                // calculate changes and update state
+                this.setState((prevState) => {
+                    for(let i=0, len=prevState.sketches.data.length; i<len; ++i) {
+                        prevState.sketches.data[i].state.top = prevState.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                        prevState.sketches.data[i].state.left = prevState.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                    }
+                    return {
+                        sketches: prevState.sketches
+                    }
+                });
+            },
+            handleMouseUp: function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+    
+                // the drag is over, clear the dragging flag
+                this.props.app.state.tool.mouseState.down = false;
+                this.props.app.state.tool.cursor = 'default';
+
+                this.props.app.updateTool(this.props.app.state.tool);
+            },
+        }
+    ),
     DrawSketch: new Tool(
         {
             cursor: 'crosshair',
             handleMouseDown: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-            
-                // save the starting x/y of the rectangle
-                this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
-                this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - 4;
+
+                let tmp = null;
+                if (e.target.tagName === 'MAIN') {
+                    // calculate the sketches offset
+                    toolCollection.DrawSketch.offsetLeft = this.getSketchOffset('', 'left');
+                    toolCollection.DrawSketch.offsetTop = this.getSketchOffset('', 'top');
+
+                    // save the starting x/y of the rectangle
+                    this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10) - this.props.app.state.tool.offsetLeft;
+                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.props.app.state.tool.offsetTop;
+
+                    // add the Sketch to the sketchBoard
+                    tmp = new Sketch(String(this.state.sketches.data.length), this.props.app, this);
+                    this.state.sketches.push(tmp);
+                } else {
+                    // add the Sketch to the sketch
+                    console.log('not yet implemented');
+
+                    // first of, find the Sketch that gets a new Component
+                    const parentId = e.target.getAttribute("uid");
+                    const parent = this.findSketchByUid(this, parentId);
+
+                    // calculate the sketches offset
+                    toolCollection.DrawSketch.offsetLeft = this.getSketchOffset(parentId, 'left');
+                    toolCollection.DrawSketch.offsetTop = this.getSketchOffset(parentId, 'top');
+
+                    // save the starting x/y of the rectangle
+                    this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10) - this.props.app.state.tool.offsetLeft;
+                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.props.app.state.tool.offsetTop;
+
+                    // create the new Sketch with an uid of parentId followed by its future position in the parents sketch array
+                    tmp = new Sketch(String(parentId)+parent.state.sketches.data.length, this.props.app, this);
+                    
+                    //add the new sketch to its parents sketchRepo
+                    parent.state.sketches.push(tmp);
+                }
             
                 this.setState((prevState) => {
-                    const tmp = new Sketch(this.props.app);
-                    prevState.sketches.push(tmp);
+                    if(prevState.selected && prevState.selected.state)
+                        prevState.selected.state.selected = false;
                     return {
                         selected: tmp,
                         sketches: prevState.sketches
@@ -34,8 +121,8 @@ const toolCollection = {
                     return;
 
                 // get the current mouse position
-                this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10);
-                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
+                this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10) - this.props.app.state.tool.offsetLeft;
+                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - this.props.app.state.tool.offsetTop;
 
                 // calculate changes and update state
                 this.setState((prevState) => {
