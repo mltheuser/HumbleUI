@@ -32,4 +32,6 @@ class Sketch extends Element {
     }
 }
 
+// test comment
+
 export default Sketch;
