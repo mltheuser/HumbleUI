@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import HumbleArray from '../datatypes/HumbleArray'
 
-class SketchBoard extends Component {
+class SketchBoard extends Component { // Consider Sketchboard as an Element
     constructor() {
         super();
         this.state = {
             selected: null,
+
             sketches: new HumbleArray(),
+            distances: new HumbleArray(),
 
             top: 4,
             left: 0,
 
-            zoom: 0
+            zoom: 1,
         }
     }
 
@@ -51,14 +53,58 @@ class SketchBoard extends Component {
     }
 
     handleScroll(e) {
-        console.log(e.deltaY);
-        console.log(this);
-        const update = e.deltaY/4;
+        const zoomUpdate = e.deltaY/Math.abs(e.deltaY)*0.2;
+        // update all sketches according to new zoom
+
+        for(let i=0, len=this.state.sketches.data.length; i<len; ++i) {
+            const sketch = this.state.sketches.data[i];
+            sketch.updateInits();
+        }
+
+        for(let i=0, len=this.state.sketches.data.length; i<len; ++i) {
+            const sketch = this.state.sketches.data[i];
+
+            const verticalUpdate = sketch.state.initWidth * zoomUpdate;
+            const horizontalUpdate = sketch.state.initHeight * zoomUpdate;
+
+            // zoom the object
+            sketch.state.top -= horizontalUpdate/2;
+            sketch.state.left -= verticalUpdate/2;
+            sketch.state.height += horizontalUpdate;
+            sketch.state.width += verticalUpdate;
+
+            for(let z=0; z<len; ++z) {
+                if(i === z)
+                    continue;
+                const sibling = this.state.sketches.data[z];
+
+                 // calculate the vertical distance between this sketch and its sibling
+                const dist1 = sibling.state.initLeft - (sketch.state.initLeft + sketch.state.initWidth), dist2 = (sibling.state.initLeft + sibling.state.initWidth) - sketch.state.initLeft;
+                const distance = Math.abs(dist1) < Math.abs(dist2) ? dist1 : dist2;
+
+                const distanceUpdate = (Math.abs(distance) * zoomUpdate + verticalUpdate/2 + (sibling.state.initWidth * zoomUpdate)/2)/2;
+
+                if(distance >= 0) {
+                    // push the sketch left by (|distanceUpdate| + thisVerticalUpdate/2 + eVerticalUpdate/2)/2
+                    sketch.state.left -= distanceUpdate;
+                } else {
+                    console.log('mach mich dicker');
+                    // push the sketch right
+                    sketch.state.left += distanceUpdate;
+                    sketch.state.width += distanceUpdate;
+                }
+            }
+        }
+
         this.setState((prevState) => {
             return {
-                zoom: prevState.zoom + update
+                zoom: prevState.zoom + zoomUpdate
             }
-        })
+        });
+    }
+
+    zoomUpdate() {
+        return this.state.zoom * 500 - 500;
     }
 
     render() {

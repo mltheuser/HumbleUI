@@ -10,11 +10,13 @@ class Element extends Component {
         this.updateSelection = sketchBoard.updateSelection.bind(sketchBoard);
         this.state = {
             top: app.state.tool.mouseState.startY,
-            left: app.state.tool.mouseState.startX,
             initTop: app.state.tool.mouseState.startY,
+            left: app.state.tool.mouseState.startX,
             initLeft: app.state.tool.mouseState.startX,
             width: 0,
+            initWidth: 0,
             height: 0,
+            initHeight: 0,
             refined: false,
             selected: false
         }
@@ -27,10 +29,10 @@ class Element extends Component {
      * 
      * @param {Integer} mode Defines what should be updated.
      */
-    updateInits(mode=1) {
+    updateInits(mode=2) {
         if (mode > 0) {
             // eslint-disable-next-line
-            this.state.initHeight = this.state.Height
+            this.state.initHeight = this.state.height
             // eslint-disable-next-line
             this.state.initWidth = this.state.width;
         }
