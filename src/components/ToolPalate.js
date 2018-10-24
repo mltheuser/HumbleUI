@@ -10,7 +10,7 @@ class ToolPalate extends Component {
             paddingLeft: '4px'
         };
         return (  
-            <div className="tool-palate">
+            <div id="tool-palate">
                 <nav className="mdl-navigation">
                     <a className="nav-item" onClick={() => {this.props.app.updateTool(toolCollection.Default)}}>
                         <img className="test5" style={inline1} src={cursor} alt="Icon"/>

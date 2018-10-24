@@ -15,7 +15,7 @@ const toolCollection = {
                         this.state.sketches.data[i].updateInits(0);
 
                     this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
-                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - 4;
+                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
 
                     this.props.app.state.tool.mouseState.down = true;
                     this.props.app.state.tool.cursor = 'grabbing';
@@ -33,7 +33,7 @@ const toolCollection = {
 
                 // get the current mouse position
                 this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10);
-                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
+                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
 
                 // calculate changes and update state
                 this.setState((prevState) => {
@@ -161,9 +161,13 @@ const toolCollection = {
         
             // save the starting x/y of the rectangle
             this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
-            this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - 4;
+            this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+
+            this.state.selected.state.initTop = this.state.selected.state.top;
+            this.state.selected.state.initLeft = this.state.selected.state.left;
             
-            this.state.selected.updateInits();
+            toolCollection.Resize.initWidth = this.state.selected.state.width;
+            toolCollection.Resize.initHeight = this.state.selected.state.height;
         
             this.props.app.state.tool.mouseState.down = true;
         },
@@ -186,14 +190,14 @@ const toolCollection = {
                 switch(this.props.app.state.tool.horizontal) {
                     case 1:
                         prevState.selected.state.left = prevState.selected.state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                        prevState.selected.state.width = prevState.selected.state.initWidth - (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                        if((this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) > prevState.selected.state.initWidth) {
-                            prevState.selected.state.left = prevState.selected.state.initLeft + prevState.selected.state.initWidth;
-                            prevState.selected.state.width = (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) - prevState.selected.state.initWidth;
+                        prevState.selected.state.width = this.props.app.state.tool.initWidth - (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                        if((this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) > this.props.app.state.tool.initWidth) {
+                            prevState.selected.state.left = prevState.selected.state.initLeft + this.props.app.state.tool.initWidth;
+                            prevState.selected.state.width = (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) - this.props.app.state.tool.initWidth;
                         }
                     break;
                     case 2:
-                        prevState.selected.state.width = prevState.selected.state.initWidth + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                        prevState.selected.state.width = this.props.app.state.tool.initWidth + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
                         if(prevState.selected.state.width < 0)
                             prevState.selected.state.left = prevState.selected.state.initLeft + prevState.selected.state.width;
                         prevState.selected.state.width = Math.abs(prevState.selected.state.width);
@@ -207,15 +211,15 @@ const toolCollection = {
                 switch(this.props.app.state.tool.vertical) {
                     case 1:
                         prevState.selected.state.top = prevState.selected.state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                        prevState.selected.state.height = prevState.selected.state.initHeight - (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                        prevState.selected.state.height = this.props.app.state.tool.initHeight - (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
                         
-                        if((this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) > prevState.selected.state.initHeight) {
-                            prevState.selected.state.top = prevState.selected.state.initTop + prevState.selected.state.initHeight;
-                            prevState.selected.state.height = (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) - prevState.selected.state.initHeight;
+                        if((this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) > this.props.app.state.tool.initHeight) {
+                            prevState.selected.state.top = prevState.selected.state.initTop + this.props.app.state.tool.initHeight;
+                            prevState.selected.state.height = (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) - this.props.app.state.tool.initHeight;
                         }
                     break;
                     case 2:
-                        prevState.selected.state.height = prevState.selected.state.initHeight + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                        prevState.selected.state.height = this.props.app.state.tool.initHeight + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
                         if(prevState.selected.state.height < 0)
                             prevState.selected.state.top = prevState.selected.state.initTop + prevState.selected.state.height;
         
@@ -225,11 +229,6 @@ const toolCollection = {
 
                     break;
                 }
-
-                this.props.app.state.tool.mouseState.startX = this.props.app.state.tool.mouseState.currentX;
-                this.props.app.state.tool.mouseState.startY = this.props.app.state.tool.mouseState.currentY;
-
-                prevState.selected.updateChildren();
 
                 return {
                     selected: prevState.selected

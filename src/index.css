@@ -68,7 +68,7 @@ a {
   height: 4px;
 }
 
-.info {
+#info {
   position: absolute;
   z-index: 2;
   right: 0px;
@@ -84,7 +84,7 @@ a {
   border-bottom-left-radius: 3px;
 }
 
-.tool-palate {
+#tool-palate {
   position: absolute;
   z-index: 2;
   width: 60px;

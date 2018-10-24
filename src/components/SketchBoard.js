@@ -44,6 +44,11 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
         return uid.length === 0 ? sum + searchSpace.state[offset] : this.getSketchOffset(uid.substring(1), offset, searchSpace.state.sketches.data[uid.charAt(0)], sum + searchSpace.state[offset]);
     }
 
+    getCenter() {
+        const main = document.getElementById('main'), toolpalate = document.getElementById('tool-palate'), info = document.getElementById('info');
+        return {x: toolpalate.offsetWidth + (main.offsetWidth - info.offsetWidth - toolpalate.offsetWidth)/2, y: main.offsetHeight/2};
+    }
+
     componentDidMount() {
         window.addEventListener('wheel', this.handleScroll.bind(this), true);
     }
@@ -52,64 +57,33 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
         window.removeEventListener('wheel', this.handleScroll.bind(this), true);
     }
 
-    handleScroll(e) {
-        const zoomUpdate = e.deltaY/Math.abs(e.deltaY)*0.2;
-        // update all sketches according to new zoom
-
-        for(let i=0, len=this.state.sketches.data.length; i<len; ++i) {
-            const sketch = this.state.sketches.data[i];
-            sketch.updateInits();
+    zoomDomainElements(domain, newZoom, repositionVector=null) {
+        for(let i=0, len=domain.state.sketches.data.length; i<len; ++i) {
+            domain.state.sketches.data[i].state.top = (domain.state.sketches.data[i].state.top/this.state.zoom) * newZoom + (repositionVector === null ? 0 : repositionVector.y);
+            domain.state.sketches.data[i].state.left = (domain.state.sketches.data[i].state.left/this.state.zoom) * newZoom + (repositionVector === null ? 0 : repositionVector.x);
+            domain.state.sketches.data[i].state.height = (domain.state.sketches.data[i].state.height/this.state.zoom) * newZoom;
+            domain.state.sketches.data[i].state.width = (domain.state.sketches.data[i].state.width/this.state.zoom) * newZoom;
+            this.zoomDomainElements(domain.state.sketches.data[i], newZoom);
         }
+    }
 
-        for(let i=0, len=this.state.sketches.data.length; i<len; ++i) {
-            const sketch = this.state.sketches.data[i];
+    handleScroll(e) {  
+        // calculate distance between center and newCursor
+        const center = this.getCenter(), newZoom = this.state.zoom + e.deltaY/400, newCursor = {x: e.clientX / this.state.zoom * newZoom, y: (e.clientY - this.state.top) / this.state.zoom * newZoom};
+        const dist = {x: center.x - newCursor.x, y: center.y - newCursor.y};
 
-            const verticalUpdate = sketch.state.initWidth * zoomUpdate;
-            const horizontalUpdate = sketch.state.initHeight * zoomUpdate;
-
-            // zoom the object
-            sketch.state.top -= horizontalUpdate/2;
-            sketch.state.left -= verticalUpdate/2;
-            sketch.state.height += horizontalUpdate;
-            sketch.state.width += verticalUpdate;
-
-            for(let z=0; z<len; ++z) {
-                if(i === z)
-                    continue;
-                const sibling = this.state.sketches.data[z];
-
-                 // calculate the vertical distance between this sketch and its sibling
-                const dist1 = sibling.state.initLeft - (sketch.state.initLeft + sketch.state.initWidth), dist2 = (sibling.state.initLeft + sibling.state.initWidth) - sketch.state.initLeft;
-                const distance = Math.abs(dist1) < Math.abs(dist2) ? dist1 : dist2;
-
-                const distanceUpdate = (Math.abs(distance) * zoomUpdate + verticalUpdate/2 + (sibling.state.initWidth * zoomUpdate)/2)/2;
-
-                if(distance >= 0) {
-                    // push the sketch left by (|distanceUpdate| + thisVerticalUpdate/2 + eVerticalUpdate/2)/2
-                    sketch.state.left -= distanceUpdate;
-                } else {
-                    console.log('mach mich dicker');
-                    // push the sketch right
-                    sketch.state.left += distanceUpdate;
-                    sketch.state.width += distanceUpdate;
-                }
-            }
-        }
-
+        // zoom in on all Sketches and make the cursorLocation the new center. Update the zoom afterwards.
         this.setState((prevState) => {
+            this.zoomDomainElements(this, newZoom, dist);
             return {
-                zoom: prevState.zoom + zoomUpdate
+                zoom: newZoom
             }
         });
     }
 
-    zoomUpdate() {
-        return this.state.zoom * 500 - 500;
-    }
-
     render() {
         return (  
-            <main onMouseDown={this.props.app.state.tool.handleMouseDown.bind(this)} onMouseMove={this.props.app.state.tool.handleMouseMove.bind(this)} onMouseUp={this.props.app.state.tool.handleMouseUp.bind(this)}>
+            <main id="main" onMouseDown={this.props.app.state.tool.handleMouseDown.bind(this)} onMouseMove={this.props.app.state.tool.handleMouseMove.bind(this)} onMouseUp={this.props.app.state.tool.handleMouseUp.bind(this)}>
                 {this.state.sketches.render()}
             </main>
         );
