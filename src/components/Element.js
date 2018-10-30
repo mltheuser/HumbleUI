@@ -26,6 +26,7 @@ class Element extends Component {
      * 0: updates top and left,
      * 1: updates width and height,
      * 2: updates both pairs
+     * 3: update both pairs and all children
      * 
      * @param {Integer} mode Defines what should be updated.
      */
@@ -41,6 +42,18 @@ class Element extends Component {
             this.state.initTop = this.state.top;
             // eslint-disable-next-line
             this.state.initLeft = this.state.left;
+        }
+        if(mode > 2)
+            for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
+                this.state.sketches.data[i].updateInits(3);
+    }
+
+    resizeChildren() {
+        for(let i=0, len=this.state.sketches.data.length, child=null; i<len; ++i) {
+            child = this.state.sketches.data[i];
+            child.state.left = (child.state.initLeft / this.state.initWidth) * this.state.width;
+            child.state.width = (child.state.initWidth / this.state.initWidth) * this.state.width;
+            child.resizeChildren();
         }
     }
 

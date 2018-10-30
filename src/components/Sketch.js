@@ -27,7 +27,9 @@ class Sketch extends Element {
         return (  
             <div className="sketch" style={inline} uid={this.uid} onClick={this.onClick.bind(this)}>
                 {this.state.selected === true ? <Selctor app={this.app} setParentState={this.setState.bind(this)} width={inline.width} height={inline.height}/> : null}
-                {this.state.sketches.render()}
+                <div className="sketchContainer" uid={this.uid}>
+                    {this.state.sketches.render()}
+                </div>
             </div>  
         );
     }
