@@ -55,7 +55,7 @@ const toolCollection = {
 
                 // calculate changes and update state
                 this.setState((prevState) => {
-                    if(this.props.app.state.tool.target === undefined) {
+                    if(this.props.app.state.tool.target === undefined || this.props.app.state.tool.target === null) {
                         for(let i=0, len=prevState.sketches.data.length; i<len; ++i) {
                             prevState.sketches.data[i].state.top = prevState.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
                             prevState.sketches.data[i].state.left = prevState.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);

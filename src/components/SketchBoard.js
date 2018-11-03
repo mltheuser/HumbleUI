@@ -53,11 +53,11 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
     }
 
     componentDidMount() {
-        window.addEventListener('wheel', this.handleScroll.bind(this), true);
+        window.addEventListener('wheel', this.handleScroll.bind(this), {passive: true});
     }
 
     componentWillUnmount() {
-        window.removeEventListener('wheel', this.handleScroll.bind(this), true);
+        window.removeEventListener('wheel', this.handleScroll.bind(this), {passive: true});
     }
 
     zoomDomainElements(domain, newZoom, repositionVector=null) {
