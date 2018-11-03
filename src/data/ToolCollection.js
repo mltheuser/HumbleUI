@@ -9,23 +9,41 @@ const toolCollection = {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (e.target.tagName === 'MAIN') {
-                    // update initTop and initLeft for all Sketches
-                    for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
-                        this.state.sketches.data[i].updateInits(0);
+                this.props.app.state.tool.dragged = 0;
 
-                    this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
-                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+                switch(e.target.tagName) {
+                    case 'MAIN':
+                        // update initTop and initLeft for all Sketches
+                        for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
+                            this.state.sketches.data[i].updateInits(0);
 
-                    this.props.app.state.tool.mouseState.down = true;
-                    this.props.app.state.tool.cursor = 'grabbing';
+                        this.props.app.state.tool.target = null;
+                    break;
+                    case 'DIV':
+                        const target = this.findSketchByUid(this, e.target.getAttribute("uid"));
+                        this.props.app.state.tool.target = target;
 
-                    this.props.app.updateTool(this.props.app.state.tool);
+                        if(this.state.selected === null) return;
+
+                        this.state.selected.updateInits(0);
+
+                        if(target.isFamilyMemberOf(this.state.selected) === false) return;
+                    break;
+                    default:return;
                 }
+
+                this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
+                this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+
+                this.props.app.state.tool.mouseState.down = true;
+                this.props.app.state.tool.cursor = 'grabbing';
             },
             handleMouseMove: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                if (this.props.app.state.tool.dragged === 0)
+                    this.props.app.state.tool.dragged = 1;
 
                 // if we're not dragging, just return
                 if (this.props.app.state.tool.mouseState.down === false)
@@ -37,9 +55,14 @@ const toolCollection = {
 
                 // calculate changes and update state
                 this.setState((prevState) => {
-                    for(let i=0, len=prevState.sketches.data.length; i<len; ++i) {
-                        prevState.sketches.data[i].state.top = prevState.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                        prevState.sketches.data[i].state.left = prevState.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                    if(this.props.app.state.tool.target === undefined) {
+                        for(let i=0, len=prevState.sketches.data.length; i<len; ++i) {
+                            prevState.sketches.data[i].state.top = prevState.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                            prevState.sketches.data[i].state.left = prevState.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                        }
+                    } else {
+                        this.state.selected.state.top = this.state.selected.state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                        this.state.selected.state.left = this.state.selected.state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
                     }
                     return {
                         sketches: prevState.sketches
@@ -49,12 +72,14 @@ const toolCollection = {
             handleMouseUp: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                if(this.props.app.state.tool.dragged === 0 && this.props.app.state.tool.target !== undefined)
+                    this.updateSelection(this.props.app.state.tool.target);
     
                 // the drag is over, clear the dragging flag
                 this.props.app.state.tool.mouseState.down = false;
                 this.props.app.state.tool.cursor = 'default';
-
-                this.props.app.updateTool(this.props.app.state.tool);
+                this.props.app.state.tool.target = undefined;
             },
         }
     ),
@@ -79,9 +104,6 @@ const toolCollection = {
                     tmp = new Sketch(String(this.state.sketches.data.length), this.props.app, this);
                     this.state.sketches.push(tmp);
                 } else {
-                    // add the Sketch to the sketch
-                    console.log('not yet implemented');
-
                     // first of, find the Sketch that gets a new Component
                     const parentId = e.target.getAttribute("uid");
                     const parent = this.findSketchByUid(this, parentId);
@@ -226,7 +248,7 @@ const toolCollection = {
                     break;
                 }
 
-                this.state.selected.resizeChildren();
+                this.state.selected.resizeChildren(this.state.selected.uid.length === 1);
 
                 return {
                     selected: prevState.selected

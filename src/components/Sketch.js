@@ -10,6 +10,19 @@ class Sketch extends Element {
         this.state.sketches = sketches;
     }
 
+    resizeChildren(parentIsOnSketchboard=false) {
+        for(let i=0, len=this.state.sketches.data.length, child=null; i<len; ++i) {
+            child = this.state.sketches.data[i];
+            child.state.left = (child.state.initLeft / this.state.initWidth) * this.state.width;
+            child.state.width = (child.state.initWidth / this.state.initWidth) * this.state.width;
+            if(parentIsOnSketchboard === false) {
+                child.state.top = (child.state.initTop / this.state.initHeight) * this.state.height;
+                child.state.height = (child.state.initHeight / this.state.initHeight) * this.state.height;
+            }
+            child.resizeChildren();
+        }
+    }
+
     render() {
         let inline = {
             top: this.state.top,

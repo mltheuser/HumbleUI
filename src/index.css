@@ -70,6 +70,12 @@ a {
 
 #info {
   position: absolute;
+  right: 0px;
+  height: 100%;
+}
+
+.infoItem {
+  position: relative;
   z-index: 2;
   right: 0px;
   width: 300px;
@@ -79,9 +85,21 @@ a {
   box-sizing: border-box;
   border-left: 1px solid #e0e0e0;
   background: #fafafa;
-  height: 100%;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
+  margin-bottom: 1%;
+}
+
+#positioningPresets {
+  height: 7%;
+}
+
+#positioning {
+  height: 15%;
+}
+
+#appearance {
+  height: 76.7%;
 }
 
 #tool-palate {

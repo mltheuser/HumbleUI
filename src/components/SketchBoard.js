@@ -18,18 +18,21 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
     }
 
     updateSelection(element) {
-        // find the uid of the next selection in the sketchtree
-        let i=0;
-        const targetUid = element.getAttribute("uid"), len = targetUid.length, len2=this.state.selected.uid.length;
-        for(; i<len; ++i)
-            if(i === len2 || targetUid.charAt(i) !== this.state.selected.uid.charAt(i))
-                break;
+        if(element !== null) {
+            // find the uid of the next selection in the sketchtree
+            let i=0;
+            const targetUid = element.uid, len = targetUid.length, len2=(this.state.selected === null ? 0 : this.state.selected.uid.length);
+            for(; i<len; ++i)
+                if(i === len2 || targetUid.charAt(i) !== this.state.selected.uid.charAt(i))
+                    break;
 
-        element = this.findSketchByUid(this, targetUid.substring(0, i+1));
+            element = this.findSketchByUid(this, targetUid.substring(0, i+1));
+            element.state.selected = true;
+        }
 
         this.setState((prevState) => {
-            prevState.selected.state.selected = false;
-            element.state.selected = true;
+            if(prevState.selected !== null)
+                prevState.selected.state.selected = false;
             return {
                 selected: element
             }

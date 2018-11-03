@@ -48,20 +48,23 @@ class Element extends Component {
                 this.state.sketches.data[i].updateInits(3);
     }
 
-    resizeChildren() {
-        for(let i=0, len=this.state.sketches.data.length, child=null; i<len; ++i) {
-            child = this.state.sketches.data[i];
-            child.state.left = (child.state.initLeft / this.state.initWidth) * this.state.width;
-            child.state.width = (child.state.initWidth / this.state.initWidth) * this.state.width;
-            child.resizeChildren();
-        }
+    /**
+     * Checks if element is a child of this or this itself.
+     * @param {Element} element 
+     */
+    isFamilyMemberOf(element) {
+        if(element instanceof Element === false)
+            throw new Error('Expected element to be instance of Element.');
+        for(let i=0, len=element.uid.length, len2=this.uid.length; i<len; ++i)
+            if(i >= len2 || this.uid[i] !== element.uid[i])
+                return false;
+        return true
     }
 
     onClick(e) {
         e.stopPropagation()
         if (this.app.state.tool !== toolCollection.Default)
             return;
-        this.updateSelection(e.target);
     }
 
     render() {
