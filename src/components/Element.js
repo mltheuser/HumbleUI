@@ -7,7 +7,6 @@ class Element extends Component {
         super();
         this.app = app;
         this.sketchBoard = sketchBoard;
-        this.updateSelection = sketchBoard.updateSelection.bind(sketchBoard);
         this.state = {
             top: app.state.tool.mouseState.startY,
             initTop: app.state.tool.mouseState.startY,
@@ -46,6 +45,18 @@ class Element extends Component {
         if(mode > 2)
             for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                 this.state.sketches.data[i].updateInits(3);
+    }
+
+    canItersectByHeightWith(element) {
+        if(element instanceof Element === false)
+            throw new Error('Expected element to be instance of Element.');
+        return ((this.state.top >= element.state.top && this.state.top <= element.state.top + element.state.height) || (this.state.top + this.state.height  >= element.state.top && this.state.top + this.state.height  <= element.state.top + element.state.height)) || ((element.state.top >= this.state.top && element.state.top <= this.state.top + this.state.height) || (element.state.top + element.state.height  >= this.state.top && element.state.top + element.state.height  <= this.state.top + this.state.height));
+    }
+
+    canItersectByWidthWith(element) {
+        if(element instanceof Element === false)
+            throw new Error('Expected element to be instance of Element.');
+        return ((this.state.left >= element.state.left && this.state.left <= element.state.left + element.state.width) || (this.state.left + this.state.width  >= element.state.left && this.state.left + this.state.width  <= element.state.left + element.state.width)) || ((element.state.left >= this.state.left && element.state.left <= this.state.left + this.state.width) || (element.state.left + element.state.width  >= this.state.left && element.state.left + element.state.width  <= this.state.left + this.state.width));
     }
 
     /**

@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+
 body {
   margin: 0;
   padding: 0;
-  background: #eee;
+  background: #e8e8e8;
   font-family: "Helvetica","Arial",sans-serif;
   font-size: 14px;
   font-weight: 400;
@@ -72,6 +74,7 @@ a {
   position: absolute;
   right: 0px;
   height: 100%;
+  background: #e8e8e8;
 }
 
 .infoItem {
@@ -79,8 +82,6 @@ a {
   z-index: 2;
   right: 0px;
   width: 300px;
-  -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
-  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   border-left: 1px solid #e0e0e0;
@@ -88,6 +89,7 @@ a {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
   margin-bottom: 1%;
+  margin-left: 1px;
 }
 
 #positioningPresets {
@@ -99,15 +101,13 @@ a {
 }
 
 #appearance {
-  height: 76.7%;
+  height: 76.8%;
 }
 
 #tool-palate {
   position: absolute;
   z-index: 2;
   width: 60px;
-  -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
-  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   border-right: 1px solid #e0e0e0;
@@ -123,6 +123,101 @@ a {
     padding: 16px 14px;
     line-height: 24px;
     opacity: .87;
+}
+
+.infoItem > .header {
+  font-family: 'Roboto','Helvetica','Arial',sans-serif!important;
+  height: 9%;
+}
+
+.infoItem > .header > h3 {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.54);
+  position: relative;
+  top: 27%;
+  left: 3%;
+}
+
+.infoItem > .colorPicker {
+  height: 387px;
+  background: #fff;
+}
+
+.colorPicker > .chrome-picker {
+  background: #fff;
+  border-radius: 2px;
+  box-sizing: 'initial';
+  width: 90.5%;
+  position: relative;
+  top: -40px;
+  margin: 0 auto;
+}
+
+.borderControll > .borderColor {
+  width: 21px;
+  height: 21px;
+  background: rgba(0, 0, 0, 0.54);
+  border-radius: 4px;
+  float: right;
+  margin-top: 13px;
+  margin-right: 220px;
+}
+
+.borderControll > p {
+  color: rgba(0, 0, 0, 0.54);
+  float: right;
+  margin-right: 150px;
+  margin-top: -31px;
+  font-weight: bold;
+}
+
+.borderControll > .picker {
+  float: right;
+  margin-top: -36px;
+  font-weight: bold;
+  position: absolute;
+  right: 12px;
+}
+
+.borderControll > .borderWidth {
+  margin-left: 14px;
+  width: 65px;
+  margin-top: -20px;
+}
+
+.borderControll > .lineStyle > .select > .MuiInput-underline-37:before {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  content: "\00a0";
+  position: absolute;
+  transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-bottom: none;
+  pointer-events: none;
+}
+
+.line {
+  border-width: 2px;
+  border-radius: 2px;
+  width: 60px;
+  border-color: rgba(0, 0, 0, 0.54);
+  position: relative;
+  top: 8.5px;
+}
+
+.line.solid {
+  border-style: solid;
+}
+
+.line.dashed {
+  border-style: dashed;
+}
+
+.lineStyle {
+  position: relative;
+  top: -56px;
+  left: 104.5px;
 }
 
 .test5 {

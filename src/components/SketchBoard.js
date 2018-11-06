@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import HumbleArray from '../datatypes/HumbleArray'
 
 class SketchBoard extends Component { // Consider Sketchboard as an Element
-    constructor() {
+    constructor(props) {
         super();
+        props.app.sketchBoard = this;
         this.state = {
             selected: null,
 
@@ -15,6 +16,11 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
 
             zoom: 1,
         }
+    }
+
+    updateInits(mode=2) {
+        for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
+            this.state.sketches.data[i].updateInits(mode);
     }
 
     updateSelection(element) {
@@ -36,7 +42,7 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
             return {
                 selected: element
             }
-        })
+        });
     }
 
     findSketchByUid(searchSpace, uid) {
