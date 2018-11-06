@@ -75,6 +75,7 @@ a {
   right: 0px;
   height: 100%;
   background: #e8e8e8;
+  cursor: default;
 }
 
 .infoItem {

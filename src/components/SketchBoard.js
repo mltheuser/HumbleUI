@@ -24,6 +24,8 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
     }
 
     updateSelection(element) {
+        if(element === this.state.selected)
+            return;
         if(element !== null) {
             // find the uid of the next selection in the sketchtree
             let i=0;
@@ -43,6 +45,8 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
                 selected: element
             }
         });
+
+        this.props.app.setState({});
     }
 
     findSketchByUid(searchSpace, uid) {

@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import ToolPalate from './components/ToolPalate'
-import Info from './components/Info'
 import SketchBoard from './components/SketchBoard';
 import toolCollection from './data/ToolCollection'
 import Tool from './components/Tool';
+import Info from './components/Info';
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
-            tool: toolCollection.Default
+            tool: toolCollection.Default,
         }
     }
 
@@ -31,7 +31,7 @@ class App extends Component {
                     <div className="layout-content">
                         <ToolPalate app={this}/>
                         <SketchBoard app={this}/>
-                        <Info/>
+                        <Info app={this}/>
                     </div>
                 </div>
             </div>

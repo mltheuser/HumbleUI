@@ -20,6 +20,10 @@ class Element extends Component {
             selected: false
         }
     }
+    update() {
+        console.log(this);
+        this.setState({});
+    }
     /**
      * Updates the states initial values depending on the choosen mode.
      * 0: updates top and left,
