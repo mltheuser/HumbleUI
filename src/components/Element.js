@@ -8,10 +8,10 @@ class Element extends Component {
         this.app = app;
         this.sketchBoard = sketchBoard;
         this.state = {
-            top: app.state.tool.mouseState.startY,
-            initTop: app.state.tool.mouseState.startY,
-            left: app.state.tool.mouseState.startX,
-            initLeft: app.state.tool.mouseState.startX,
+            top: sketchBoard.state.tool.mouseState.startY,
+            initTop: sketchBoard.state.tool.mouseState.startY,
+            left: sketchBoard.state.tool.mouseState.startX,
+            initLeft: sketchBoard.state.tool.mouseState.startX,
             width: 0,
             initWidth: 0,
             height: 0,
@@ -19,10 +19,6 @@ class Element extends Component {
             refined: false,
             selected: false
         }
-    }
-    update() {
-        console.log(this);
-        this.setState({});
     }
     /**
      * Updates the states initial values depending on the choosen mode.
@@ -78,14 +74,14 @@ class Element extends Component {
 
     onClick(e) {
         e.stopPropagation()
-        if (this.app.state.tool !== toolCollection.Default)
+        if (this.sketchBoard.state.tool !== toolCollection.Default)
             return;
     }
 
     render() {
         return (  
             <div>
-                {this.state.selected === true ? <Selctor app={this.app} setParentState={this.setState.bind(this)} width={this.state.width} height={this.state.height}/> : null}
+                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} setParentState={this.setState.bind(this)} width={this.state.width} height={this.state.height}/> : null}
             </div>  
         );
     }

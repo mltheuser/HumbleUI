@@ -42,10 +42,10 @@ class Sketch extends Element {
         if(this.state.selected === true) {
             inline.borderColor = '#427fd3';
         }
-        inline.border =  this.state.selected === false ? (this.state.border.checked === true ? `${this.state.border.style} ${this.state.border.width} ${this.state.border.color}` : 'hidden 1px') : 'solid 1px #427fd3';
+        inline.border =  this.state.selected === false ? (this.state.border.checked === true ? `${this.state.border.style} ${this.state.border.width} ${this.state.border.color}` : `solid 1px ${this.state.color}`) : 'solid 1px #427fd3';
         return (  
             <div className="sketch" style={inline} uid={this.uid} onClick={this.onClick.bind(this)}>
-                {this.state.selected === true ? <Selctor app={this.app} setParentState={this.setState.bind(this)} width={inline.width} height={inline.height}/> : null}
+                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} setParentState={this.setState.bind(this)} width={inline.width} height={inline.height}/> : null}
                 <div className="sketchContainer" uid={this.uid}>
                     {this.state.sketches.render()}
                 </div>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import HumbleArray from '../datatypes/HumbleArray'
+import toolCollection from '../data/ToolCollection';
 
 class SketchBoard extends Component { // Consider Sketchboard as an Element
     constructor(props) {
@@ -14,7 +15,9 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
             top: 4,
             left: 0,
 
-            zoom: 1,
+            tool: toolCollection.Default,
+
+            zoom: 1
         }
     }
 
@@ -95,8 +98,11 @@ class SketchBoard extends Component { // Consider Sketchboard as an Element
     }
 
     render() {
+        const inline = {
+            cursor: this.state.tool.cursor
+        }
         return (  
-            <main id="main" onMouseDown={this.props.app.state.tool.handleMouseDown.bind(this)} onMouseMove={this.props.app.state.tool.handleMouseMove.bind(this)} onMouseUp={this.props.app.state.tool.handleMouseUp.bind(this)}>
+            <main id="main" style={inline} onMouseDown={this.state.tool.handleMouseDown.bind(this)} onMouseMove={this.state.tool.handleMouseMove.bind(this)} onMouseUp={this.state.tool.handleMouseUp.bind(this)}>
                 {this.state.sketches.render()}
             </main>
         );

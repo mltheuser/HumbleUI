@@ -9,18 +9,20 @@ const toolCollection = {
                 e.preventDefault();
                 e.stopPropagation();
 
-                this.props.app.state.tool.dragged = 0;
+                const tool = this.state.tool;
+
+                tool.dragged = 0;
 
                 switch(e.target.tagName) {
                     case 'MAIN':
                         // update initTop and initLeft for all Sketches
                         this.updateInits(0);
 
-                        this.props.app.state.tool.target = null;
+                        tool.target = null;
                     break;
                     case 'DIV':
                         const target = this.findSketchByUid(this, e.target.getAttribute("uid"));
-                        this.props.app.state.tool.target = target;
+                        tool.target = target;
 
                         if(this.state.selected === null) return;
 
@@ -31,54 +33,57 @@ const toolCollection = {
                     default:return;
                 }
 
-                this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
-                this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+                tool.mouseState.startX = parseInt(e.clientX, 10);
+                tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
 
-                this.props.app.state.tool.mouseState.down = true;
-                this.props.app.state.tool.cursor = 'grabbing';
+                tool.mouseState.down = true;
+                tool.cursor = 'grabbing';
             },
             handleMouseMove: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (this.props.app.state.tool.dragged === 0)
-                    this.props.app.state.tool.dragged = 1;
+                const tool = this.state.tool;
+
+                if (tool.dragged === 0)
+                    tool.dragged = 1;
 
                 // if we're not dragging, just return
-                if (this.props.app.state.tool.mouseState.down === false)
+                if (tool.mouseState.down === false)
                     return;
 
                 // get the current mouse position
-                this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10);
-                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
+                tool.mouseState.currentX = parseInt(e.clientX, 10);
+                tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
 
-                // calculate changes and update state
-                this.setState((prevState) => {
-                    if(this.props.app.state.tool.target === undefined || this.props.app.state.tool.target === null) {
-                        for(let i=0, len=prevState.sketches.data.length; i<len; ++i) {
-                            prevState.sketches.data[i].state.top = prevState.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                            prevState.sketches.data[i].state.left = prevState.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                        }
-                    } else {
-                        this.state.selected.state.top = this.state.selected.state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                        this.state.selected.state.left = this.state.selected.state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                const updateY = (tool.mouseState.currentY - tool.mouseState.startY), updateX = (tool.mouseState.currentX - tool.mouseState.startX);
+
+                // calculate change and update state
+                if(tool.target === undefined || tool.target === null) {
+                    for(let i=0, len=this.state.sketches.data.length; i<len; ++i) {
+                        const sketch = this.state.sketches.data[i];
+                        sketch.state.top = sketch.state.initTop + updateY;
+                        sketch.state.left = sketch.state.initLeft + updateX;
                     }
-                    return {
-                        sketches: prevState.sketches
-                    }
-                });
+                } else {
+                    this.state.selected.state.top = this.state.selected.state.initTop + updateY;
+                    this.state.selected.state.left = this.state.selected.state.initLeft + updateX;
+                }
+                this.setState({});
             },
             handleMouseUp: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if(this.props.app.state.tool.dragged === 0 && this.props.app.state.tool.target !== undefined)
-                    this.updateSelection(this.props.app.state.tool.target);
+                const tool = this.state.tool;
+
+                if(tool.dragged === 0 && tool.target !== undefined)
+                    this.updateSelection(tool.target);
     
                 // the drag is over, clear the dragging flag
-                this.props.app.state.tool.mouseState.down = false;
-                this.props.app.state.tool.cursor = 'default';
-                this.props.app.state.tool.target = undefined;
+                tool.mouseState.down = false;
+                tool.cursor = 'default';
+                tool.target = undefined;
             },
         }
     ),
@@ -90,14 +95,15 @@ const toolCollection = {
                 e.stopPropagation();
 
                 let tmp = null;
+                const tool = this.state.tool;
                 if (e.target.tagName === 'MAIN') {
                     // calculate the sketches offset
                     toolCollection.DrawSketch.offsetLeft = this.getSketchOffset('', 'left');
                     toolCollection.DrawSketch.offsetTop = this.getSketchOffset('', 'top');
 
                     // save the starting x/y of the rectangle
-                    this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10) - this.props.app.state.tool.offsetLeft;
-                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.props.app.state.tool.offsetTop;
+                    tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
+                    tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // add the Sketch to the sketchBoard
                     tmp = new Sketch(String(this.state.sketches.data.length), this.props.app, this);
@@ -112,8 +118,8 @@ const toolCollection = {
                     toolCollection.DrawSketch.offsetTop = this.getSketchOffset(parentId, 'top');
 
                     // save the starting x/y of the rectangle
-                    this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10) - this.props.app.state.tool.offsetLeft;
-                    this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.props.app.state.tool.offsetTop;
+                    tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
+                    tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // create the new Sketch with an uid of parentId followed by its future position in the parents sketch array
                     tmp = new Sketch(String(parentId)+parent.state.sketches.data.length, this.props.app, this);
@@ -131,28 +137,30 @@ const toolCollection = {
                     };
                 });
             
-                this.props.app.state.tool.mouseState.down = true;
+                tool.mouseState.down = true;
             },
             handleMouseMove: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
+                const tool = this.state.tool;
+
                 // if we're not dragging, just return
-                if (this.props.app.state.tool.mouseState.down === false)
+                if (tool.mouseState.down === false)
                     return;
 
                 // get the current mouse position
-                this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10) - this.props.app.state.tool.offsetLeft;
-                this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - this.props.app.state.tool.offsetTop;
+                tool.mouseState.currentX = parseInt(e.clientX, 10) - tool.offsetLeft;
+                tool.mouseState.currentY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                 // calculate changes and update state
                 this.setState((prevState) => {
-                    prevState.selected.state.width = Math.abs(this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                    prevState.selected.state.height = Math.abs(this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                    if(this.props.app.state.tool.mouseState.currentY < this.props.app.state.tool.mouseState.startY)
-                        prevState.selected.state.top = prevState.selected.state.initTop + this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY;
-                    if(this.props.app.state.tool.mouseState.currentX < this.props.app.state.tool.mouseState.startX)
-                        prevState.selected.state.left = prevState.selected.state.initLeft + this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX;
+                    prevState.selected.state.width = Math.abs(tool.mouseState.currentX - tool.mouseState.startX);
+                    prevState.selected.state.height = Math.abs(tool.mouseState.currentY - tool.mouseState.startY);
+                    if(tool.mouseState.currentY < tool.mouseState.startY)
+                        prevState.selected.state.top = prevState.selected.state.initTop + tool.mouseState.currentY - tool.mouseState.startY;
+                    if(tool.mouseState.currentX < tool.mouseState.startX)
+                        prevState.selected.state.left = prevState.selected.state.initLeft + tool.mouseState.currentX - tool.mouseState.startX;
                     return {
                         selected: prevState.selected
                     }
@@ -162,8 +170,10 @@ const toolCollection = {
                 e.preventDefault();
                 e.stopPropagation();
 
+                const tool = this.state.tool;
+
                 // the drag is over, clear the dragging flag
-                this.props.app.state.tool.mouseState.down = false;
+                tool.mouseState.down = false;
 
                 this.setState((prevState) => {
                     prevState.selected.state.refined = true;
@@ -179,72 +189,76 @@ const toolCollection = {
         handleMouseDown: function(e) {
             e.preventDefault();
             e.stopPropagation();
+
+            const tool = this.state.tool;
         
             // save the starting x/y of the rectangle
-            this.props.app.state.tool.mouseState.startX = parseInt(e.clientX, 10);
-            this.props.app.state.tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+            tool.mouseState.startX = parseInt(e.clientX, 10);
+            tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
 
             this.state.selected.updateInits(3);
 
             this.updateInits(0);
         
-            this.props.app.state.tool.mouseState.down = true;
+            tool.mouseState.down = true;
         },
         handleMouseMove: function(e) {
             e.preventDefault();
             e.stopPropagation();
 
+            const tool = this.state.tool;
+
             // if we're not dragging, just return
-            if (this.props.app.state.tool.mouseState.down === false)
+            if (tool.mouseState.down === false)
                 return;
 
             // get the current mouse position
-            this.props.app.state.tool.mouseState.currentX = parseInt(e.clientX, 10);
-            this.props.app.state.tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
+            tool.mouseState.currentX = parseInt(e.clientX, 10);
+            tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
 
             // calculate changes and update state
             this.setState((prevState) => {
 
                 // change horizontal
-                switch(this.props.app.state.tool.horizontal) {
+                switch(tool.horizontal) {
                     case 1:
-                        prevState.selected.state.left = prevState.selected.state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                        prevState.selected.state.width = prevState.selected.state.initWidth - (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                        if((this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) > prevState.selected.state.initWidth) {
+                        prevState.selected.state.left = prevState.selected.state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
+                        prevState.selected.state.width = prevState.selected.state.initWidth - (tool.mouseState.currentX - tool.mouseState.startX);
+                        if((tool.mouseState.currentX - tool.mouseState.startX) > prevState.selected.state.initWidth) {
                             prevState.selected.state.left = prevState.selected.state.initLeft + prevState.selected.state.initWidth;
-                            prevState.selected.state.width = (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) - prevState.selected.state.initWidth;
+                            prevState.selected.state.width = (tool.mouseState.currentX - tool.mouseState.startX) - prevState.selected.state.initWidth;
                         }
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
                         if(this.state.selected.uid.length === 1) {
-                            if(this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX <= 0) {
+                            if(tool.mouseState.currentX - tool.mouseState.startX <= 0) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.left > this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
-                            } else if ((this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) > prevState.selected.state.initWidth) {
+                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
+                            } else if ((tool.mouseState.currentX - tool.mouseState.startX) > prevState.selected.state.initWidth) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.left < this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) - prevState.selected.state.initWidth;
+                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX) - prevState.selected.state.initWidth;
                             }
                         }
                     break;
                     case 2:
-                        prevState.selected.state.width = prevState.selected.state.initWidth + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                        prevState.selected.state.width = prevState.selected.state.initWidth + (tool.mouseState.currentX - tool.mouseState.startX);
                         if(prevState.selected.state.width < 0)
                             prevState.selected.state.left = prevState.selected.state.initLeft + prevState.selected.state.width;
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
                         if(this.state.selected.uid.length === 1) {
-                            if(this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX >= 0) {
+                            if(tool.mouseState.currentX - tool.mouseState.startX >= 0) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.left < this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX);
+                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
                             } else if (prevState.selected.state.width < 0) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.left > this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (this.props.app.state.tool.mouseState.currentX - this.props.app.state.tool.mouseState.startX) + prevState.selected.state.initWidth;
+                                        this.state.sketches.data[i].state.left =  this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX) + prevState.selected.state.initWidth;
                             }
                         }
 
@@ -256,46 +270,46 @@ const toolCollection = {
                 }
 
                 // change vertical
-                switch(this.props.app.state.tool.vertical) {
+                switch(tool.vertical) {
                     case 1:
-                        prevState.selected.state.top = prevState.selected.state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                        prevState.selected.state.height = prevState.selected.state.initHeight - (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                        prevState.selected.state.top = prevState.selected.state.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
+                        prevState.selected.state.height = prevState.selected.state.initHeight - (tool.mouseState.currentY - tool.mouseState.startY);
                         
-                        if((this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) > prevState.selected.state.initHeight) {
+                        if((tool.mouseState.currentY - tool.mouseState.startY) > prevState.selected.state.initHeight) {
                             prevState.selected.state.top = prevState.selected.state.initTop + prevState.selected.state.initHeight;
-                            prevState.selected.state.height = (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) - prevState.selected.state.initHeight;
+                            prevState.selected.state.height = (tool.mouseState.currentY - tool.mouseState.startY) - prevState.selected.state.initHeight;
                         }
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
                         if(this.state.selected.uid.length === 1) {
-                            if(this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY <= 0) {
+                            if(tool.mouseState.currentY - tool.mouseState.startY <= 0) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.top > this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
-                            } else if (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY > prevState.selected.state.initHeight) {
+                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
+                            } else if (tool.mouseState.currentY - tool.mouseState.startY > prevState.selected.state.initHeight) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.top < this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) - prevState.selected.state.initHeight;
+                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY) - prevState.selected.state.initHeight;
                             }
                         }
                     break;
                     case 2:
-                        prevState.selected.state.height = prevState.selected.state.initHeight + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                        prevState.selected.state.height = prevState.selected.state.initHeight + (tool.mouseState.currentY - tool.mouseState.startY);
                         if(prevState.selected.state.height < 0)
                             prevState.selected.state.top = prevState.selected.state.initTop + prevState.selected.state.height;
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
                         if(this.state.selected.uid.length === 1) {
-                            if(this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY >= 0) {
+                            if(tool.mouseState.currentY - tool.mouseState.startY >= 0) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.top < this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY);
+                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
                             } else if (prevState.selected.state.height < 0) {
                                 for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
                                     if(prevState.selected.state.top > this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i]))
-                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (this.props.app.state.tool.mouseState.currentY - this.props.app.state.tool.mouseState.startY) + prevState.selected.state.initHeight;
+                                        this.state.sketches.data[i].state.top =  this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY) + prevState.selected.state.initHeight;
                             }
                         }
         
@@ -318,14 +332,16 @@ const toolCollection = {
             e.preventDefault();
             e.stopPropagation();
 
-            // the drag is over, clear the dragging flag
-            this.props.app.state.tool.mouseState.down = false;
+            const tool = this.state.tool;
 
-            if(document.querySelector('#'+this.props.app.state.tool.selectorID+':hover') === null) {
-                if(this.props.app.state.tool.toolRepo === null || this.props.app.state.tool.mouseState.down === true)
+            // the drag is over, clear the dragging flag
+            tool.mouseState.down = false;
+
+            if(document.querySelector('#'+tool.selectorID+':hover') === null) {
+                if(tool.toolRepo === null || tool.mouseState.down === true)
                     return;
-                this.props.app.updateTool(this.props.app.state.tool.toolRepo);
-                this.props.app.state.tool.toolRepo = null;
+                this.setState({tool: tool.toolRepo});
+                tool.toolRepo = null;
             }
         }
     })

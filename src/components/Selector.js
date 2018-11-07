@@ -10,22 +10,23 @@ class Selector extends Component {
         let tmp = document.getElementsByClassName('selector'), len = tmp.length, i = 0;
         for (; i < len; ++i) {
             tmp[i].addEventListener('mouseleave', () => {
-                if(this.props.app.state.tool.toolRepo === null || this.props.app.state.tool.mouseState.down === true)
+                const tool = this.props.sketchBoard.state.tool
+                if(tool.toolRepo === null || tool.mouseState.down === true)
                     return;
-                this.props.app.updateTool(this.props.app.state.tool.toolRepo);
-                this.props.app.state.tool.toolRepo = null;
+                this.props.sketchBoard.setState({tool: tool.toolRepo});
+                tool.toolRepo = null;
             }, false);
         }
     }
 
     handleMouseEnter(horizontalMode, verticalMode, selectorID) {
-        if(this.props.app.state.tool === toolCollection.Resize)
+        if(this.props.sketchBoard.state.tool === toolCollection.Resize)
             return;
-        toolCollection.Resize.toolRepo = this.props.app.state.tool;
+        toolCollection.Resize.toolRepo = this.props.sketchBoard.state.tool;
         toolCollection.Resize.horizontal = horizontalMode; 
         toolCollection.Resize.vertical = verticalMode;
         toolCollection.Resize.selectorID = selectorID;
-        this.props.app.updateTool(toolCollection.Resize);
+        this.props.sketchBoard.setState({tool: toolCollection.Resize});
     }
 
     render() {
