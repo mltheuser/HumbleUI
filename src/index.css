@@ -220,7 +220,12 @@ a {
   left: 104.5px;
 }
 
-.test5 {
+.select-icon {
+  height: 24px;
+  padding-left: 4px;
+}
+
+.sketch-icon {
   height: 30px; 
 }
 

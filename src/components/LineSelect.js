@@ -18,8 +18,8 @@ class LineSelect extends Component {
                 value={this.state.lineType}
                 onChange={this.handleChange.bind(this)}
                 inputProps={{
-                name: 'line',
-                id: 'line-simple',
+                    id: 'line-simple',
+                    name: 'line',
                 }}
             >
                 <MenuItem value={10}><div className="line solid"></div></MenuItem>

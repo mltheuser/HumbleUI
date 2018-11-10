@@ -28,12 +28,11 @@ class Sketch extends Element {
 
     render() {
         let inline = {
-            top: this.state.top,
-            left: this.state.left,
-            width: this.state.width,
+            border: 'none',
             height: this.state.height,
-
-            border: 'none'
+            left: this.state.left,
+            top: this.state.top,
+            width: this.state.width,
         }
 
         if(this.state.refined === true) {

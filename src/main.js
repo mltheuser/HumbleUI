@@ -10,8 +10,8 @@ let win
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
+    height: 600,
     width: 800,
-    height: 600
   })
 
 
@@ -43,3 +43,4 @@ app.on('activate', () => {
     createWindow()
   }
 })
+

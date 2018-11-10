@@ -8,16 +8,16 @@ class Element extends Component {
         this.app = app;
         this.sketchBoard = sketchBoard;
         this.state = {
-            top: sketchBoard.state.tool.mouseState.startY,
-            initTop: sketchBoard.state.tool.mouseState.startY,
-            left: sketchBoard.state.tool.mouseState.startX,
-            initLeft: sketchBoard.state.tool.mouseState.startX,
-            width: 0,
-            initWidth: 0,
             height: 0,
             initHeight: 0,
+            initLeft: sketchBoard.state.tool.mouseState.startX,
+            initTop: sketchBoard.state.tool.mouseState.startY,
+            initWidth: 0,
+            left: sketchBoard.state.tool.mouseState.startX,
             refined: false,
-            selected: false
+            selected: false,
+            top: sketchBoard.state.tool.mouseState.startY,
+            width: 0,
         }
     }
     /**
@@ -29,7 +29,7 @@ class Element extends Component {
      * 
      * @param {Integer} mode Defines what should be updated.
      */
-    updateInits(mode=2) {
+    updateInits(mode = 2) {
         if (mode > 0) {
             // eslint-disable-next-line
             this.state.initHeight = this.state.height
@@ -42,21 +42,25 @@ class Element extends Component {
             // eslint-disable-next-line
             this.state.initLeft = this.state.left;
         }
-        if(mode > 2)
-            for(let i=0, len=this.state.sketches.data.length; i<len; ++i)
+        if (mode > 2) {
+            for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                 this.state.sketches.data[i].updateInits(3);
+            }
+        }
     }
 
     canItersectByHeightWith(element) {
-        if(element instanceof Element === false)
+        if (element instanceof Element === false) {
             throw new Error('Expected element to be instance of Element.');
-        return ((this.state.top >= element.state.top && this.state.top <= element.state.top + element.state.height) || (this.state.top + this.state.height  >= element.state.top && this.state.top + this.state.height  <= element.state.top + element.state.height)) || ((element.state.top >= this.state.top && element.state.top <= this.state.top + this.state.height) || (element.state.top + element.state.height  >= this.state.top && element.state.top + element.state.height  <= this.state.top + this.state.height));
+        }
+        return ((this.state.top >= element.state.top && this.state.top <= element.state.top + element.state.height) || (this.state.top + this.state.height >= element.state.top && this.state.top + this.state.height <= element.state.top + element.state.height)) || ((element.state.top >= this.state.top && element.state.top <= this.state.top + this.state.height) || (element.state.top + element.state.height >= this.state.top && element.state.top + element.state.height <= this.state.top + this.state.height));
     }
 
     canItersectByWidthWith(element) {
-        if(element instanceof Element === false)
+        if (element instanceof Element === false) {
             throw new Error('Expected element to be instance of Element.');
-        return ((this.state.left >= element.state.left && this.state.left <= element.state.left + element.state.width) || (this.state.left + this.state.width  >= element.state.left && this.state.left + this.state.width  <= element.state.left + element.state.width)) || ((element.state.left >= this.state.left && element.state.left <= this.state.left + this.state.width) || (element.state.left + element.state.width  >= this.state.left && element.state.left + element.state.width  <= this.state.left + this.state.width));
+        }
+        return ((this.state.left >= element.state.left && this.state.left <= element.state.left + element.state.width) || (this.state.left + this.state.width >= element.state.left && this.state.left + this.state.width <= element.state.left + element.state.width)) || ((element.state.left >= this.state.left && element.state.left <= this.state.left + this.state.width) || (element.state.left + element.state.width >= this.state.left && element.state.left + element.state.width <= this.state.left + this.state.width));
     }
 
     /**
@@ -64,25 +68,29 @@ class Element extends Component {
      * @param {Element} element 
      */
     isFamilyMemberOf(element) {
-        if(element instanceof Element === false)
+        if (element instanceof Element === false) {
             throw new Error('Expected element to be instance of Element.');
-        for(let i=0, len=element.uid.length, len2=this.uid.length; i<len; ++i)
-            if(i >= len2 || this.uid[i] !== element.uid[i])
+        }
+        for (let i = 0, len = element.uid.length, len2 = this.uid.length; i < len; ++i) {
+            if (i >= len2 || this.uid[i] !== element.uid[i]) {
                 return false;
+            }
+        }
         return true
     }
 
     onClick(e) {
         e.stopPropagation()
-        if (this.sketchBoard.state.tool !== toolCollection.Default)
+        if (this.sketchBoard.state.tool !== toolCollection.Default) {
             return;
+        }
     }
 
     render() {
-        return (  
+        return (
             <div>
-                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} setParentState={this.setState.bind(this)} width={this.state.width} height={this.state.height}/> : null}
-            </div>  
+                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} setParentState={this.setState.bind(this)} width={this.state.width} height={this.state.height} /> : null}
+            </div>
         );
     }
 }
