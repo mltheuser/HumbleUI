@@ -32,37 +32,37 @@ class SketchBoard extends Component {
         }
     }
 
-    getSketchOffset(uid, offset, searchSpace = this, sum = 0) {
-        return uid.length === 0 ? sum + searchSpace.state[offset] : this.getSketchOffset(uid.substring(1), offset, searchSpace.state.sketches.data[uid.charAt(0)], sum + searchSpace.state[offset]);
+    getSketchOffset(id, offset, searchSpace = this, sum = 0) {
+        return id.length === 0 ? sum + searchSpace.state[offset] : this.getSketchOffset(id.substring(1), offset, searchSpace.state.sketches.data[id.charAt(0)], sum + searchSpace.state[offset]);
     }
 
-    findElementByUid(searchSpace, uid) {
-        if (uid.length === 1) {
-            return searchSpace.state.sketches.data[uid];
+    findElementById(searchSpace, id) {
+        if (id.length === 1) {
+            return searchSpace.state.sketches.data[id];
         }
-        return this.findElementByUid(searchSpace.state.sketches.data[uid.charAt(0)], uid.substring(1));
+        return this.findElementById(searchSpace.state.sketches.data[id.charAt(0)], id.substring(1));
     }
 
     /**
      * Returns and selects the next element going from selected to target through the hierarchy.
      * 
-     * @param {String} uid The targets uid.
+     * @param {String} id The targets id.
      * @returns {Element} 
-     * @throws {ReferenceError} If uid is not a String with length greater 0 or there is a symbol that is not in {0-9}.
+     * @throws {ReferenceError} If id is not a String with length greater 0 or there is a symbol that is not in {0-9}.
      */
-    findAndSelectElementByTargetUid(uid) {
-        if (typeof uid !== "string" || uid.length === 0 || /^\d+$/.test(uid) === false) {
-            throw ReferenceError("Invalid uid.");
+    findAndSelectElementByTargetId(id) {
+        if (typeof id !== "string" || id.length === 0 || /^\d+$/.test(id) === false) {
+            throw ReferenceError("Invalid id.");
         }
         let i = 0;
-        const len = uid.length;
-        const len2 = (this.state.selected === null ? 0 : this.state.selected.uid.length);
+        const len = id.length;
+        const len2 = (this.state.selected === null ? 0 : this.state.selected.id.length);
         for (; i < len; ++i) {
-            if (i === len2 || uid.charAt(i) !== this.state.selected.uid.charAt(i)) {
+            if (i === len2 || id.charAt(i) !== this.state.selected.id.charAt(i)) {
                 break;
             }
         }
-        const element = this.findElementByUid(this, uid.substring(0, i + 1));
+        const element = this.findElementById(this, id.substring(0, i + 1));
         element.state.selected = true;
         return element;
     }
@@ -78,7 +78,7 @@ class SketchBoard extends Component {
             if (!(element.constructor instanceof Element.constructor)) {
                 throw TypeError(`Expected element to be instance of Element, ${element.constructor.name} given.`);
             }
-            element = this.findAndSelectElementByTargetUid(element.uid);
+            element = this.findAndSelectElementByTargetId(element.id);
         }
         if (element === this.state.selected) {
             return;
@@ -117,7 +117,7 @@ class SketchBoard extends Component {
         };
     }
 
-    // [think about what type domain is. Also have a look at findElementByUid]
+    // [think about what type domain is. Also have a look at findElementByid]
     zoomDomainElements(domain, newZoom, repositionVector = { x: 0, y: 0 }) {
         for (let i = 0, len = domain.state.sketches.data.length; i < len; ++i) {
             const tmp = domain.state.sketches.data[i];

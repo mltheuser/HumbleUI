@@ -15,13 +15,12 @@ const toolCollection = {
 
                 switch (e.target.tagName) {
                     case 'MAIN':
-                        // update initTop and initLeft for all Sketches
                         this.updateInits(0);
 
                         tool.target = null;
                         break;
                     case 'DIV':
-                        const target = this.findElementByUid(this, e.target.getAttribute("uid"));
+                        const target = this.findElementById(this, e.target.getAttribute("id"));
                         tool.target = target;
 
                         if (this.state.selected === null) {
@@ -71,12 +70,12 @@ const toolCollection = {
                 if (tool.target === undefined || tool.target === null) {
                     for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                         const sketch = this.state.sketches.data[i];
-                        sketch.state.top = sketch.state.initTop + updateY;
-                        sketch.state.left = sketch.state.initLeft + updateX;
+                        sketch.state.top = sketch.initTop + updateY;
+                        sketch.state.left = sketch.initLeft + updateX;
                     }
                 } else {
-                    this.state.selected.state.top = this.state.selected.state.initTop + updateY;
-                    this.state.selected.state.left = this.state.selected.state.initLeft + updateX;
+                    this.state.selected.state.top = this.state.selected.initTop + updateY;
+                    this.state.selected.state.left = this.state.selected.initLeft + updateX;
                 }
                 this.setState({});
             },
@@ -120,8 +119,8 @@ const toolCollection = {
                     this.state.sketches.push(tmp);
                 } else {
                     // first of, find the Sketch that gets a new Component
-                    const parentId = e.target.getAttribute("uid");
-                    const parent = this.findElementByUid(this, parentId);
+                    const parentId = e.target.getAttribute("id");
+                    const parent = this.findElementById(this, parentId);
 
                     // calculate the sketches offset
                     toolCollection.DrawSketch.offsetLeft = this.getSketchOffset(parentId, 'left');
@@ -131,7 +130,7 @@ const toolCollection = {
                     tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
                     tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
-                    // create the new Sketch with an uid of parentId followed by its future position in the parents sketch array
+                    // create the new Sketch with an id of parentId followed by its future position in the parents sketch array
                     tmp = new Sketch(String(parentId) + parent.state.sketches.data.length, this.props.app, this);
 
                     //add the new sketch to its parents sketchRepo
@@ -170,10 +169,10 @@ const toolCollection = {
                     prevState.selected.state.width = Math.abs(tool.mouseState.currentX - tool.mouseState.startX);
                     prevState.selected.state.height = Math.abs(tool.mouseState.currentY - tool.mouseState.startY);
                     if (tool.mouseState.currentY < tool.mouseState.startY) {
-                        prevState.selected.state.top = prevState.selected.state.initTop + tool.mouseState.currentY - tool.mouseState.startY;
+                        prevState.selected.state.top = prevState.selected.initTop + tool.mouseState.currentY - tool.mouseState.startY;
                     }
                     if (tool.mouseState.currentX < tool.mouseState.startX) {
-                        prevState.selected.state.left = prevState.selected.state.initLeft + tool.mouseState.currentX - tool.mouseState.startX;
+                        prevState.selected.state.left = prevState.selected.initLeft + tool.mouseState.currentX - tool.mouseState.startX;
                     }
                     return {
                         selected: prevState.selected
@@ -239,50 +238,50 @@ const toolCollection = {
                 // change horizontal
                 switch (tool.horizontal) {
                     case 1:
-                        prevState.selected.state.left = prevState.selected.state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
-                        prevState.selected.state.width = prevState.selected.state.initWidth - (tool.mouseState.currentX - tool.mouseState.startX);
-                        if ((tool.mouseState.currentX - tool.mouseState.startX) > prevState.selected.state.initWidth) {
-                            prevState.selected.state.left = prevState.selected.state.initLeft + prevState.selected.state.initWidth;
-                            prevState.selected.state.width = (tool.mouseState.currentX - tool.mouseState.startX) - prevState.selected.state.initWidth;
+                        prevState.selected.state.left = prevState.selected.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
+                        prevState.selected.state.width = prevState.selected.initWidth - (tool.mouseState.currentX - tool.mouseState.startX);
+                        if ((tool.mouseState.currentX - tool.mouseState.startX) > prevState.selected.initWidth) {
+                            prevState.selected.state.left = prevState.selected.initLeft + prevState.selected.initWidth;
+                            prevState.selected.state.width = (tool.mouseState.currentX - tool.mouseState.startX) - prevState.selected.initWidth;
                         }
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
-                        if (this.state.selected.uid.length === 1) {
+                        if (this.state.selected.id.length === 1) {
                             if (tool.mouseState.currentX - tool.mouseState.startX <= 0) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.left > this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
+                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
                                     }
                                 }
-                            } else if ((tool.mouseState.currentX - tool.mouseState.startX) > prevState.selected.state.initWidth) {
+                            } else if ((tool.mouseState.currentX - tool.mouseState.startX) > prevState.selected.initWidth) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.left < this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX) - prevState.selected.state.initWidth;
+                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].initLeft + (tool.mouseState.currentX - tool.mouseState.startX) - prevState.selected.initWidth;
                                     }
                                 }
                             }
                         }
                         break;
                     case 2:
-                        prevState.selected.state.width = prevState.selected.state.initWidth + (tool.mouseState.currentX - tool.mouseState.startX);
+                        prevState.selected.state.width = prevState.selected.initWidth + (tool.mouseState.currentX - tool.mouseState.startX);
                         if (prevState.selected.state.width < 0) {
-                            prevState.selected.state.left = prevState.selected.state.initLeft + prevState.selected.state.width;
+                            prevState.selected.state.left = prevState.selected.initLeft + prevState.selected.state.width;
                         }
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
-                        if (this.state.selected.uid.length === 1) {
+                        if (this.state.selected.id.length === 1) {
                             if (tool.mouseState.currentX - tool.mouseState.startX >= 0) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.left < this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
+                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].initLeft + (tool.mouseState.currentX - tool.mouseState.startX);
                                     }
                                 }
                             } else if (prevState.selected.state.width < 0) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.left > this.state.sketches.data[i].state.left && prevState.selected.canItersectByHeightWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].state.initLeft + (tool.mouseState.currentX - tool.mouseState.startX) + prevState.selected.state.initWidth;
+                                        this.state.sketches.data[i].state.left = this.state.sketches.data[i].initLeft + (tool.mouseState.currentX - tool.mouseState.startX) + prevState.selected.initWidth;
                                     }
                                 }
                             }
@@ -298,51 +297,51 @@ const toolCollection = {
                 // change vertical
                 switch (tool.vertical) {
                     case 1:
-                        prevState.selected.state.top = prevState.selected.state.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
-                        prevState.selected.state.height = prevState.selected.state.initHeight - (tool.mouseState.currentY - tool.mouseState.startY);
+                        prevState.selected.state.top = prevState.selected.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
+                        prevState.selected.state.height = prevState.selected.initHeight - (tool.mouseState.currentY - tool.mouseState.startY);
 
-                        if ((tool.mouseState.currentY - tool.mouseState.startY) > prevState.selected.state.initHeight) {
-                            prevState.selected.state.top = prevState.selected.state.initTop + prevState.selected.state.initHeight;
-                            prevState.selected.state.height = (tool.mouseState.currentY - tool.mouseState.startY) - prevState.selected.state.initHeight;
+                        if ((tool.mouseState.currentY - tool.mouseState.startY) > prevState.selected.initHeight) {
+                            prevState.selected.state.top = prevState.selected.initTop + prevState.selected.initHeight;
+                            prevState.selected.state.height = (tool.mouseState.currentY - tool.mouseState.startY) - prevState.selected.initHeight;
                         }
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
-                        if (this.state.selected.uid.length === 1) {
+                        if (this.state.selected.id.length === 1) {
                             if (tool.mouseState.currentY - tool.mouseState.startY <= 0) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.top > this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
+                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].initTop + (tool.mouseState.currentY - tool.mouseState.startY);
                                     }
                                 }
-                            } else if (tool.mouseState.currentY - tool.mouseState.startY > prevState.selected.state.initHeight) {
+                            } else if (tool.mouseState.currentY - tool.mouseState.startY > prevState.selected.initHeight) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.top < this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY) - prevState.selected.state.initHeight;
+                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].initTop + (tool.mouseState.currentY - tool.mouseState.startY) - prevState.selected.initHeight;
                                     }
                                 }
                             }
                         }
                         break;
                     case 2:
-                        prevState.selected.state.height = prevState.selected.state.initHeight + (tool.mouseState.currentY - tool.mouseState.startY);
+                        prevState.selected.state.height = prevState.selected.initHeight + (tool.mouseState.currentY - tool.mouseState.startY);
                         if (prevState.selected.state.height < 0) {
-                            prevState.selected.state.top = prevState.selected.state.initTop + prevState.selected.state.height;
+                            prevState.selected.state.top = prevState.selected.initTop + prevState.selected.state.height;
                         }
 
                         // reposition other sketches to prevent intersection
                         // [consider rewriting this code]
-                        if (this.state.selected.uid.length === 1) {
+                        if (this.state.selected.id.length === 1) {
                             if (tool.mouseState.currentY - tool.mouseState.startY >= 0) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.top < this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY);
+                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].initTop + (tool.mouseState.currentY - tool.mouseState.startY);
                                     }
                                 }
                             } else if (prevState.selected.state.height < 0) {
                                 for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                                     if (prevState.selected.state.top > this.state.sketches.data[i].state.top && prevState.selected.canItersectByWidthWith(this.state.sketches.data[i])) {
-                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].state.initTop + (tool.mouseState.currentY - tool.mouseState.startY) + prevState.selected.state.initHeight;
+                                        this.state.sketches.data[i].state.top = this.state.sketches.data[i].initTop + (tool.mouseState.currentY - tool.mouseState.startY) + prevState.selected.initHeight;
                                     }
                                 }
                             }
@@ -355,7 +354,7 @@ const toolCollection = {
                         break;
                 }
 
-                this.state.selected.resizeChildren(this.state.selected.uid.length === 1);
+                this.state.selected.resizeChildren(this.state.selected.id.length === 1);
 
                 return {
                     selected: prevState.selected
