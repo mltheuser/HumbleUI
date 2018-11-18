@@ -1,0 +1,156 @@
+import * as React from 'react';
+import { IAppProps } from 'src/datatypes/interfaces';
+import toolCollection from '../data/ToolCollection';
+import HumbleArray from '../datatypes/HumbleArray';
+import Element, { IElementState } from './Element';
+import Tool from './Tool';
+
+interface ISketchBoardState {
+    left: number,
+    selected: Element<IElementState> | null,
+    sketches: HumbleArray,
+    tool: Tool,
+    top: number,
+    zoom: number,
+}
+
+class SketchBoard extends React.Component<IAppProps, any> {
+
+    public state: ISketchBoardState = {
+        left: 0,
+        selected: null,
+        sketches: new HumbleArray(),
+        tool: toolCollection.Default,
+        top: 4,
+        zoom: 1,
+    };
+
+    public constructor(props: IAppProps) {
+        super(props);
+        this.props.app.sketchBoard = this;
+        toolCollection.bind(this);
+    }
+
+    public updateInits(mode = 2) {
+        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
+            this.state.sketches.data[i].updateInits(mode);
+        }
+    }
+
+    public getSketchOffset(id: string, offset: number, searchSpace = this, sum = 0): number {
+        return id.length === 0 ? sum + searchSpace.state[offset] : this.getSketchOffset(id.substring(1), offset, searchSpace.state.sketches.data[id.charAt(0)], sum + searchSpace.state[offset]);
+    }
+
+    public findElementById(searchSpace: any, id: string): Element<IElementState> {
+        if (id.length === 1) {
+            return searchSpace.state.sketches.data[id];
+        }
+        return this.findElementById(searchSpace.state.sketches.data[id.charAt(0)], id.substring(1));
+    }
+    
+    public findAndSelectElementByTargetId(id: string): Element<IElementState> {
+        if (id.length === 0 || /^\d+$/.test(id) === false) {
+            throw ReferenceError("Invalid id.");
+        }
+        let i = 0;
+        if(this.state.selected) {
+            const len = id.length;
+            const len2 = (this.state.selected === null ? 0 : this.state.selected.id.length);
+            for (; i < len; ++i) {
+                if (i === len2 || id.charAt(i) !== this.state.selected.id.charAt(i)) {
+                    break;
+                }
+            }
+        }
+        const element = this.findElementById(this, id.substring(0, i + 1));
+        element.state.selected = true;
+        return element;
+    }
+
+    public updateSelection(element: Element<IElementState>) {
+        if (element !== null) {
+            if (!(element.constructor instanceof Element.constructor)) {
+                throw TypeError(`Expected element to be instance of Element, ${element.constructor.name} given.`);
+            }
+            element = this.findAndSelectElementByTargetId(element.id);
+        }
+        if (element === this.state.selected) {
+            return;
+        }
+        this.setState((prevState: any) => {
+            if (prevState.selected !== null) {
+                prevState.selected.state.selected = false;
+            }
+            return {
+                selected: element,
+            }
+        });
+        this.props.app.setState({});
+    }
+
+    public componentDidMount() {
+        window.addEventListener('wheel', this.handleScroll.bind(this), true);
+    }
+
+    public componentWillUnmount() {
+        window.removeEventListener('wheel', this.handleScroll.bind(this), true);
+    }
+
+    /**
+     * Handles the scroll event by calculating the new zoom and appling i.
+     * 
+     * @param {*} e The scroll event object.
+     */
+    public handleScroll(e: any) {
+        const center = this.getCenter();
+        const newZoom = this.state.zoom + e.deltaY / 400;
+        const newCursor = {
+            x: e.clientX / this.state.zoom * newZoom,
+            y: (e.clientY - this.state.top) / this.state.zoom * newZoom,
+        };
+        const dist = {
+            x: center.x - newCursor.x,
+            y: center.y - newCursor.y,
+        };
+        this.zoomDomainElements(this, newZoom, dist);
+        this.setState({ zoom: newZoom });
+    }
+
+    public render() {
+        const inline = {
+            cursor: this.state.tool.cursor
+        }
+        return (
+            <main id="main" style={inline} onMouseDown={this.state.tool.handleMouseDown} onMouseMove={this.state.tool.handleMouseMove} onMouseUp={this.state.tool.handleMouseUp}>
+                {this.state.sketches.render()}
+            </main>
+        );
+    }
+    
+    private getCenter() {
+        const main = document.getElementById('main');
+        const toolpalate = document.getElementById('tool-palate');
+        const info = document.getElementById('info');
+        if(toolpalate && toolpalate.offsetWidth && main && info) {
+            return {
+                x: toolpalate.offsetWidth + (main.offsetWidth - info.offsetWidth - toolpalate.offsetWidth) / 2,
+                y: main.offsetHeight / 2
+            };
+        }
+        throw Error("getCenter failed.");
+    }
+
+    // [think about what type domain is. Also have a look at findElementByid]
+    private zoomDomainElements(domain: any, newZoom: number, repositionVector = { x: 0, y: 0 }) {
+        for (let i = 0, len = domain.state.sketches.data.length; i < len; ++i) {
+            const tmp = domain.state.sketches.data[i];
+            tmp.state.top = (tmp.state.top / this.state.zoom) * newZoom + repositionVector.y;
+            tmp.state.left = (tmp.state.left / this.state.zoom) * newZoom + repositionVector.x;
+            tmp.state.height = (tmp.state.height / this.state.zoom) * newZoom;
+            tmp.state.width = (tmp.state.width / this.state.zoom) * newZoom;
+            this.zoomDomainElements(tmp, newZoom);
+        }
+    }
+}
+
+export default SketchBoard;

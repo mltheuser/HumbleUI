@@ -22,9 +22,10 @@ class Element<S extends IElementState> extends React.Component<any, S> {
 
     public initWidth: number = 0;
 
+    public state: S = this.getInitialState();
+
     constructor(public id: string, public app: App, public sketchBoard: SketchBoard) {
         super({});
-        this.state = this.getInitialState();
         this.setState.bind(this);
     }
 

@@ -1,11 +1,11 @@
-import Tool from '../components/Tool';
 import Sketch from '../components/Sketch'
+import Tool from '../components/Tool';
 
 const toolCollection = {
     Default: new Tool(
         {
             cursor: 'default',
-            handleMouseDown: function (e) {
+            handleMouseDown (e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -42,7 +42,7 @@ const toolCollection = {
                 tool.mouseState.down = true;
                 tool.cursor = 'grabbing';
             },
-            handleMouseMove: function (e) {
+            handleMouseMove (e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -79,7 +79,7 @@ const toolCollection = {
                 }
                 this.setState({});
             },
-            handleMouseUp: function (e) {
+            handleMouseUp (e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -99,11 +99,11 @@ const toolCollection = {
     DrawSketch: new Tool(
         {
             cursor: 'crosshair',
-            handleMouseDown: function (e) {
+            handleMouseDown (e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                let tmp = null;
+                let tmp: any = null;
                 const tool = this.state.tool;
                 if (e.target.tagName === 'MAIN') {
                     // calculate the sketches offset
@@ -133,11 +133,11 @@ const toolCollection = {
                     // create the new Sketch with an id of parentId followed by its future position in the parents sketch array
                     tmp = new Sketch(String(parentId) + parent.state.sketches.data.length, this.props.app, this);
 
-                    //add the new sketch to its parents sketchRepo
+                    // add the new sketch to its parents sketchRepo
                     parent.state.sketches.push(tmp);
                 }
 
-                this.setState((prevState) => {
+                this.setState((prevState: any) => {
                     if (prevState.selected && prevState.selected.state) {
                         prevState.selected.state.selected = false;
                     }
@@ -149,7 +149,7 @@ const toolCollection = {
 
                 tool.mouseState.down = true;
             },
-            handleMouseMove: function (e) {
+            handleMouseMove (e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -165,7 +165,7 @@ const toolCollection = {
                 tool.mouseState.currentY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                 // calculate changes and update state
-                this.setState((prevState) => {
+                this.setState((prevState: any) => {
                     prevState.selected.state.width = Math.abs(tool.mouseState.currentX - tool.mouseState.startX);
                     prevState.selected.state.height = Math.abs(tool.mouseState.currentY - tool.mouseState.startY);
                     if (tool.mouseState.currentY < tool.mouseState.startY) {
@@ -179,7 +179,7 @@ const toolCollection = {
                     }
                 });
             },
-            handleMouseUp: function (e) {
+            handleMouseUp (e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -188,7 +188,7 @@ const toolCollection = {
                 // the drag is over, clear the dragging flag
                 tool.mouseState.down = false;
 
-                this.setState((prevState) => {
+                this.setState((prevState: any) => {
                     prevState.selected.state.refined = true;
                     prevState.selected.state.selected = true;
                     return {
@@ -201,7 +201,7 @@ const toolCollection = {
         }
     ),
     Resize: new Tool({
-        handleMouseDown: function (e) {
+        handleMouseDown (e: any) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -217,7 +217,7 @@ const toolCollection = {
 
             tool.mouseState.down = true;
         },
-        handleMouseMove: function (e) {
+        handleMouseMove (e: any) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -233,7 +233,7 @@ const toolCollection = {
             tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
 
             // calculate changes and update state
-            this.setState((prevState) => {
+            this.setState((prevState: any) => {
 
                 // change horizontal
                 switch (tool.horizontal) {
@@ -362,7 +362,7 @@ const toolCollection = {
 
             });
         },
-        handleMouseUp: function (e) {
+        handleMouseUp (e: any) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -379,7 +379,12 @@ const toolCollection = {
                 tool.toolRepo = null;
             }
         }
-    })
+    }),
+    bind (component: React.Component) {
+        this.Default.bind(component);
+        this.DrawSketch.bind(component);
+        this.Resize.bind(component);
+    }
 }
 
 export default toolCollection
