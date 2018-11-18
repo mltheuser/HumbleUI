@@ -1,23 +1,23 @@
-import React, { Component } from 'react';
 import { TextField } from '@material-ui/core';
+import * as React from 'react';
 
-class NumberField extends Component {
-    state = {
+class NumberField extends React.Component {
+
+    public state = {
         num: 1
     }
 
-    handleChange(event) {
-        this.setState({
-            num: event.target.value,
-        });
+    public constructor(props: any) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
     }
 
-    render() {
+    public render() {
         return (  
             <TextField
             id="standard-number"
             value={this.state.num}
-            onChange={this.handleChange.bind(this)}
+            onChange={this.handleChange}
             type="number"
             className="Number"
             InputLabelProps={{
@@ -26,6 +26,12 @@ class NumberField extends Component {
             margin="normal"
             />  
         );
+    }
+
+    private handleChange(event: any) {
+        this.setState({
+            num: event.target.value,
+        });
     }
 }
 

@@ -51,7 +51,9 @@ class Sketch extends Element<ISketchState> {
                 child.state.top = (child.initTop / this.initHeight) * this.state.height;
                 child.state.height = (child.initHeight / this.initHeight) * this.state.height;
             }
-            child.resizeChildren();
+            if(child instanceof Sketch) {
+                child.resizeChildren();
+            }
         }
     }
 

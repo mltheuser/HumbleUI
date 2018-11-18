@@ -81,7 +81,7 @@ class Element<S extends IElementState> extends React.Component<any, S> {
     public render() {
         return (
             <div>
-                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} setParentState={this.setState} width={this.state.width} height={this.state.height} /> : null}
+                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} width={this.state.width} height={this.state.height} /> : null}
             </div>
         );
     }

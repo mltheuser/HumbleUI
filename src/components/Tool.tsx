@@ -6,6 +6,14 @@ class Tool {
 
     public offsetTop: number = 0;
 
+    public toolRepo: Tool | null;
+
+    public horizontal: number;
+
+    public vertical: number;
+
+    public selectorID: string;
+
     public mouseState = {
         currentX: 0,
         currentY: 0,
