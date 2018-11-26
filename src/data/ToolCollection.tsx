@@ -6,9 +6,6 @@ const toolCollection = {
         {
             cursor: 'default',
             handleMouseDown (e: any) {
-                e.preventDefault();
-                e.stopPropagation();
-
                 const tool = this.state.tool;
 
                 tool.dragged = 0;
@@ -100,9 +97,6 @@ const toolCollection = {
         {
             cursor: 'crosshair',
             handleMouseDown (e: any) {
-                e.preventDefault();
-                e.stopPropagation();
-
                 let tmp: any = null;
                 const tool = this.state.tool;
                 if (e.target.tagName === 'MAIN') {
@@ -202,9 +196,6 @@ const toolCollection = {
     ),
     Resize: new Tool({
         handleMouseDown (e: any) {
-            e.preventDefault();
-            e.stopPropagation();
-
             const tool = this.state.tool;
 
             // save the starting x/y of the rectangle
@@ -230,7 +221,7 @@ const toolCollection = {
 
             // get the current mouse position
             tool.mouseState.currentX = parseInt(e.clientX, 10);
-            tool.mouseState.currentY = parseInt(e.clientY, 10) - 4;
+            tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
 
             // calculate changes and update state
             this.setState((prevState: any) => {

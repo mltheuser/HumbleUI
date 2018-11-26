@@ -1,38 +1,18 @@
 import * as React from 'react';
 import App from 'src/App';
+import { ISketchState } from 'src/datatypes/interfaces';
 import HumbleArray from '../datatypes/HumbleArray';
-import Element, { IElementState } from './Element'
+import Element from './Element'
 import Selctor from './Selector'
 import SketchBoard from './SketchBoard';
 
-interface IBorder {
-    checked: boolean,
-    color: string,
-    width: string,
-    style: string,
-}
-
-interface ISketchState extends IElementState {
-    sketches: HumbleArray,
-    color: string,
-    border: IBorder,
-}
-
 class Sketch extends Element<ISketchState> {
+
     constructor(id: string, app: App, sketchBoard: SketchBoard, sketches = new HumbleArray()) {
         super(id, app, sketchBoard);
         this.state = this.getInitialSketchState(sketches);
     }
 
-    /**
-     * Updates the states initial values depending on the choosen mode.
-     * 0: updates top and left,
-     * 1: updates width and height,
-     * 2: updates both pairs
-     * 3: update both pairs and all children
-     * 
-     * @param {Integer} mode Defines what should be updated.
-     */
     public updateInits(mode = 2) {
         super.updateInits(mode);
         if (mode > 2) {
@@ -51,9 +31,20 @@ class Sketch extends Element<ISketchState> {
                 child.state.top = (child.initTop / this.initHeight) * this.state.height;
                 child.state.height = (child.initHeight / this.initHeight) * this.state.height;
             }
-            if(child instanceof Sketch) {
+            if (child instanceof Sketch) {
                 child.resizeChildren();
             }
+        }
+    }
+
+    public handleScroll(event: any) {
+        let update = - event.deltaY / (this.sketchBoard.state.zoom * 4);
+        if (this.state.scroll + update > 0) {
+            update = -this.state.scroll;
+        }
+        this.state.scroll += update;
+        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
+            this.state.sketches.data[i].state.top += update;
         }
     }
 
@@ -77,7 +68,7 @@ class Sketch extends Element<ISketchState> {
             inline.borderColor = this.state.color;
         }
         return (
-            <div className="sketch" style={inline} id={this.id}>
+            <div key={this.id} className="sketch" style={inline} id={this.id}>
                 {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} width={inline.width} height={inline.height} /> : null}
                 <div className="sketchContainer" id={this.id}>
                     {this.state.sketches.render()}
@@ -91,6 +82,7 @@ class Sketch extends Element<ISketchState> {
         state.sketches = sketches;
         state.color = '#fff';
         state.border = { checked: true, color: '#d0d0d0', width: '1px', style: 'solid' };
+        state.scroll = 0;
         return state as ISketchState;
     }
 }

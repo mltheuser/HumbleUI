@@ -1,16 +1,8 @@
 import * as React from 'react';
 import App from 'src/App';
+import { IElementState } from 'src/datatypes/interfaces';
 import Selctor from './Selector'
 import SketchBoard from './SketchBoard';
-
-export interface IElementState {
-    height: number,
-    left: number,
-    refined: boolean,
-    selected: boolean,
-    top: number,
-    width: number,
-}
 
 class Element<S extends IElementState> extends React.Component<any, S> {
 
@@ -25,18 +17,10 @@ class Element<S extends IElementState> extends React.Component<any, S> {
     public state: S = this.getInitialState();
 
     constructor(public id: string, public app: App, public sketchBoard: SketchBoard) {
-        super({});
+        super({key: id});
         this.setState.bind(this);
     }
 
-    /**
-     * Updates the states initial values depending on the choosen mode.
-     * 0: updates top and left,
-     * 1: updates width and height,
-     * 2: updates both pairs
-     * 
-     * @param {Integer} mode Defines what should be updated.
-     */
     public updateInits(mode = 2) {
         if (mode > 0) {
             this.initHeight = this.state.height
@@ -62,10 +46,6 @@ class Element<S extends IElementState> extends React.Component<any, S> {
         return ((this.state.left >= element.state.left && this.state.left <= element.state.left + element.state.width) || (this.state.left + this.state.width >= element.state.left && this.state.left + this.state.width <= element.state.left + element.state.width)) || ((element.state.left >= this.state.left && element.state.left <= this.state.left + this.state.width) || (element.state.left + element.state.width >= this.state.left && element.state.left + element.state.width <= this.state.left + this.state.width));
     }
 
-    /**
-     * Checks if element is a child of this or this itself.
-     * @param {Element} element 
-     */
     public isFamilyMemberOf(element: any) {
         if (element instanceof Element === false) {
             throw new Error('Expected element to be instance of Element.');

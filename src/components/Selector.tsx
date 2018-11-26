@@ -1,16 +1,10 @@
 import * as React from 'react';
+import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
-import SketchBoard from './SketchBoard';
-
-interface ISelectorProps {
-    sketchBoard: SketchBoard;
-    width: number;
-    height: number;
-}
 
 class Selector extends React.Component<ISelectorProps, any> {
 
-    public constructor(props:ISelectorProps) {
+    public constructor(props: ISelectorProps) {
         super(props);
         this.bindHandlers();
     }
@@ -66,6 +60,19 @@ class Selector extends React.Component<ISelectorProps, any> {
         );
     }
 
+    private handleMouseEnter(horizontalMode: number, verticalMode: number, selectorID: string) {
+        if (this.props.sketchBoard.state.tool === toolCollection.Resize) {
+            return;
+        }
+        toolCollection.Resize.toolRepo = this.props.sketchBoard.state.tool;
+        toolCollection.Resize.horizontal = horizontalMode;
+        toolCollection.Resize.vertical = verticalMode;
+        toolCollection.Resize.selectorID = selectorID;
+        this.props.sketchBoard.setState({
+            tool: toolCollection.Resize,
+        });
+    }
+
     private handleMouseEnterTopLeft() {
         this.handleMouseEnter(1, 1, 'selector-top-left');
     }
@@ -107,19 +114,6 @@ class Selector extends React.Component<ISelectorProps, any> {
         this.handleMouseEnterBottomLeft = this.handleMouseEnterBottomLeft.bind(this);
         this.handleMouseEnterBottomRight = this.handleMouseEnterBottomRight.bind(this);
         this.handleMouseEnterBottomMiddle = this.handleMouseEnterBottomMiddle.bind(this);
-    }
-
-    private handleMouseEnter(horizontalMode: number, verticalMode: number, selectorID: string) {
-        if (this.props.sketchBoard.state.tool === toolCollection.Resize) {
-            return;
-        }
-        toolCollection.Resize.toolRepo = this.props.sketchBoard.state.tool;
-        toolCollection.Resize.horizontal = horizontalMode;
-        toolCollection.Resize.vertical = verticalMode;
-        toolCollection.Resize.selectorID = selectorID;
-        this.props.sketchBoard.setState({
-            tool: toolCollection.Resize,
-        });
     }
 }
 

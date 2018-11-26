@@ -6,9 +6,6 @@
   "dependencies": {
     "@material-ui/core": "^3.4.0",
     "@types/react-color": "^2.13.6",
-    "electron": "^3.0.8",
-    "electron-builder": "^20.34.0",
-    "foreman": "^3.0.1",
     "react": "^16.6.1",
     "react-color": "^2.14.1",
     "react-dom": "^16.6.1",
@@ -22,24 +19,11 @@
     "typescript": "^3.1.6"
   },
   "scripts": {
-    "dev": "nf start",
+    "dev": "react-scripts-ts start",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "electron": "electron .",
     "ebuild": "yarn build && node_modules/.bin/build"
-  },
-  "description": "React and Electron Awesome App",
-  "homepage": "./",
-  "main": "src/main.js",
-  "build": {
-    "productName": "React Electron App",
-    "appId": "com.reactbits.reactelectron",
-    "electronVersion": "1.7.10",
-    "files": [
-      "build/**/*",
-      "electron/*"
-    ]
   }
 }

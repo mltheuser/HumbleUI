@@ -1,18 +1,9 @@
 import * as React from 'react';
-import { IAppProps } from 'src/datatypes/interfaces';
+import { IAppProps, IElementState, ISketchBoardState } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
 import HumbleArray from '../datatypes/HumbleArray';
-import Element, { IElementState } from './Element';
-import Tool from './Tool';
-
-interface ISketchBoardState {
-    left: number,
-    selected: Element<IElementState> | null,
-    sketches: HumbleArray,
-    tool: Tool,
-    top: number,
-    zoom: number,
-}
+import Element from './Element';
+import Sketch from './Sketch';
 
 class SketchBoard extends React.Component<IAppProps, any> {
 
@@ -21,7 +12,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
         selected: null,
         sketches: new HumbleArray(),
         tool: toolCollection.Default,
-        top: 4,
+        top: 64,
         zoom: 1,
     };
 
@@ -47,13 +38,13 @@ class SketchBoard extends React.Component<IAppProps, any> {
         }
         return this.findElementById(searchSpace.state.sketches.data[id.charAt(0)], id.substring(1));
     }
-    
+
     public findAndSelectElementByTargetId(id: string): Element<IElementState> {
         if (id.length === 0 || /^\d+$/.test(id) === false) {
             throw ReferenceError("Invalid id.");
         }
         let i = 0;
-        if(this.state.selected) {
+        if (this.state.selected) {
             const len = id.length;
             const len2 = (this.state.selected === null ? 0 : this.state.selected.id.length);
             for (; i < len; ++i) {
@@ -89,31 +80,26 @@ class SketchBoard extends React.Component<IAppProps, any> {
     }
 
     public componentDidMount() {
-        window.addEventListener('wheel', this.handleScroll.bind(this), true);
+        window.addEventListener('wheel', this.handleScroll.bind(this), { passive: true } as EventListenerOptions);
     }
 
     public componentWillUnmount() {
-        window.removeEventListener('wheel', this.handleScroll.bind(this), true);
+        window.removeEventListener('wheel', this.handleScroll.bind(this), { passive: true } as EventListenerOptions);
     }
 
-    /**
-     * Handles the scroll event by calculating the new zoom and appling i.
-     * 
-     * @param {*} e The scroll event object.
-     */
-    public handleScroll(e: any) {
-        const center = this.getCenter();
-        const newZoom = this.state.zoom + e.deltaY / 400;
-        const newCursor = {
-            x: e.clientX / this.state.zoom * newZoom,
-            y: (e.clientY - this.state.top) / this.state.zoom * newZoom,
-        };
-        const dist = {
-            x: center.x - newCursor.x,
-            y: center.y - newCursor.y,
-        };
-        this.zoomDomainElements(this, newZoom, dist);
-        this.setState({ zoom: newZoom });
+    public handleScroll(event: any) {
+        if (event.shiftKey) {
+            const scrollTargetId = event.target.id[0];
+            if(scrollTargetId !== undefined) {
+                const scrollTarget = this.findElementById(this, scrollTargetId);
+                if (scrollTarget instanceof Sketch) {
+                    scrollTarget.handleScroll(event);
+                    this.setState({});
+                }
+            }
+        } else {
+            this.handleSketchBoardScroll(event);
+        }
     }
 
     public render() {
@@ -126,12 +112,12 @@ class SketchBoard extends React.Component<IAppProps, any> {
             </main>
         );
     }
-    
+
     private getCenter() {
         const main = document.getElementById('main');
         const toolpalate = document.getElementById('tool-palate');
         const info = document.getElementById('info');
-        if(toolpalate && toolpalate.offsetWidth && main && info) {
+        if (toolpalate && toolpalate.offsetWidth && main && info) {
             return {
                 x: toolpalate.offsetWidth + (main.offsetWidth - info.offsetWidth - toolpalate.offsetWidth) / 2,
                 y: main.offsetHeight / 2
@@ -140,7 +126,6 @@ class SketchBoard extends React.Component<IAppProps, any> {
         throw Error("getCenter failed.");
     }
 
-    // [think about what type domain is. Also have a look at findElementByid]
     private zoomDomainElements(domain: any, newZoom: number, repositionVector = { x: 0, y: 0 }) {
         for (let i = 0, len = domain.state.sketches.data.length; i < len; ++i) {
             const tmp = domain.state.sketches.data[i];
@@ -150,6 +135,21 @@ class SketchBoard extends React.Component<IAppProps, any> {
             tmp.state.width = (tmp.state.width / this.state.zoom) * newZoom;
             this.zoomDomainElements(tmp, newZoom);
         }
+    }
+
+    private handleSketchBoardScroll(event: any) {
+        const center = this.getCenter();
+        const newZoom = this.state.zoom + event.deltaY / 400;
+        const newCursor = {
+            x: event.clientX / this.state.zoom * newZoom,
+            y: (event.clientY - this.state.top) / this.state.zoom * newZoom,
+        };
+        const dist = {
+            x: center.x - newCursor.x,
+            y: center.y - newCursor.y,
+        };
+        this.zoomDomainElements(this, newZoom, dist);
+        this.setState({ zoom: newZoom });
     }
 }
 

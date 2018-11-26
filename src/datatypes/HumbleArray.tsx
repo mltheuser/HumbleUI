@@ -1,4 +1,5 @@
-import Element, { IElementState } from 'src/components/Element';
+import Element from 'src/components/Element';
+import { IElementState } from './interfaces';
 
 class HumbleArray {
 
