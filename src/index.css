@@ -51,7 +51,7 @@ nav {
   overflow: hidden;
 }
 
-.select {
+.select-area {
   width: 0px;
   height: 0px;
   position: absolute;
@@ -163,9 +163,9 @@ a {
   border-radius: 2px;
   box-sizing: 'initial';
   width: 90.5%;
-  position: relative;
   top: -40px;
   margin: 0 auto;
+  position: relative;
 }
 
 .borderControll > .borderColor {

@@ -11,6 +11,7 @@ class Selector extends React.Component<ISelectorProps, any> {
     }
 
     public render() {
+        console.log('test');
         const selected = this.props.sketchBoard.state.selected;
         if (selected === null || selected.state.refined === false) {
             return null;
@@ -26,10 +27,14 @@ class Selector extends React.Component<ISelectorProps, any> {
             width: selected.state.width,
         }
         if (selected instanceof Sketch) {
-            inline.height += 2*selected.state.border.width + inline.borderWidth;
-            inline.left -= selected.state.border.width + inline.borderWidth;
-            inline.top -= selected.state.border.width + inline.borderWidth - 0.1;
-            inline.width += 2*selected.state.border.width + inline.borderWidth;
+            inline.height += 2 * selected.state.border.width - 2;
+            inline.width += 2 * selected.state.border.width - 2;
+            if (selected.state.border.checked === false) {
+                inline.top += selected.state.border.width;
+                inline.left += selected.state.border.width;
+                inline.height -= 2 * selected.state.border.width;
+                inline.width -= 2 * selected.state.border.width;
+            }
         }
         const inline1 = {
             marginRight: (inline.width / 2 - 8) + 'px',
@@ -53,7 +58,7 @@ class Selector extends React.Component<ISelectorProps, any> {
             top: (inline.height - 31) + 'px',
         }
         return (
-            <div className="select" style={inline}>
+            <div className="select-area" style={inline}>
                 <div className="selectCage">
                     <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
                     <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />

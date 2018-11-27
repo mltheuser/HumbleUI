@@ -22,7 +22,7 @@ class Sketch extends Element<ISketchState> {
     }
 
     public updateSketchOffset() {
-        const parentId = this.id.substr(0, this.id.length-1);
+        const parentId = this.id.substr(0, this.id.length - 1);
         this.offset.x = this.sketchBoard.calculateSketchOffset(parentId, 0, this.sketchBoard);
         this.offset.y = this.sketchBoard.calculateSketchOffset(parentId, 1, this.sketchBoard);
     }
@@ -91,7 +91,9 @@ class Sketch extends Element<ISketchState> {
             inline.background = this.state.color;
         }
         if (this.state.border.checked === false) {
-            inline.borderColor = this.state.color;
+            inline.top += inline.borderWidth;
+            inline.left += inline.borderWidth;
+            inline.borderWidth = 0;
         }
         return (
             <div key={this.id} className="sketch" style={inline} id={this.id}>
