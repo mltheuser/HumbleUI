@@ -29,7 +29,7 @@ export interface ISketchBoardState {
 export interface IBorder {
     checked: boolean,
     color: string,
-    width: string,
+    width: number,
     style: string,
 }
 
@@ -42,6 +42,9 @@ export interface ISketchState extends IElementState {
 
 export interface ISelectorProps {
     sketchBoard: SketchBoard;
-    width: number;
-    height: number;
+}
+
+export interface ICoordiante {
+    x: number,
+    y: number,
 }

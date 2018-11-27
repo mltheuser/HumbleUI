@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { IAppProps, IElementState, ISketchBoardState } from 'src/datatypes/interfaces';
+import { IAppProps, ICoordiante, IElementState, ISketchBoardState} from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
 import HumbleArray from '../datatypes/HumbleArray';
 import Element from './Element';
+import Selector from './Selector';
 import Sketch from './Sketch';
 
 class SketchBoard extends React.Component<IAppProps, any> {
@@ -28,8 +29,19 @@ class SketchBoard extends React.Component<IAppProps, any> {
         }
     }
 
-    public getSketchOffset(id: string, offset: number, searchSpace = this, sum = 0): number {
-        return id.length === 0 ? sum + searchSpace.state[offset] : this.getSketchOffset(id.substring(1), offset, searchSpace.state.sketches.data[id.charAt(0)], sum + searchSpace.state[offset]);
+    public getOffset(mode: number) {
+        if(mode === 0) {
+            return this.state.left;
+        }
+        return this.state.top;
+    }
+
+    public calculateSketchOffset(id: string, offset: number, searchSpace: SketchBoard | Sketch = this, sum = 0): number {
+        return id.length === 0 ? sum + searchSpace.getOffset(offset) : this.calculateSketchOffset(id.substring(1), offset, searchSpace.state.sketches.data[id.charAt(0)], sum + searchSpace.getOffset(offset));
+    }
+
+    public getSketchOffset(id: string) : ICoordiante {
+        return {x: this.calculateSketchOffset(id, 0), y: this.calculateSketchOffset(id, 1)};
     }
 
     public findElementById(searchSpace: any, id: string): Element<IElementState> {
@@ -109,6 +121,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
         return (
             <main id="main" style={inline} onMouseDown={this.state.tool.handleMouseDown} onMouseMove={this.state.tool.handleMouseMove} onMouseUp={this.state.tool.handleMouseUp}>
                 {this.state.sketches.render()}
+                <Selector sketchBoard={this} />
             </main>
         );
     }
@@ -133,6 +146,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
             tmp.state.left = (tmp.state.left / this.state.zoom) * newZoom + repositionVector.x;
             tmp.state.height = (tmp.state.height / this.state.zoom) * newZoom;
             tmp.state.width = (tmp.state.width / this.state.zoom) * newZoom;
+            tmp.updateSketchOffset();
             this.zoomDomainElements(tmp, newZoom);
         }
     }

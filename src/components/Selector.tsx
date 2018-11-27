@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
+import Sketch from './Sketch';
 
 class Selector extends React.Component<ISelectorProps, any> {
 
@@ -9,53 +10,60 @@ class Selector extends React.Component<ISelectorProps, any> {
         this.bindHandlers();
     }
 
-    public componentDidMount() {
-        const tmp = document.getElementsByClassName('selector');
-        const len = tmp.length;
-        for (let i = 0; i < len; ++i) {
-            tmp[i].addEventListener('mouseleave', () => {
-                const tool = this.props.sketchBoard.state.tool
-                if (tool.toolRepo === null || tool.mouseState.down === true) {
-                    return;
-                }
-                this.props.sketchBoard.setState({ tool: tool.toolRepo });
-                tool.toolRepo = null;
-            }, false);
-        }
-    }
-
     public render() {
+        const selected = this.props.sketchBoard.state.selected;
+        if (selected === null || selected.state.refined === false) {
+            return null;
+        }
+        const inline = {
+            background: '',
+            borderColor: '#427fd3',
+            borderStyle: 'solid',
+            borderWidth: 1.7,
+            height: selected.state.height, // adjust to math borders
+            left: selected.state.left + selected.offset.x,
+            top: selected.state.top + selected.offset.y - this.props.sketchBoard.state.top,
+            width: selected.state.width,
+        }
+        if (selected instanceof Sketch) {
+            inline.height += 2*selected.state.border.width + inline.borderWidth;
+            inline.left -= selected.state.border.width + inline.borderWidth;
+            inline.top -= selected.state.border.width + inline.borderWidth - 0.1;
+            inline.width += 2*selected.state.border.width + inline.borderWidth;
+        }
         const inline1 = {
-            marginRight: (this.props.width / 2 - 8) + 'px',
+            marginRight: (inline.width / 2 - 8) + 'px',
         }
         const inline2 = {
-            top: (this.props.height / 2 - 5 - 9) + 'px'
+            top: (inline.height / 2 - 5 - 9) + 'px'
         }
         const inline3 = {
-            top: (this.props.height / 2 - 5 - 2 * 9) + 'px'
+            top: (inline.height / 2 - 5 - 2 * 9) + 'px'
         }
         const inline4 = {
             cursor: 'nesw-resize',
-            top: (this.props.height - 23) + 'px',
+            top: (inline.height - 23) + 'px',
         }
         const inline5 = {
             cursor: 'nwse-resize',
-            top: (this.props.height - 32) + 'px',
+            top: (inline.height - 32) + 'px',
         }
         const inline6 = {
-            marginRight: (this.props.width / 2 - 8) + 'px',
-            top: (this.props.height - 32) + 'px',
+            marginRight: (inline.width / 2 - 8) + 'px',
+            top: (inline.height - 31) + 'px',
         }
         return (
-            <div className="selectCage">
-                <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} />
-                <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} />
-                <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={this.handleMouseEnterTopMiddle} />
-                <div id="selector-middle-left" className="selector left middel-vertical" style={inline2} onMouseEnter={this.handleMouseEnterMiddleLeft} />
-                <div id="selector-middle-right" className="selector right middel-vertical" style={inline3} onMouseEnter={this.handleMouseEnterMiddleRight} />
-                <div id="selector-bottom-left" className="selector left" style={inline4} onMouseEnter={this.handleMouseEnterBottomLeft} />
-                <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={this.handleMouseEnterBottomRight} />
-                <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={this.handleMouseEnterBottomMiddle} />
+            <div className="select" style={inline}>
+                <div className="selectCage">
+                    <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={this.handleMouseEnterTopMiddle} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-middle-left" className="selector left middel-vertical" style={inline2} onMouseEnter={this.handleMouseEnterMiddleLeft} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-middle-right" className="selector right middel-vertical" style={inline3} onMouseEnter={this.handleMouseEnterMiddleRight} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-bottom-left" className="selector left" style={inline4} onMouseEnter={this.handleMouseEnterBottomLeft} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={this.handleMouseEnterBottomRight} onMouseLeave={this.handleMouseLeave} />
+                    <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={this.handleMouseEnterBottomMiddle} onMouseLeave={this.handleMouseLeave} />
+                </div>
             </div>
         );
     }
@@ -71,6 +79,15 @@ class Selector extends React.Component<ISelectorProps, any> {
         this.props.sketchBoard.setState({
             tool: toolCollection.Resize,
         });
+    }
+
+    private handleMouseLeave() {
+        const tool = this.props.sketchBoard.state.tool;
+        if (tool.toolRepo === null || tool.mouseState.down === true) {
+            return;
+        }
+        this.props.sketchBoard.setState({ tool: tool.toolRepo });
+        tool.toolRepo = null;
     }
 
     private handleMouseEnterTopLeft() {
@@ -106,6 +123,7 @@ class Selector extends React.Component<ISelectorProps, any> {
     }
 
     private bindHandlers() {
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
         this.handleMouseEnterTopLeft = this.handleMouseEnterTopLeft.bind(this);
         this.handleMouseEnterTopRight = this.handleMouseEnterTopRight.bind(this);
         this.handleMouseEnterTopMiddle = this.handleMouseEnterTopMiddle.bind(this);

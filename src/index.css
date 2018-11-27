@@ -48,6 +48,15 @@ nav {
   height: 0px;
   position: absolute;
   border: solid 1px #d0d0d0;
+  overflow: hidden;
+}
+
+.select {
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  border: solid 1px #d0d0d0;
+  pointer-events: none;
 }
 
 .layout-content {
@@ -236,7 +245,7 @@ a {
   border: solid 1px #427fd3;
   position: relative;
   background: #fff;
-  z-index: 2;
+  pointer-events: all;
 }
 
 .selector.left {

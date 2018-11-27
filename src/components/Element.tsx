@@ -1,7 +1,6 @@
 import * as React from 'react';
 import App from 'src/App';
-import { IElementState } from 'src/datatypes/interfaces';
-import Selctor from './Selector'
+import { ICoordiante, IElementState } from 'src/datatypes/interfaces';
 import SketchBoard from './SketchBoard';
 
 class Element<S extends IElementState> extends React.Component<any, S> {
@@ -16,8 +15,8 @@ class Element<S extends IElementState> extends React.Component<any, S> {
 
     public state: S = this.getInitialState();
 
-    constructor(public id: string, public app: App, public sketchBoard: SketchBoard) {
-        super({key: id});
+    constructor(public id: string, public app: App, public sketchBoard: SketchBoard, public offset: ICoordiante) {
+        super({ key: id });
         this.setState.bind(this);
     }
 
@@ -30,6 +29,11 @@ class Element<S extends IElementState> extends React.Component<any, S> {
             this.initTop = this.state.top;
             this.initLeft = this.state.left;
         }
+    }
+
+    public move(left: number, top: number) {
+        this.state.left = left;
+        this.state.top = top;
     }
 
     public canItersectByHeightWith(element: any) {
@@ -60,9 +64,7 @@ class Element<S extends IElementState> extends React.Component<any, S> {
 
     public render() {
         return (
-            <div>
-                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} width={this.state.width} height={this.state.height} /> : null}
-            </div>
+            <div />
         );
     }
 

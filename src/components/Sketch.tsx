@@ -1,15 +1,14 @@
 import * as React from 'react';
 import App from 'src/App';
-import { ISketchState } from 'src/datatypes/interfaces';
+import { ICoordiante, ISketchState } from 'src/datatypes/interfaces';
 import HumbleArray from '../datatypes/HumbleArray';
 import Element from './Element'
-import Selctor from './Selector'
 import SketchBoard from './SketchBoard';
 
 class Sketch extends Element<ISketchState> {
 
-    constructor(id: string, app: App, sketchBoard: SketchBoard, sketches = new HumbleArray()) {
-        super(id, app, sketchBoard);
+    constructor(id: string, app: App, sketchBoard: SketchBoard, offset: ICoordiante, sketches = new HumbleArray()) {
+        super(id, app, sketchBoard, offset);
         this.state = this.getInitialSketchState(sketches);
     }
 
@@ -20,6 +19,34 @@ class Sketch extends Element<ISketchState> {
                 this.state.sketches.data[i].updateInits(3);
             }
         }
+    }
+
+    public updateSketchOffset() {
+        const parentId = this.id.substr(0, this.id.length-1);
+        this.offset.x = this.sketchBoard.calculateSketchOffset(parentId, 0, this.sketchBoard);
+        this.offset.y = this.sketchBoard.calculateSketchOffset(parentId, 1, this.sketchBoard);
+    }
+
+    public move(left: number, top: number) {
+        super.move(left, top);
+        this.updateChildOffsets();
+    }
+
+    public updateChildOffsets() {
+        this.updateSketchOffset();
+        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
+            const child = this.state.sketches.data[i];
+            if (child instanceof Sketch) {
+                child.updateChildOffsets();
+            }
+        }
+    }
+
+    public getOffset(mode: number) {
+        if (mode === 0) {
+            return this.state.left + this.state.border.width;
+        }
+        return this.state.top + this.state.border.width;
     }
 
     public resizeChildren(parentIsOnSketchboard = false) {
@@ -44,7 +71,8 @@ class Sketch extends Element<ISketchState> {
         }
         this.state.scroll += update;
         for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
-            this.state.sketches.data[i].state.top += update;
+            const sketch = this.state.sketches.data[i];
+            sketch.move(sketch.state.left, sketch.state.top + update);
         }
     }
 
@@ -62,17 +90,12 @@ class Sketch extends Element<ISketchState> {
         if (this.state.refined === true) {
             inline.background = this.state.color;
         }
-        if (this.state.selected === true) {
-            inline.borderColor = '#427fd3';
-        } else if (this.state.border.checked === false) {
+        if (this.state.border.checked === false) {
             inline.borderColor = this.state.color;
         }
         return (
             <div key={this.id} className="sketch" style={inline} id={this.id}>
-                {this.state.selected === true ? <Selctor sketchBoard={this.sketchBoard} width={inline.width} height={inline.height} /> : null}
-                <div className="sketchContainer" id={this.id}>
-                    {this.state.sketches.render()}
-                </div>
+                {this.state.sketches.render()}
             </div>
         );
     }
@@ -81,7 +104,7 @@ class Sketch extends Element<ISketchState> {
         const state = super.getInitialState();
         state.sketches = sketches;
         state.color = '#fff';
-        state.border = { checked: true, color: '#d0d0d0', width: '1px', style: 'solid' };
+        state.border = { checked: true, color: '#d0d0d0', width: 1, style: 'solid' };
         state.scroll = 0;
         return state as ISketchState;
     }

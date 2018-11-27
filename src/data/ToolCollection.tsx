@@ -67,12 +67,10 @@ const toolCollection = {
                 if (tool.target === undefined || tool.target === null) {
                     for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
                         const sketch = this.state.sketches.data[i];
-                        sketch.state.top = sketch.initTop + updateY;
-                        sketch.state.left = sketch.initLeft + updateX;
+                        sketch.move(sketch.initLeft + updateX, sketch.initTop + updateY)
                     }
                 } else {
-                    this.state.selected.state.top = this.state.selected.initTop + updateY;
-                    this.state.selected.state.left = this.state.selected.initLeft + updateX;
+                    this.state.selected.move(this.state.selected.initLeft + updateX, this.state.selected.initTop + updateY)
                 }
                 this.setState({});
             },
@@ -101,15 +99,16 @@ const toolCollection = {
                 const tool = this.state.tool;
                 if (e.target.tagName === 'MAIN') {
                     // calculate the sketches offset
-                    toolCollection.DrawSketch.offsetLeft = this.getSketchOffset('', 'left');
-                    toolCollection.DrawSketch.offsetTop = this.getSketchOffset('', 'top');
+                    const offset = this.getSketchOffset('');
+                    toolCollection.DrawSketch.offsetLeft = offset.x;
+                    toolCollection.DrawSketch.offsetTop = offset.y;
 
                     // save the starting x/y of the rectangle
                     tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
                     tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // add the Sketch to the sketchBoard
-                    tmp = new Sketch(String(this.state.sketches.data.length), this.props.app, this);
+                    tmp = new Sketch(String(this.state.sketches.data.length), this.props.app, this, offset);
                     this.state.sketches.push(tmp);
                 } else {
                     // first of, find the Sketch that gets a new Component
@@ -117,15 +116,16 @@ const toolCollection = {
                     const parent = this.findElementById(this, parentId);
 
                     // calculate the sketches offset
-                    toolCollection.DrawSketch.offsetLeft = this.getSketchOffset(parentId, 'left');
-                    toolCollection.DrawSketch.offsetTop = this.getSketchOffset(parentId, 'top');
+                    const offset = this.getSketchOffset(parentId);
+                    toolCollection.DrawSketch.offsetLeft = offset.x;
+                    toolCollection.DrawSketch.offsetTop = offset.y;
 
                     // save the starting x/y of the rectangle
                     tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
                     tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // create the new Sketch with an id of parentId followed by its future position in the parents sketch array
-                    tmp = new Sketch(String(parentId) + parent.state.sketches.data.length, this.props.app, this);
+                    tmp = new Sketch(String(parentId) + parent.state.sketches.data.length, this.props.app, this, offset);
 
                     // add the new sketch to its parents sketchRepo
                     parent.state.sketches.push(tmp);
