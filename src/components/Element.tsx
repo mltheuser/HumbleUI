@@ -5,6 +5,8 @@ import SketchBoard from './SketchBoard';
 
 class Element<S extends IElementState> extends React.Component<any, S> {
 
+    public name: string = '';
+
     public initHeight: number = 0;
 
     public initLeft: number = 0;
@@ -17,7 +19,24 @@ class Element<S extends IElementState> extends React.Component<any, S> {
 
     constructor(public id: string, public app: App, public sketchBoard: SketchBoard, public offset: ICoordiante) {
         super({ key: id });
+        this.setInitalName();
         this.setState.bind(this);
+    }
+
+    public getActuallHeight() : number {
+        return this.state.height / this.sketchBoard.state.zoom;
+    }
+
+    public getActuallleft() : number {
+        return this.state.left / this.sketchBoard.state.zoom;
+    }
+
+    public getActuallTop() : number {
+        return this.state.top / this.sketchBoard.state.zoom;
+    }
+
+    public getActuallWidth() : number {
+        return this.state.width / this.sketchBoard.state.zoom;
     }
 
     public updateInits(mode = 2) {
@@ -68,6 +87,10 @@ class Element<S extends IElementState> extends React.Component<any, S> {
         );
     }
 
+    public convert(): HTMLElement {
+        return document.createElement("div");
+    }
+
     protected getInitialState(): S {
         return {
             height: 0,
@@ -78,6 +101,11 @@ class Element<S extends IElementState> extends React.Component<any, S> {
             width: 0,
         } as S;
     }
+
+    protected setInitalName() {
+        this.name = `Element${this.id}`;
+    }
+
 }
 
 export default Element;

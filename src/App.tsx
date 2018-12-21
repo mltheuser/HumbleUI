@@ -12,7 +12,7 @@ class App extends React.Component {
         return (
             <div className="container">
                 <div className="layout">
-                    <Menu />
+                    <Menu app={this}/>
                     <div className="layout-top-bar" />
                     <div className="layout-content">
                         <ToolPalate app={this} />

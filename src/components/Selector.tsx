@@ -11,9 +11,8 @@ class Selector extends React.Component<ISelectorProps, any> {
     }
 
     public render() {
-        console.log('test');
         const selected = this.props.sketchBoard.state.selected;
-        if (selected === null || selected.state.refined === false) {
+        if (selected === null) {
             return null;
         }
         const inline = {
@@ -57,9 +56,22 @@ class Selector extends React.Component<ISelectorProps, any> {
             marginRight: (inline.width / 2 - 8) + 'px',
             top: (inline.height - 31) + 'px',
         }
+        const cageStyle = {
+            display: 'block',
+        }
+        const rulerStyle = {
+            backgroundColor: 'rgba(66, 127, 211, 0.54)',
+            display: 'block',
+        }
+        if (selected.state.refined === false) {
+            inline.borderStyle = 'hidden';
+            cageStyle.display = 'none';
+            rulerStyle.backgroundColor = 'rgba(0, 0, 0, 0.54)';
+        }
         return (
             <div className="select-area" style={inline}>
-                <div className="selectCage">
+                <div className="ruler" style={rulerStyle}>{Math.round(selected.getActuallWidth())}x{Math.round(selected.getActuallHeight())}</div>
+                <div className="selectCage" style={cageStyle}>
                     <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
                     <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />
                     <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={this.handleMouseEnterTopMiddle} onMouseLeave={this.handleMouseLeave} />

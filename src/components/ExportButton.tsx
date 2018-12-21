@@ -2,7 +2,7 @@ import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import * as React from 'react';
 import Exporter from 'src/utilities/Exporter';
 
-class ExportButton extends React.Component {
+class ExportButton extends React.Component<any, any> {
 
     public state = {
         anchorEl: null,
@@ -66,7 +66,10 @@ class ExportButton extends React.Component {
     }
 
     private handleExportSelected() {
-        Exporter.saveFile();
+        const sketchBoard = this.props.sketchBoard;
+        const targetId = sketchBoard.state.selected.id[0];
+        const target = sketchBoard.findElementById(sketchBoard, targetId);
+        Exporter.download([target]);
         this.handleClose();
     }
 

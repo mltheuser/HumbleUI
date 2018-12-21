@@ -64,18 +64,6 @@ class Sketch extends Element<ISketchState> {
         }
     }
 
-    public handleScroll(event: any) {
-        let update = - event.deltaY / (this.sketchBoard.state.zoom * 4);
-        if (this.state.scroll + update > 0) {
-            update = -this.state.scroll;
-        }
-        this.state.scroll += update;
-        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
-            const sketch = this.state.sketches.data[i];
-            sketch.move(sketch.state.left, sketch.state.top + update);
-        }
-    }
-
     public render() {
         const inline = {
             background: '',
@@ -102,13 +90,38 @@ class Sketch extends Element<ISketchState> {
         );
     }
 
-    private getInitialSketchState(sketches: HumbleArray): ISketchState {
+    public convert(): HTMLElement {
+        const element = document.createElement("div");
+        this.assignStyle(element);
+        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
+            const child = this.state.sketches.data[i];
+            element.appendChild(child.convert());
+        }
+        return element;
+    }
+
+    protected getInitialSketchState(sketches: HumbleArray): ISketchState {
         const state = super.getInitialState();
         state.sketches = sketches;
         state.color = '#fff';
         state.border = { checked: true, color: '#d0d0d0', width: 1, style: 'solid' };
         state.scroll = 0;
         return state as ISketchState;
+    }
+
+    private assignStyle(element: HTMLElement) {
+        const parent = this.sketchBoard.findElementById(this.sketchBoard, this.id.substr(0, this.id.length - 1));
+        element.style.position = "absolute";
+        element.style.top = this.getActuallTop() + "px";
+        element.style.left = (this.state.left / parent.state.width) * 100 + "%";
+        element.style.width = (this.state.width / parent.state.width) * 100 + "%";
+        element.style.height = this.getActuallHeight() + "px";
+        element.style.backgroundColor = this.state.color;
+        if (this.state.border.checked === true) {
+            element.style.borderColor = this.state.border.color;
+            element.style.borderWidth = this.state.border.width + "px";
+            element.style.borderStyle = this.state.border.style;
+        }
     }
 }
 

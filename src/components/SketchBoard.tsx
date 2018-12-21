@@ -5,6 +5,7 @@ import HumbleArray from '../datatypes/HumbleArray';
 import Element from './Element';
 import Selector from './Selector';
 import Sketch from './Sketch';
+import WindowSketch from './WindowSketch';
 
 class SketchBoard extends React.Component<IAppProps, any> {
 
@@ -104,7 +105,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
             const scrollTargetId = event.target.id[0];
             if(scrollTargetId !== undefined) {
                 const scrollTarget = this.findElementById(this, scrollTargetId);
-                if (scrollTarget instanceof Sketch) {
+                if (scrollTarget instanceof WindowSketch) {
                     scrollTarget.handleScroll(event);
                     this.setState({});
                 }
@@ -153,7 +154,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
 
     private handleSketchBoardScroll(event: any) {
         const center = this.getCenter();
-        const newZoom = this.state.zoom + event.deltaY / 400;
+        const newZoom = this.state.zoom + event.deltaY / 1600;
         const newCursor = {
             x: event.clientX / this.state.zoom * newZoom,
             y: (event.clientY - this.state.top) / this.state.zoom * newZoom,

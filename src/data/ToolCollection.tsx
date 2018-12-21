@@ -1,3 +1,4 @@
+import WindowSketch from 'src/components/WindowSketch';
 import Sketch from '../components/Sketch'
 import Tool from '../components/Tool';
 
@@ -108,7 +109,7 @@ const toolCollection = {
                     tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // add the Sketch to the sketchBoard
-                    tmp = new Sketch(String(this.state.sketches.data.length), this.props.app, this, offset);
+                    tmp = new WindowSketch(String(this.state.sketches.data.length), this.props.app, this, offset);
                     this.state.sketches.push(tmp);
                 } else {
                     // first of, find the Sketch that gets a new Component
