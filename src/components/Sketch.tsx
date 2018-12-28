@@ -1,5 +1,6 @@
 import * as React from 'react';
 import App from 'src/App';
+import CssStyleDeclaration from 'src/datatypes/CssStyleDeclaration';
 import { ICoordiante, ISketchState } from 'src/datatypes/interfaces';
 import HumbleArray from '../datatypes/HumbleArray';
 import Element from './Element'
@@ -90,14 +91,11 @@ class Sketch extends Element<ISketchState> {
         );
     }
 
-    public convert(): HTMLElement {
-        const element = document.createElement("div");
-        this.assignStyle(element);
-        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
-            const child = this.state.sketches.data[i];
-            element.appendChild(child.convert());
-        }
-        return element;
+    public extractStyleDeclaration() : CssStyleDeclaration {
+        const localDeclaration = this.getStyleDeclaration();
+        console.log(localDeclaration);
+        // now merge the ones of the children
+        return localDeclaration;
     }
 
     protected getInitialSketchState(sketches: HumbleArray): ISketchState {
@@ -109,19 +107,21 @@ class Sketch extends Element<ISketchState> {
         return state as ISketchState;
     }
 
-    private assignStyle(element: HTMLElement) {
+    private getStyleDeclaration() : CssStyleDeclaration {
+        const styleDeclaration = new CssStyleDeclaration();
         const parent = this.sketchBoard.findElementById(this.sketchBoard, this.id.substr(0, this.id.length - 1));
-        element.style.position = "absolute";
-        element.style.top = this.getActuallTop() + "px";
-        element.style.left = (this.state.left / parent.state.width) * 100 + "%";
-        element.style.width = (this.state.width / parent.state.width) * 100 + "%";
-        element.style.height = this.getActuallHeight() + "px";
-        element.style.backgroundColor = this.state.color;
+        styleDeclaration.addRule(this, "position", "absolute");
+        styleDeclaration.addRule(this, "top", this.getActuallTop() + "px");
+        styleDeclaration.addRule(this, "left", (this.state.left / parent.state.width) * 100 + "%");
+        styleDeclaration.addRule(this, "width", (this.state.width / parent.state.width) * 100 + "%");
+        styleDeclaration.addRule(this, "height", this.getActuallHeight() + "px");
+        styleDeclaration.addRule(this, "background-color", this.state.color);
         if (this.state.border.checked === true) {
-            element.style.borderColor = this.state.border.color;
-            element.style.borderWidth = this.state.border.width + "px";
-            element.style.borderStyle = this.state.border.style;
+            styleDeclaration.addRule(this, "border-color", this.state.border.color);
+            styleDeclaration.addRule(this, "border-width", this.state.border.width + "px");
+            styleDeclaration.addRule(this, "border-style", this.state.border.style);
         }
+        return styleDeclaration;
     }
 }
 

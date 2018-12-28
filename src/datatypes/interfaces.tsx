@@ -48,3 +48,8 @@ export interface ICoordiante {
     x: number,
     y: number,
 }
+
+export interface CssPropertyValuePairs {
+    'background-color'?: string;
+    color?: string;
+}

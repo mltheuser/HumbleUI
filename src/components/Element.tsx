@@ -1,5 +1,6 @@
 import * as React from 'react';
 import App from 'src/App';
+import CssStyleDeclaration from 'src/datatypes/CssStyleDeclaration';
 import { ICoordiante, IElementState } from 'src/datatypes/interfaces';
 import SketchBoard from './SketchBoard';
 
@@ -87,8 +88,8 @@ class Element<S extends IElementState> extends React.Component<any, S> {
         );
     }
 
-    public convert(): HTMLElement {
-        return document.createElement("div");
+    public extractStyleDeclaration(): CssStyleDeclaration {
+        return new CssStyleDeclaration();
     }
 
     protected getInitialState(): S {
