@@ -49,7 +49,7 @@ export interface ICoordiante {
     y: number,
 }
 
-export interface CssPropertyValuePairs {
+export interface ICssPropertyValuePairs {
     'background-color'?: string;
     color?: string;
 }

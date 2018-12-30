@@ -1,6 +1,6 @@
 import * as React from 'react';
 import App from 'src/App';
-import CssStyleDeclaration from 'src/datatypes/CssStyleDeclaration';
+import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import { ICoordiante, ISketchState } from 'src/datatypes/interfaces';
 import HumbleArray from '../datatypes/HumbleArray';
 import Element from './Element'
@@ -93,8 +93,10 @@ class Sketch extends Element<ISketchState> {
 
     public extractStyleDeclaration() : CssStyleDeclaration {
         const localDeclaration = this.getStyleDeclaration();
-        console.log(localDeclaration);
-        // now merge the ones of the children
+        // now merge with the ones of the children
+        for(const child of this.state.sketches.data) {
+            localDeclaration.unite(child.extractStyleDeclaration());
+        }
         return localDeclaration;
     }
 

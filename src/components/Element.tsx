@@ -1,6 +1,6 @@
 import * as React from 'react';
 import App from 'src/App';
-import CssStyleDeclaration from 'src/datatypes/CssStyleDeclaration';
+import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import { ICoordiante, IElementState } from 'src/datatypes/interfaces';
 import SketchBoard from './SketchBoard';
 

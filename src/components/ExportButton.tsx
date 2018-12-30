@@ -74,6 +74,8 @@ class ExportButton extends React.Component<any, any> {
     }
 
     private handleExportSketchboard() {
+        const sketchBoard = this.props.sketchBoard;
+        Exporter.download(sketchBoard.state.sketches.data);
         this.handleClose();
     }
 

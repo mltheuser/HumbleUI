@@ -45,7 +45,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
         return {x: this.calculateSketchOffset(id, 0), y: this.calculateSketchOffset(id, 1)};
     }
 
-    public findElementById(searchSpace: any, id: string): Element<IElementState> {
+    public findElementById(searchSpace: any = this, id: string = ''): Element<IElementState> {
         if (id.length === 1) {
             return searchSpace.state.sketches.data[id];
         }
