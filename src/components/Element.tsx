@@ -24,19 +24,19 @@ class Element<S extends IElementState> extends React.Component<any, S> {
         this.setState.bind(this);
     }
 
-    public getActuallHeight() : number {
+    public getActuallHeight(): number {
         return this.state.height / this.sketchBoard.state.zoom;
     }
 
-    public getActuallleft() : number {
+    public getActuallleft(): number {
         return this.state.left / this.sketchBoard.state.zoom;
     }
 
-    public getActuallTop() : number {
+    public getActuallTop(): number {
         return this.state.top / this.sketchBoard.state.zoom;
     }
 
-    public getActuallWidth() : number {
+    public getActuallWidth(): number {
         return this.state.width / this.sketchBoard.state.zoom;
     }
 
@@ -92,6 +92,29 @@ class Element<S extends IElementState> extends React.Component<any, S> {
         return new CssStyleDeclaration();
     }
 
+    public toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration, level: number): string {
+        return '';
+    }
+
+    protected getTabLevel(level: number): string {
+        let result = '';
+        for (let i = 0; i < level; ++i) {
+            result += '\t';
+        }
+        return result;
+    }
+
+    // refactor this mess
+    protected renderSelectors(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {
+        let result = '';
+        result += this.renderId(localStyleDecleration, globalStyleDecleration);
+        if (result !== '') {
+            result += ' ';
+        }
+        result += this.renderClasses(localStyleDecleration, globalStyleDecleration);
+        return result;
+    }
+
     protected getInitialState(): S {
         return {
             height: 0,
@@ -105,6 +128,44 @@ class Element<S extends IElementState> extends React.Component<any, S> {
 
     protected setInitalName() {
         this.name = `Element${this.id}`;
+    }
+
+    private renderId(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {
+        let result = '';
+        const localId = localStyleDecleration.getSubjectsId(this);
+        const globalId = globalStyleDecleration.getSubjectsId(this);
+        // Frage kann eine Id in der Global und Local stehen?
+        if (globalId === null) {
+            if (localId !== null) {
+                result += 'id = "' + localId.getSelectorName() + '"';
+            }
+        } else if (localId === null) {
+            result += 'id = "' + globalId.getSelectorName() + '"';
+        } else {
+            throw EvalError(`
+            There is a subject with an id in the local and global styleDecleration. 
+            The is unexpected Behaviour. 
+            Please think about how to prevent this or which one to pick.`
+            );
+        }
+        return result;
+    }
+
+    private renderClasses(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {
+        let result = '';
+        const classes = globalStyleDecleration.getSubjectsClasses(this).concat(localStyleDecleration.getSubjectsClasses(this));
+        if (classes.length !== 0) {
+            result += 'class = "';
+            for (let i = 0, len = classes.length; i < len; ++i) {
+                const localClass = classes[i];
+                result += localClass.getSelectorName();
+                if (i + 1 < len) {
+                    result += ' ';
+                }
+            }
+            result += '"';
+        }
+        return result;
     }
 
 }

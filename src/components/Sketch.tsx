@@ -91,13 +91,28 @@ class Sketch extends Element<ISketchState> {
         );
     }
 
-    public extractStyleDeclaration() : CssStyleDeclaration {
+    public extractStyleDeclaration(): CssStyleDeclaration {
         const localDeclaration = this.getStyleDeclaration();
         // now merge with the ones of the children
-        for(const child of this.state.sketches.data) {
+        for (const child of this.state.sketches.data) {
             localDeclaration.unite(child.extractStyleDeclaration());
         }
         return localDeclaration;
+    }
+
+    public toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration, level: number): string {
+        const childCount = this.state.sketches.data.length;
+        const tabLevel = super.getTabLevel(level);
+        if (childCount === 0) {
+            return tabLevel + '<div ' + super.renderSelectors(localStyleDecleration, globalStyleDecleration) + ' />\n';
+        } else {
+            let result = tabLevel + '<div ' + super.renderSelectors(localStyleDecleration, globalStyleDecleration) + ' >\n';
+            for (const child of this.state.sketches.data) {
+                result += child.toString(localStyleDecleration, globalStyleDecleration, level + 1);
+            }
+            result += tabLevel + '</div>\n';
+            return result;
+        }
     }
 
     protected getInitialSketchState(sketches: HumbleArray): ISketchState {
@@ -109,7 +124,7 @@ class Sketch extends Element<ISketchState> {
         return state as ISketchState;
     }
 
-    private getStyleDeclaration() : CssStyleDeclaration {
+    private getStyleDeclaration(): CssStyleDeclaration {
         const styleDeclaration = new CssStyleDeclaration();
         const parent = this.sketchBoard.findElementById(this.sketchBoard, this.id.substr(0, this.id.length - 1));
         styleDeclaration.addRule(this, "position", "absolute");

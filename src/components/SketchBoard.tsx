@@ -9,6 +9,8 @@ import WindowSketch from './WindowSketch';
 
 class SketchBoard extends React.Component<IAppProps, any> {
 
+    public name: string = 'sketchBoard';
+
     public state: ISketchBoardState = {
         left: 0,
         selected: null,
