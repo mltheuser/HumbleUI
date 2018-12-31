@@ -8,26 +8,32 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Install yarn as your project management tool of choice.
-
-```
-* [yarn](https://yarnpkg.com/lang/en/docs/install/) - The project management tool
-```
+* [Git](https://git-scm.com/download/)
+* [Node.js](https://nodejs.org/)
+* [Yarn](https://yarnpkg.com/lang/en/docs/install/) - The project management tool
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+A step by step series of examples that tell you how to get a development env running.
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+First we clone the repsository.
 
 ```
-until finished
+git clone https://github.com/Kecksbox/HumbleUI.git
+```
+
+Now we download the dependencies
+
+```
+yarn install
+```
+
+Run yarn dev to start the development build.
+The App will open in your main browser.
+Make sure it is up to date. Backwards compatibility was no concern during development.
+
+```
+yarn dev
 ```
 
 End with an example of getting some data out of the system or using it for a little demo
