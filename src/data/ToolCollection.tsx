@@ -1,4 +1,5 @@
 import WindowSketch from 'src/components/WindowSketch';
+import { ISketchBoardState } from 'src/datatypes/interfaces';
 import Sketch from '../components/Sketch'
 import Tool from '../components/Tool';
 
@@ -6,7 +7,7 @@ const toolCollection = {
     Default: new Tool(
         {
             cursor: 'default',
-            handleMouseDown (e: any) {
+            handleMouseDown(e: any) {
                 const tool = this.state.tool;
 
                 tool.dragged = 0;
@@ -40,7 +41,7 @@ const toolCollection = {
                 tool.mouseState.down = true;
                 tool.cursor = 'grabbing';
             },
-            handleMouseMove (e: any) {
+            handleMouseMove(e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -75,7 +76,7 @@ const toolCollection = {
                 }
                 this.setState({});
             },
-            handleMouseUp (e: any) {
+            handleMouseUp(e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -95,7 +96,7 @@ const toolCollection = {
     DrawSketch: new Tool(
         {
             cursor: 'crosshair',
-            handleMouseDown (e: any) {
+            handleMouseDown(e: any) {
                 let tmp: any = null;
                 const tool = this.state.tool;
                 if (e.target.tagName === 'MAIN') {
@@ -144,7 +145,7 @@ const toolCollection = {
 
                 tool.mouseState.down = true;
             },
-            handleMouseMove (e: any) {
+            handleMouseMove(e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -174,7 +175,7 @@ const toolCollection = {
                     }
                 });
             },
-            handleMouseUp (e: any) {
+            handleMouseUp(e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -196,7 +197,7 @@ const toolCollection = {
         }
     ),
     Resize: new Tool({
-        handleMouseDown (e: any) {
+        handleMouseDown(e: any) {
             const tool = this.state.tool;
 
             // save the starting x/y of the rectangle
@@ -207,9 +208,10 @@ const toolCollection = {
 
             this.updateInits(0);
 
+            this.state.selected.state.refined = false;
             tool.mouseState.down = true;
         },
-        handleMouseMove (e: any) {
+        handleMouseMove(e: any) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -354,13 +356,13 @@ const toolCollection = {
 
             });
         },
-        handleMouseUp (e: any) {
+        handleMouseUp(e: any) {
             e.preventDefault();
             e.stopPropagation();
 
             const tool = this.state.tool;
 
-            // the drag is over, clear the dragging flag
+            this.state.selected.state.refined = true;
             tool.mouseState.down = false;
 
             if (document.querySelector('#' + tool.selectorID + ':hover') === null) {
@@ -372,10 +374,122 @@ const toolCollection = {
             }
         }
     }),
-    bind (component: React.Component) {
+    SelectBorderRadius: new Tool({
+        handleMouseDown(e: any) {
+            const tool = this.state.tool;
+
+            // save initBorderRadius
+            const borderRadius = this.state.selected.state.borderRadius;
+            tool.initBorderRadius = {
+                bottomLeft: borderRadius.bottomLeft,
+                bottomRight: borderRadius.bottomRight,
+                topLeft: borderRadius.topLeft,
+                topRight: borderRadius.topRight,
+            };
+
+            // save the starting x/y of the rectangle
+            tool.mouseState.startX = parseInt(e.clientX, 10);
+            tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+
+            this.state.selected.state.refined = false;
+            tool.mouseState.down = true;
+        },
+        handleMouseMove(e: any) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const tool = this.state.tool;
+
+            // if we're not dragging, just return
+            if (tool.mouseState.down === false) {
+                return;
+            }
+
+            // get the current mouse position
+            tool.mouseState.currentX = parseInt(e.clientX, 10);
+            tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
+
+            // calculate changes and update state
+            this.setState((prevState: ISketchBoardState) => {
+                const selected = prevState.selected;
+                if (selected === null || !(selected instanceof Sketch)) {
+                    return;
+                }
+
+                const updates = new Array(2);
+                switch(tool.selectorID) {
+                    case 'BorderRadiusSelectorTopLeft':
+                        updates[0] = tool.mouseState.currentX - tool.mouseState.startX;
+                        updates[1] = tool.mouseState.currentY - tool.mouseState.startY;   
+                    break;
+                    case 'BorderRadiusSelectorTopRight':
+                        updates[0] = tool.mouseState.startX - tool.mouseState.currentX;
+                        updates[1] = tool.mouseState.currentY - tool.mouseState.startY;   
+                    break;
+                    case 'BorderRadiusSelectorBottomLeft':
+                        updates[0] = tool.mouseState.currentX - tool.mouseState.startX;
+                        updates[1] = tool.mouseState.startY - tool.mouseState.currentY;   
+                    break;
+                    case 'BorderRadiusSelectorBottomRight':
+                        updates[0] = tool.mouseState.startX - tool.mouseState.currentX;
+                        updates[1] = tool.mouseState.startY - tool.mouseState.currentY;   
+                    break;
+                }
+
+                const update = Math.max(...updates);
+
+                // cap at max borderRadius
+                const center = selected.getCenter();
+                const maxRadius = Math.min(center.x - selected.getLeftBorder(), center.y - selected.getTopBorder());
+
+                selected.state.borderRadius.topLeft = tool.initBorderRadius.topLeft + update;
+                if (selected.state.borderRadius.topLeft > maxRadius) {
+                    selected.state.borderRadius.topLeft = maxRadius;
+                }
+                selected.state.borderRadius.topRight = tool.initBorderRadius.topRight + update;
+                if (selected.state.borderRadius.topRight > maxRadius) {
+                    selected.state.borderRadius.topRight = maxRadius;
+                }
+                selected.state.borderRadius.bottomLeft = tool.initBorderRadius.bottomLeft + update;
+                if (selected.state.borderRadius.bottomLeft > maxRadius) {
+                    selected.state.borderRadius.bottomLeft = maxRadius;
+                }
+                selected.state.borderRadius.bottomRight = tool.initBorderRadius.bottomRight + update;
+                if (selected.state.borderRadius.bottomRight > maxRadius) {
+                    selected.state.borderRadius.bottomRight = maxRadius;
+                }
+
+                return {
+                    selected: prevState.selected
+                }
+            });
+        },
+        handleMouseUp(e: any) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const tool = this.state.tool;
+
+            this.state.selected.state.refined = true;
+            tool.mouseState.down = false;
+
+            this.setState({ selected: this.state.selected });
+
+            if (document.querySelector('#' + tool.selectorID + ':hover') === null) {
+                if (tool.toolRepo === null || tool.mouseState.down === true) {
+                    return;
+                }
+                this.setState({ tool: tool.toolRepo });
+                tool.toolRepo = null;
+            }
+        },
+    }),
+
+    bind(component: React.Component) {
         this.Default.bind(component);
         this.DrawSketch.bind(component);
         this.Resize.bind(component);
+        this.SelectBorderRadius.bind(component);
     }
 }
 

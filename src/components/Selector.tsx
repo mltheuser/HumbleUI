@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
+import BorderRadiusSelect from './BorderRadiusSelect';
 import Sketch from './Sketch';
 
 class Selector extends React.Component<ISelectorProps, any> {
@@ -20,7 +21,7 @@ class Selector extends React.Component<ISelectorProps, any> {
             borderColor: '#427fd3',
             borderStyle: 'solid',
             borderWidth: 1.7,
-            height: selected.state.height, // adjust to math borders
+            height: selected.state.height, // adjust to match borders
             left: selected.state.left + selected.offset.x,
             top: selected.state.top + selected.offset.y - this.props.sketchBoard.state.top,
             width: selected.state.width,
@@ -46,15 +47,15 @@ class Selector extends React.Component<ISelectorProps, any> {
         }
         const inline4 = {
             cursor: 'nesw-resize',
-            top: (inline.height - 23) + 'px',
+            top: (inline.height - 21) + 'px',
         }
         const inline5 = {
             cursor: 'nwse-resize',
-            top: (inline.height - 32) + 'px',
+            top: (inline.height - 30) + 'px',
         }
         const inline6 = {
             marginRight: (inline.width / 2 - 8) + 'px',
-            top: (inline.height - 31) + 'px',
+            top: (inline.height - 30) + 'px',
         }
         const cageStyle = {
             display: 'block',
@@ -65,24 +66,31 @@ class Selector extends React.Component<ISelectorProps, any> {
         }
         if (selected.state.refined === false) {
             inline.borderStyle = 'hidden';
-            cageStyle.display = 'none';
             rulerStyle.backgroundColor = 'rgba(0, 0, 0, 0.54)';
-        }
-        return (
-            <div className="select-area" style={inline}>
-                <div className="ruler" style={rulerStyle}>{Math.round(selected.getActuallWidth())}x{Math.round(selected.getActuallHeight())}</div>
-                <div className="selectCage" style={cageStyle}>
-                    <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={this.handleMouseEnterTopMiddle} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-middle-left" className="selector left middel-vertical" style={inline2} onMouseEnter={this.handleMouseEnterMiddleLeft} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-middle-right" className="selector right middel-vertical" style={inline3} onMouseEnter={this.handleMouseEnterMiddleRight} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-bottom-left" className="selector left" style={inline4} onMouseEnter={this.handleMouseEnterBottomLeft} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={this.handleMouseEnterBottomRight} onMouseLeave={this.handleMouseLeave} />
-                    <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={this.handleMouseEnterBottomMiddle} onMouseLeave={this.handleMouseLeave} />
+            return (
+                <div className="select-area" style={inline}>
+                    <div className="ruler" style={rulerStyle}>{Math.round(selected.getActuallWidth())}x{Math.round(selected.getActuallHeight())}</div>
+                    < BorderRadiusSelect sketchBoard={this.props.sketchBoard} />
                 </div>
-            </div>
-        );
+            )
+        } else {
+            return (
+                <div className="select-area" style={inline}>
+                    <div className="ruler" style={rulerStyle}>{Math.round(selected.getActuallWidth())}x{Math.round(selected.getActuallHeight())}</div>
+                    <div className="selectCage" style={cageStyle}>
+                        <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={this.handleMouseEnterTopMiddle} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-middle-left" className="selector left middel-vertical" style={inline2} onMouseEnter={this.handleMouseEnterMiddleLeft} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-middle-right" className="selector right middel-vertical" style={inline3} onMouseEnter={this.handleMouseEnterMiddleRight} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-bottom-left" className="selector left" style={inline4} onMouseEnter={this.handleMouseEnterBottomLeft} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={this.handleMouseEnterBottomRight} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={this.handleMouseEnterBottomMiddle} onMouseLeave={this.handleMouseLeave} />
+                    </div>
+                    < BorderRadiusSelect sketchBoard={this.props.sketchBoard} />
+                </div>
+            );
+        }
     }
 
     private handleMouseEnter(horizontalMode: number, verticalMode: number, selectorID: string) {

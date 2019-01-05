@@ -24,6 +24,29 @@ class Element<S extends IElementState> extends React.Component<any, S> {
         this.setState.bind(this);
     }
 
+    public getLeftBorder(): number{
+        return this.state.left;
+    }
+
+    public getRightBorder(): number{
+        return this.state.left + this.state.width;
+    }
+
+    public getTopBorder(): number{
+        return this.state.top;
+    }
+
+    public getBottomBorder(): number{
+        return this.state.top + this.state.height;
+    }
+
+    public getCenter(): ICoordiante{
+        return {
+            x: this.getLeftBorder() + (this.getRightBorder() - this.getLeftBorder()) / 2,
+            y: this.getTopBorder() + (this.getBottomBorder() - this.getTopBorder()) / 2,
+        };
+    }
+
     public getActuallHeight(): number {
         return this.state.height / this.sketchBoard.state.zoom;
     }
@@ -118,6 +141,7 @@ class Element<S extends IElementState> extends React.Component<any, S> {
     protected getInitialState(): S {
         return {
             height: 0,
+            inEditMode: false,
             left: this.sketchBoard.state.tool.mouseState.startX,
             refined: false,
             selected: false,

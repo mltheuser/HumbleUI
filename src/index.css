@@ -238,6 +238,10 @@ a {
   height: 30px; 
 }
 
+.floatRight {
+  float: right;
+}
+
 .selector {
   border-radius: 50%;
   width: 7px;
@@ -256,7 +260,7 @@ a {
 .selector.right, .selector.middel {
   float: right;
   top: -14px;
-  margin-right: -5px;
+  margin-right: -5.5px;
   cursor: nesw-resize;
 }
 
@@ -292,6 +296,11 @@ a {
     height: 60px;
     color: rgba(0, 0, 0, 0.54);
     font-family: 'Roboto','Helvetica','Arial',sans-serif!important;
+}
+
+.radiusSelector {
+  position: absolute;
+  pointer-events: all;
 }
 
 .export-button {

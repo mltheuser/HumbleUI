@@ -10,6 +10,7 @@ export interface IAppProps {
 
 export interface IElementState {
     height: number,
+    inEditMode: boolean,
     left: number,
     refined: boolean,
     selected: boolean,
@@ -33,11 +34,19 @@ export interface IBorder {
     style: string,
 }
 
+export interface IBorderRadius {
+    topLeft: number,
+    topRight: number,
+    bottomRight: number,
+    bottomLeft: number,
+}
+
 export interface ISketchState extends IElementState {
     scroll: number,
     sketches: HumbleArray,
     color: string,
     border: IBorder,
+    borderRadius: IBorderRadius,
 }
 
 export interface ISelectorProps {
@@ -47,6 +56,11 @@ export interface ISelectorProps {
 export interface ICoordiante {
     x: number,
     y: number,
+}
+
+export interface IBorderRadiusSelector extends ISelectorProps{
+    position: ICoordiante,
+    selectorID: string,
 }
 
 export interface ICssPropertyValuePairs {

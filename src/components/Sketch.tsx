@@ -13,6 +13,20 @@ class Sketch extends Element<ISketchState> {
         this.state = this.getInitialSketchState(sketches);
     }
 
+    public getRightBorder(): number {
+        if (this.state.border.checked) {
+            return this.state.left + this.state.width + 2 * this.state.border.width;
+        }
+        return this.state.left + this.state.width;
+    }
+
+    public getBottomBorder(): number {
+        if (this.state.border.checked) {
+            return this.state.top + this.state.height + 2 * this.state.border.width;
+        }
+        return this.state.top + this.state.height;
+    }
+
     public updateInits(mode = 2) {
         super.updateInits(mode);
         if (mode > 2) {
@@ -69,6 +83,8 @@ class Sketch extends Element<ISketchState> {
         const inline = {
             background: '',
             borderColor: this.state.border.color,
+            borderRadius: (this.state.borderRadius.topLeft + 'px ') + (this.state.borderRadius.topRight + 'px ')
+                + (this.state.borderRadius.bottomLeft + 'px ') + (this.state.borderRadius.bottomRight + 'px'),
             borderStyle: this.state.border.style,
             borderWidth: this.state.border.width,
             height: this.state.height,
@@ -120,6 +136,7 @@ class Sketch extends Element<ISketchState> {
         state.sketches = sketches;
         state.color = '#fff';
         state.border = { checked: true, color: '#d0d0d0', width: 1, style: 'solid' };
+        state.borderRadius = { topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50 };
         state.scroll = 0;
         return state as ISketchState;
     }
