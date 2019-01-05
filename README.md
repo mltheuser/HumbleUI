@@ -1,4 +1,4 @@
-# Project Title
+# HubleUI
 
 With HumbleUI from an idea, painless, to finished html and css.
 
@@ -35,8 +35,6 @@ Make sure it is up to date. Backwards compatibility was no concern during develo
 ```
 yarn dev
 ```
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running the tests
 
