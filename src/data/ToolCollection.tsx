@@ -1,6 +1,6 @@
 import WindowSketch from 'src/components/WindowSketch';
 import { ISketchBoardState } from 'src/datatypes/interfaces';
-import Sketch from '../components/Sketch'
+import Sketch from '../components/Sketch';
 import Tool from '../components/Tool';
 
 const toolCollection = {
@@ -418,19 +418,19 @@ const toolCollection = {
 
                 const updates = new Array(2);
                 switch(tool.selectorID) {
-                    case 'BorderRadiusSelectorTopLeft':
+                    case 'topLeftRadius':
                         updates[0] = tool.mouseState.currentX - tool.mouseState.startX;
                         updates[1] = tool.mouseState.currentY - tool.mouseState.startY;   
                     break;
-                    case 'BorderRadiusSelectorTopRight':
+                    case 'topRightRadius':
                         updates[0] = tool.mouseState.startX - tool.mouseState.currentX;
                         updates[1] = tool.mouseState.currentY - tool.mouseState.startY;   
                     break;
-                    case 'BorderRadiusSelectorBottomLeft':
+                    case 'bottomLeftRadius':
                         updates[0] = tool.mouseState.currentX - tool.mouseState.startX;
                         updates[1] = tool.mouseState.startY - tool.mouseState.currentY;   
                     break;
-                    case 'BorderRadiusSelectorBottomRight':
+                    case 'bottomRightRadius':
                         updates[0] = tool.mouseState.startX - tool.mouseState.currentX;
                         updates[1] = tool.mouseState.startY - tool.mouseState.currentY;   
                     break;
@@ -438,26 +438,10 @@ const toolCollection = {
 
                 const update = Math.max(...updates);
 
-                // cap at max borderRadius
-                const center = selected.getCenter();
-                const maxRadius = Math.min(center.x - selected.getLeftBorder(), center.y - selected.getTopBorder());
-
                 selected.state.borderRadius.topLeft = tool.initBorderRadius.topLeft + update;
-                if (selected.state.borderRadius.topLeft > maxRadius) {
-                    selected.state.borderRadius.topLeft = maxRadius;
-                }
                 selected.state.borderRadius.topRight = tool.initBorderRadius.topRight + update;
-                if (selected.state.borderRadius.topRight > maxRadius) {
-                    selected.state.borderRadius.topRight = maxRadius;
-                }
                 selected.state.borderRadius.bottomLeft = tool.initBorderRadius.bottomLeft + update;
-                if (selected.state.borderRadius.bottomLeft > maxRadius) {
-                    selected.state.borderRadius.bottomLeft = maxRadius;
-                }
                 selected.state.borderRadius.bottomRight = tool.initBorderRadius.bottomRight + update;
-                if (selected.state.borderRadius.bottomRight > maxRadius) {
-                    selected.state.borderRadius.bottomRight = maxRadius;
-                }
 
                 return {
                     selected: prevState.selected

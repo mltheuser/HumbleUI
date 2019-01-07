@@ -16,7 +16,7 @@ class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
             left: position.x + 'px',
             top: position.y + 'px',
         }
-        const selected =  this.props.sketchBoard.state.selected;
+        const selected = this.props.sketchBoard.state.selected;
         if (selected === null) {
             return;
         }

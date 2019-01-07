@@ -136,7 +136,7 @@ class Sketch extends Element<ISketchState> {
         state.sketches = sketches;
         state.color = '#fff';
         state.border = { checked: true, color: '#d0d0d0', width: 1, style: 'solid' };
-        state.borderRadius = { topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50 };
+        state.borderRadius = { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 };
         state.scroll = 0;
         return state as ISketchState;
     }
@@ -150,6 +150,7 @@ class Sketch extends Element<ISketchState> {
         styleDeclaration.addRule(this, "width", (this.state.width / parent.state.width) * 100 + "%");
         styleDeclaration.addRule(this, "height", this.getActuallHeight() + "px");
         styleDeclaration.addRule(this, "background-color", this.state.color);
+        styleDeclaration.addRule(this, "border-radius", this.state.borderRadius.topLeft + "px"); // vorrüber gehend (bis es möglich ist unterschiedliche radien zu wählen)
         if (this.state.border.checked === true) {
             styleDeclaration.addRule(this, "border-color", this.state.border.color);
             styleDeclaration.addRule(this, "border-width", this.state.border.width + "px");
