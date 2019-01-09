@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
 
+/* we might want to make #2196f3 the new standart blue */
+
 body {
   margin: 0;
   padding: 0;
@@ -101,20 +103,35 @@ a {
   margin-left: 1px;
 }
 
+.infoTab {
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
 #appearance.infoItem {
   margin-bottom: 0px;
 }
 
-#positioningPresets {
+#tabPannel {
   height: 7%;
+  width: 100%;
 }
 
 #positioning {
-  height: 15%;
+  height: 98.875px;
 }
 
 #appearance {
-  height: 76.8%;
+  height: 506.263px;
+}
+
+#record {
+  height: 46.14px;
+}
+
+#keyOverview {
+  height: 200px;
 }
 
 #tool-palate {
@@ -132,16 +149,16 @@ a {
 
 .nav-item {
   display: block;
-    -ms-flex-negative: 0;
-    padding: 16px 14px;
-    line-height: 24px;
-    opacity: .87;
-    left: 5px;
+  -ms-flex-negative: 0;
+  padding: 16px 14px;
+  line-height: 24px;
+  opacity: .87;
+  left: 5px;
 }
 
 .infoItem > .header {
   font-family: 'Roboto','Helvetica','Arial',sans-serif!important;
-  height: 9%;
+  height: 45.56px;
 }
 
 .infoItem > .header > h3 {
@@ -153,12 +170,20 @@ a {
   left: 3%;
 }
 
-.infoItem > .colorPicker {
-  height: 387px;
+.infoPaper {
   background: #fff;
 }
 
-.colorPicker > .chrome-picker {
+.responseWindow {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#colorPicker {
+  height: 387px;
+}
+
+#colorPicker > .chrome-picker {
   background: #fff;
   border-radius: 2px;
   box-sizing: 'initial';
@@ -232,6 +257,11 @@ a {
   position: relative;
   top: -56px;
   left: 104.5px;
+}
+
+#recSelect {
+  position: absolute;
+  left: 13px;
 }
 
 .sketch-icon {
