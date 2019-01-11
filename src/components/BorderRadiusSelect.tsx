@@ -1,10 +1,10 @@
 import * as React from 'react';
 import toolCollection from 'src/data/ToolCollection';
-import { IBorderRadius, ICoordiante, IElementState, ISelectorProps} from "src/datatypes/interfaces";
+import { ICoordiante, IElementState, ISelectorProps} from "src/datatypes/interfaces";
+import Element from './Board/Element';
+import Sketch from './Board/Elements/Sketch';
+import WindowSketch from './Board/Elements/WindowSketch';
 import BorderRadiusSelector from './BorderRadiusSelector';
-import Element from './Element';
-import Sketch from './Sketch';
-import WindowSketch from './WindowSketch';
 
 class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
 
@@ -25,7 +25,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             return null;
         }
         // default case
-        const borderRadius = selected.state.borderRadius;
+        const displayProperties = selected.state.displayProperties;
         const maxRadius = this.getMaxRadius(selected);
         const topLeft = this.passBorderRadiusByKey(
             {
@@ -34,7 +34,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             },
             maxRadius,
             'topLeft',
-            borderRadius
+            displayProperties["border-top-left-radius"].getValue()
         );
         const topRight = this.passBorderRadiusByKey(
             {
@@ -43,7 +43,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             },
             maxRadius,
             'topRight',
-            borderRadius
+            displayProperties["border-top-right-radius"].getValue()
         );
         const bottomLeft = this.passBorderRadiusByKey(
             {
@@ -52,7 +52,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             },
             maxRadius,
             'bottomLeft',
-            borderRadius
+            displayProperties["border-bottom-left-radius"].getValue()
         );
         const bottomRight = this.passBorderRadiusByKey(
             {
@@ -61,7 +61,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             },
             maxRadius,
             'bottomRight',
-            borderRadius
+            displayProperties["border-bottom-right-radius"].getValue()
         );
         // combine overlapping selectors
 
@@ -96,15 +96,15 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
         return Math.min(center.x - selected.getLeftBorder(), center.y - selected.getTopBorder());
     }
 
-    private passBorderRadiusByKey(position: ICoordiante, maxRadius: number, key: string, borderRadius: IBorderRadius) {
+    private passBorderRadiusByKey(position: ICoordiante, maxRadius: number, key: string, borderRadius: number) {
         const directions = BorderRadiusSelect.directionTable[key];
-        if (borderRadius[key] > maxRadius) {
-            borderRadius[key] = maxRadius;
+        if (borderRadius > maxRadius) {
+            borderRadius = maxRadius;
         }
-        if (borderRadius[key] < 20) {
+        if (borderRadius < 20) {
             const tool = this.props.sketchBoard.state.tool;
-            if (borderRadius[key] < 0) {
-                borderRadius[key] = 0;
+            if (borderRadius < 0) {
+                borderRadius = 0;
             }
             if (tool !== toolCollection.SelectBorderRadius || tool.mouseState.down === false || tool.selectorID !== key + "Radius") {
                 position.x += directions.x * 20;
@@ -112,8 +112,8 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
                 return position;
             }
         }
-        position.x += directions.x * borderRadius[key];
-        position.y += directions.y * borderRadius[key];
+        position.x += directions.x * borderRadius;
+        position.y += directions.y * borderRadius;
         return position;
     }
 }

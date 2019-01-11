@@ -45,7 +45,15 @@ nav {
   -webkit-overflow-scrolling: touch;
 }
 
-.sketch {
+.Sketch {
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  border: solid 1px #d0d0d0;
+  overflow: hidden;
+}
+
+.WindowSketch {
   width: 0px;
   height: 0px;
   position: absolute;

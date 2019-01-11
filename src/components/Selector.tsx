@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
+import Sketch from './Board/Elements/Sketch';
 import BorderRadiusSelect from './BorderRadiusSelect';
-import Sketch from './Sketch';
 
 class Selector extends React.Component<ISelectorProps, any> {
 
@@ -21,19 +21,19 @@ class Selector extends React.Component<ISelectorProps, any> {
             borderColor: '#427fd3',
             borderStyle: 'solid',
             borderWidth: 1.7,
-            height: selected.state.height, // adjust to match borders
-            left: selected.state.left + selected.offset.x,
-            top: selected.state.top + selected.offset.y - this.props.sketchBoard.state.top,
-            width: selected.state.width,
+            height: selected.state.displayProperties.height.getValue(), // adjust to match borders
+            left:  selected.state.displayProperties.left.getValue() + selected.offset.x,
+            top:  selected.state.displayProperties.top.getValue() + selected.offset.y - this.props.sketchBoard.state.top,
+            width:  selected.state.displayProperties.width.getValue(),
         }
         if (selected instanceof Sketch) {
-            inline.height += 2 * selected.state.border.width - 2;
-            inline.width += 2 * selected.state.border.width - 2;
-            if (selected.state.border.checked === false) {
-                inline.top += selected.state.border.width;
-                inline.left += selected.state.border.width;
-                inline.height -= 2 * selected.state.border.width;
-                inline.width -= 2 * selected.state.border.width;
+            inline.height += 2 * selected.state.displayProperties["border-width"].getValue() - 2;
+            inline.width += 2 * selected.state.displayProperties["border-width"].getValue() - 2;
+            if (selected.state.borderChecked === false) {
+                inline.top += selected.state.displayProperties["border-width"].getValue();
+                inline.left += selected.state.displayProperties["border-width"].getValue();
+                inline.height -= 2 * selected.state.displayProperties["border-width"].getValue();
+                inline.width -= 2 * selected.state.displayProperties["border-width"].getValue();
             }
         }
         const inline1 = {

@@ -1,7 +1,8 @@
 import App from "src/App";
-import Element from 'src/components/Element';
-import SketchBoard from 'src/components/SketchBoard';
+import Element from 'src/components/Board/Element';
+import SketchBoard from 'src/components/Board/SketchBoard';
 import Tool from 'src/components/Tool';
+import DisplayPropertyCollection from './DisplayProperties/DisplayPropertyCollection';
 import HumbleArray from './HumbleArray';
 
 export interface IAppProps {
@@ -9,13 +10,10 @@ export interface IAppProps {
 }
 
 export interface IElementState {
-    height: number,
+    displayProperties: DisplayPropertyCollection,
     inEditMode: boolean,
-    left: number,
     refined: boolean,
     selected: boolean,
-    top: number,
-    width: number,
 }
 
 export interface ISketchBoardState {
@@ -34,23 +32,32 @@ export interface IBorder {
     style: string,
 }
 
-export interface IBorderRadius {
-    topLeft: number,
-    topRight: number,
-    bottomRight: number,
-    bottomLeft: number,
+export interface IElementContainerState extends IElementState {
+    borderChecked: boolean,
+    sketches: HumbleArray,
 }
 
-export interface ISketchState extends IElementState {
+export interface IElementContainerStyle {
+    background: string,
+    borderColor: string,
+    borderStyle: string,
+    borderWidth: number | string,
+    height: number | string,
+    left: number | string,
+    top: number | string,
+    width: number | string,
+}
+
+export interface IWindowSketchState extends IElementContainerState {
     scroll: number,
-    sketches: HumbleArray,
-    color: string,
-    border: IBorder,
-    borderRadius: IBorderRadius,
+}
+
+export interface ISketchInlineStyle extends IElementContainerStyle {
+    borderRadius?: string,
 }
 
 export interface ISelectorProps {
-    sketchBoard: SketchBoard;
+    sketchBoard: SketchBoard,
 }
 
 export interface ICoordiante {

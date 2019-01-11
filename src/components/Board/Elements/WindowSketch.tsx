@@ -1,15 +1,17 @@
 import App from 'src/App';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
-import { ICoordiante } from 'src/datatypes/interfaces';
-import Sketch from "./Sketch";
-import SketchBoard from './SketchBoard';
+import { ICoordiante, IWindowSketchState } from 'src/datatypes/interfaces';
+import SketchBoard from '../SketchBoard';
+import ElementContainer from './ElementContainer';
 
 
-class WindowSketch extends Sketch {
+class WindowSketch extends ElementContainer {
+
+    public state: IWindowSketchState = this.getInitialWindowSketchState();
+
     constructor(id: string, app: App, sketchBoard: SketchBoard, offset: ICoordiante, sketches = new HumbleArray()) {
-        super(id, app, sketchBoard, offset);
-        this.state = this.getInitialSketchState(sketches);
+        super(id, app, sketchBoard, offset, sketches);
     }
 
     public handleScroll(event: any) {
@@ -20,16 +22,8 @@ class WindowSketch extends Sketch {
         this.state.scroll += update;
         for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
             const sketch = this.state.sketches.data[i];
-            sketch.move(sketch.state.left, sketch.state.top + update);
+            sketch.move(sketch.state.displayProperties.left.getValue(), sketch.state.displayProperties.top.getValue() + update);
         }
-    }
-
-    public extractStyleDeclaration(): CssStyleDeclaration {
-        const resultDeclaration = new CssStyleDeclaration();
-        for (const child of this.state.sketches.data) {
-            resultDeclaration.unite(child.extractStyleDeclaration());
-        }
-        return resultDeclaration;
     }
 
     public toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {
@@ -39,6 +33,12 @@ class WindowSketch extends Sketch {
             + '</head>\n<body>\n'
             + this.renderDomElements(localStyleDecleration, globalStyleDecleration)
             + '</body>\n</html>';
+    }
+
+    protected getInitialWindowSketchState(): IWindowSketchState {
+        const state = this.state as IWindowSketchState;
+        state.scroll = 0;
+        return this.state as IWindowSketchState;
     }
 
     private renderDomElements(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {

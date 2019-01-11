@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver';
 import * as JSZip from 'jszip';
-import WindowSketch from 'src/components/WindowSketch';
+import WindowSketch from 'src/components/Board/Elements/WindowSketch';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 
 class Exporter {
@@ -21,7 +21,7 @@ class Exporter {
         const sketchBoardFolder = zip.folder(sketchBoardName)
         const sketchStyleDeklarations: CssStyleDeclaration[] = [];
         for (const sketch of sketches) {
-            sketchStyleDeklarations.push(sketch.extractStyleDeclaration())
+            sketchStyleDeklarations.push(sketch.getStyleDecleration())
         }
         const globalStyleDecleration = CssStyleDeclaration.intersect(sketchStyleDeklarations);
         sketchBoardFolder.file(sketchBoard.name + "_StyleSheet.css", new Blob([globalStyleDecleration.toString()], { type: 'text/plain' }), { base64: true });

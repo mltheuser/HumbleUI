@@ -1,7 +1,8 @@
 import { Checkbox } from '@material-ui/core';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
-import { IAppProps } from 'src/datatypes/interfaces';
+import { IAppProps, ISketchBoardState } from 'src/datatypes/interfaces';
+import Sketch from './Board/Elements/Sketch';
 import DefaultTabContent from './DefaultTabContent';
 import LineSelect from './LineSelect';
 import NumberField from './NumberField';
@@ -24,7 +25,7 @@ class AppearanceTabContent extends DefaultTabContent {
                     </div>
                     <div id="colorPicker" className="infoPaper">
                         <div className="borderControll">
-                            <Checkbox checked={this.sketchBoard.state.selected.state.border.checked} color="default" value="borderChecked" onChange={this.handleBorderChange} />
+                            <Checkbox checked={this.sketchBoard.state.selected.state.borderChecked} color="default" value="borderChecked" onChange={this.handleBorderChange} />
                             <div className="borderColor" />
                             <p>Border</p>
                             <div className="picker">
@@ -48,8 +49,11 @@ class AppearanceTabContent extends DefaultTabContent {
     }
         
     private handleColorChange(color: any) {
-        this.setState((prevState: any) => {
-            prevState.selected.state.color = `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+        this.setState((prevState: ISketchBoardState) => {
+            if (prevState.selected === null) {
+                throw EvalError("Trying to change color on an element, that is not selected.")
+            }
+            prevState.selected.state.displayProperties["background-color"].setValue(`rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`);
             return {
                 selected: prevState.selected
             }
@@ -58,8 +62,13 @@ class AppearanceTabContent extends DefaultTabContent {
             
     private handleBorderChange(event: any) {
         const checked = event.target.checked;
-        this.sketchBoard.setState((prevState: any) => {
-            prevState.selected.state.border.checked = checked;
+        this.sketchBoard.setState((prevState: ISketchBoardState) => {
+            if (prevState.selected === null) {
+                throw EvalError("selected is null.");
+            }
+            if (prevState.selected instanceof Sketch) {
+                prevState.selected.state.borderChecked = checked;
+            }
             return {
                 selected: prevState.selected
             }

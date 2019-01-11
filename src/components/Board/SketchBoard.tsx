@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { IAppProps, ICoordiante, IElementState, ISketchBoardState} from 'src/datatypes/interfaces';
-import toolCollection from '../data/ToolCollection';
-import HumbleArray from '../datatypes/HumbleArray';
+import HumbleArray from 'src/datatypes/HumbleArray';
+import { IAppProps, ICoordiante, IElementState, ISketchBoardState } from 'src/datatypes/interfaces';
+import toolCollection from '../../data/ToolCollection';
+import Selector from '../Selector';
 import Element from './Element';
-import Selector from './Selector';
-import Sketch from './Sketch';
-import WindowSketch from './WindowSketch';
+import ElementContainer from './Elements/ElementContainer';
+import Sketch from './Elements/Sketch';
+import WindowSketch from './Elements/WindowSketch';
 
-class SketchBoard extends React.Component<IAppProps, any> {
+class SketchBoard extends React.Component<any, ISketchBoardState> {
 
-    public name: string = 'sketchBoard';
+    public name = 'sketchBoard';
 
     public state: ISketchBoardState = {
         left: 0,
@@ -32,19 +33,21 @@ class SketchBoard extends React.Component<IAppProps, any> {
         }
     }
 
+    // Exists in Element as well
     public getOffset(mode: number) {
-        if(mode === 0) {
+        if (mode === 0) {
             return this.state.left;
+        } else {
+            return this.state.top;
         }
-        return this.state.top;
     }
 
     public calculateSketchOffset(id: string, offset: number, searchSpace: SketchBoard | Sketch = this, sum = 0): number {
         return id.length === 0 ? sum + searchSpace.getOffset(offset) : this.calculateSketchOffset(id.substring(1), offset, searchSpace.state.sketches.data[id.charAt(0)], sum + searchSpace.getOffset(offset));
     }
 
-    public getSketchOffset(id: string) : ICoordiante {
-        return {x: this.calculateSketchOffset(id, 0), y: this.calculateSketchOffset(id, 1)};
+    public getSketchOffset(id: string): ICoordiante {
+        return { x: this.calculateSketchOffset(id, 0), y: this.calculateSketchOffset(id, 1) };
     }
 
     public findElementById(searchSpace: any = this, id: string = ''): Element<IElementState> {
@@ -55,9 +58,6 @@ class SketchBoard extends React.Component<IAppProps, any> {
     }
 
     public findAndSelectElementByTargetId(id: string): Element<IElementState> {
-        if (id.length === 0 || /^\d+$/.test(id) === false) {
-            throw ReferenceError("Invalid id.");
-        }
         let i = 0;
         if (this.state.selected) {
             const len = id.length;
@@ -105,7 +105,7 @@ class SketchBoard extends React.Component<IAppProps, any> {
     public handleScroll(event: any) {
         if (event.shiftKey) {
             const scrollTargetId = event.target.id[0];
-            if(scrollTargetId !== undefined) {
+            if (scrollTargetId !== undefined) {
                 const scrollTarget = this.findElementById(this, scrollTargetId);
                 if (scrollTarget instanceof WindowSketch) {
                     scrollTarget.handleScroll(event);
@@ -144,13 +144,15 @@ class SketchBoard extends React.Component<IAppProps, any> {
 
     private zoomDomainElements(domain: any, newZoom: number, repositionVector = { x: 0, y: 0 }) {
         for (let i = 0, len = domain.state.sketches.data.length; i < len; ++i) {
-            const tmp = domain.state.sketches.data[i];
-            tmp.state.top = (tmp.state.top / this.state.zoom) * newZoom + repositionVector.y;
-            tmp.state.left = (tmp.state.left / this.state.zoom) * newZoom + repositionVector.x;
-            tmp.state.height = (tmp.state.height / this.state.zoom) * newZoom;
-            tmp.state.width = (tmp.state.width / this.state.zoom) * newZoom;
-            tmp.updateSketchOffset();
-            this.zoomDomainElements(tmp, newZoom);
+            const tmp: Element<IElementState> = domain.state.sketches.data[i];
+            tmp.state.displayProperties.top.setValue((tmp.state.displayProperties.top.getValue() / this.state.zoom) * newZoom + repositionVector.y)
+            tmp.state.displayProperties.left.setValue((tmp.state.displayProperties.left.getValue() / this.state.zoom) * newZoom + repositionVector.x);
+            tmp.state.displayProperties.height.setValue((tmp.state.displayProperties.height.getValue() / this.state.zoom) * newZoom);
+            tmp.state.displayProperties.width.setValue((tmp.state.displayProperties.width.getValue() / this.state.zoom) * newZoom);
+            if (tmp instanceof ElementContainer) {
+                tmp.updateElementContainerOffset();
+                this.zoomDomainElements(tmp, newZoom);
+            }
         }
     }
 

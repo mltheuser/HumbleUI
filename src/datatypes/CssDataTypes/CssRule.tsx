@@ -1,5 +1,5 @@
-import Element from 'src/components/Element';
-import { ICssPropertyValuePairs, IElementState } from '../interfaces';
+import Element from 'src/components/Board/Element';
+import {  ICssPropertyValuePairs, IElementState } from '../interfaces';
 
 class CssRule {
 

@@ -1,4 +1,4 @@
-import Element from 'src/components/Element';
+import Element from 'src/components/Board/Element';
 import { IElementState } from '../interfaces';
 import CssRule from "./CssRule";
 
