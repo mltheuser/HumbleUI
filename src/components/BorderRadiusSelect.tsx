@@ -8,7 +8,7 @@ import BorderRadiusSelector from './BorderRadiusSelector';
 
 class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
 
-    protected static directionTable = {
+    protected static directionDict = {
         bottomLeft: {x: 1, y: -1},
         bottomRight: {x: -1, y: -1},
         topLeft: {x: 1, y: 1},
@@ -97,7 +97,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
     }
 
     private passBorderRadiusByKey(position: ICoordiante, maxRadius: number, key: string, borderRadius: number) {
-        const directions = BorderRadiusSelect.directionTable[key];
+        const directions = BorderRadiusSelect.directionDict[key];
         if (borderRadius > maxRadius) {
             borderRadius = maxRadius;
         }
