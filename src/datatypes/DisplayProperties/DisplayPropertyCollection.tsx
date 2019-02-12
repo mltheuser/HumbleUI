@@ -51,6 +51,10 @@ class DisplayPropertyCollection {
         }
     }
 
+    public borderIsChecked() {
+        return this["border-style"] instanceof BorderStyle && this["border-style"].getValue() === "none";
+    }
+
 }
 
 export default DisplayPropertyCollection;

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
-import Sketch from './Board/Elements/Sketch';
+import { Div } from './Board/BoardElements/WindowElements/Div';
+import { SketchBoard } from './Board/SketchBoard';
 import BorderRadiusSelect from './BorderRadiusSelect';
 
 class Selector extends React.Component<ISelectorProps, any> {
@@ -12,28 +13,29 @@ class Selector extends React.Component<ISelectorProps, any> {
     }
 
     public render() {
-        const selected = this.props.sketchBoard.state.selected;
-        if (selected === null) {
+        const selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement;
+        if (selectedBoardElement === null) {
             return null;
         }
+        const localOffset = selectedBoardElement.getOffset();
         const inline = {
             background: '',
             borderColor: '#427fd3',
             borderStyle: 'solid',
             borderWidth: 1.7,
-            height: selected.state.displayProperties.height.getValue(), // adjust to match borders
-            left:  selected.state.displayProperties.left.getValue() + selected.offset.x,
-            top:  selected.state.displayProperties.top.getValue() + selected.offset.y - this.props.sketchBoard.state.top,
-            width:  selected.state.displayProperties.width.getValue(),
+            height: selectedBoardElement.state.displayProperties.height.getValue(), // adjust to match borders
+            left:  selectedBoardElement.state.displayProperties.left.getValue() + localOffset.x,
+            top:  selectedBoardElement.state.displayProperties.top.getValue() + localOffset.y - SketchBoard.getInstance().state.displayProperties.top.getValue(),
+            width:  selectedBoardElement.state.displayProperties.width.getValue(),
         }
-        if (selected instanceof Sketch) {
-            inline.height += 2 * selected.state.displayProperties["border-width"].getValue() - 2;
-            inline.width += 2 * selected.state.displayProperties["border-width"].getValue() - 2;
-            if (selected.state.borderChecked === false) {
-                inline.top += selected.state.displayProperties["border-width"].getValue();
-                inline.left += selected.state.displayProperties["border-width"].getValue();
-                inline.height -= 2 * selected.state.displayProperties["border-width"].getValue();
-                inline.width -= 2 * selected.state.displayProperties["border-width"].getValue();
+        if (selectedBoardElement instanceof Div) {
+            inline.height += 2 * selectedBoardElement.state.displayProperties["border-width"].getValue() - 2;
+            inline.width += 2 * selectedBoardElement.state.displayProperties["border-width"].getValue() - 2;
+            if (selectedBoardElement.state.borderChecked === false) {
+                inline.top += selectedBoardElement.state.displayProperties["border-width"].getValue();
+                inline.left += selectedBoardElement.state.displayProperties["border-width"].getValue();
+                inline.height -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
+                inline.width -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
             }
         }
         const inline1 = {
@@ -64,19 +66,19 @@ class Selector extends React.Component<ISelectorProps, any> {
             backgroundColor: 'rgba(66, 127, 211, 0.54)',
             display: 'block',
         }
-        if (selected.state.refined === false) {
+        if (selectedBoardElement.state.refined === false) {
             inline.borderStyle = 'hidden';
             rulerStyle.backgroundColor = 'rgba(0, 0, 0, 0.54)';
             return (
                 <div className="select-area" style={inline}>
-                    <div className="ruler" style={rulerStyle}>{Math.round(selected.getActuallWidth())}x{Math.round(selected.getActuallHeight())}</div>
+                    <div className="ruler" style={rulerStyle}>{Math.round(selectedBoardElement.getActuallWidth())}x{Math.round(selectedBoardElement.getActuallHeight())}</div>
                     < BorderRadiusSelect sketchBoard={this.props.sketchBoard} />
                 </div>
             )
         } else {
             return (
                 <div className="select-area" style={inline}>
-                    <div className="ruler" style={rulerStyle}>{Math.round(selected.getActuallWidth())}x{Math.round(selected.getActuallHeight())}</div>
+                    <div className="ruler" style={rulerStyle}>{Math.round(selectedBoardElement.getActuallWidth())}x{Math.round(selectedBoardElement.getActuallHeight())}</div>
                     <div className="selectCage" style={cageStyle}>
                         <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
                         <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />

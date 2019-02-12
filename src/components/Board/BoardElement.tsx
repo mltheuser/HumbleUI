@@ -1,0 +1,185 @@
+import * as React from 'react';
+import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
+import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
+import Height from 'src/datatypes/DisplayProperties/Properties/Height';
+import Left from 'src/datatypes/DisplayProperties/Properties/Left';
+import Top from 'src/datatypes/DisplayProperties/Properties/Top';
+import Width from 'src/datatypes/DisplayProperties/Properties/Width';
+import HumbleArray from 'src/datatypes/HumbleArray';
+import { AbsolutePositionedComponent, IAbsolutePositionedComponent, IAbsolutePositionedComponentState } from '../AbsolutePositionedComponent';
+import { ISketchBoardState, SketchBoard } from './SketchBoard';
+
+interface IBoardElementState extends IAbsolutePositionedComponentState {
+    inEditMode: boolean,
+    refined: boolean,
+    isSelected: boolean,
+}
+
+interface IBoardElementStyle {
+    height: number | string,
+    left: number | string,
+    top: number | string,
+    width: number | string,
+}
+
+interface IInitValues {
+    height: number;
+    left: number;
+    top: number;
+    width: number;
+}
+
+interface IBoardElement extends IAbsolutePositionedComponent {
+    state: IBoardElementState,
+    getId(): string,
+    getSketchBoard(): SketchBoard<ISketchBoardState>,
+    getInitValues(): IInitValues
+    getLeftBorder(): number,
+    getRightBorder(): number,
+    getTopBorder(): number,
+    getBottomBorder(): number,
+    getActuallHeight(): number,
+    getActuallWidth(): number
+    getStyleDecleration(): CssStyleDeclaration,
+    move(left: number, top: number): void,
+    getInlineStyle(): IBoardElementStyle,
+    render(): React.ReactNode,
+    toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration, level: number): string,
+}
+
+abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositionedComponent<S> implements IBoardElement {
+
+    public state: S;
+    
+    protected id: string;
+
+    protected sketchBoard: SketchBoard<ISketchBoardState>;
+
+    protected initValues: IInitValues;
+
+    constructor(id: string, sketchBoard: SketchBoard<ISketchBoardState>, boardElements: HumbleArray = new HumbleArray()) {
+        super(sketchBoard.getApp(), boardElements);
+        this.id = id;
+        this.sketchBoard = sketchBoard;
+    }
+
+    public getId(): string {
+        return this.id;
+    }
+
+    public getSketchBoard(): SketchBoard<ISketchBoardState> {
+        return this.sketchBoard;
+    }
+
+    public getInitValues(): IInitValues {
+        return this.initValues;
+    }
+
+    public getLeftBorder(): number {
+        return this.state.displayProperties.left.getValue();
+    }
+
+    public getRightBorder(): number {
+        return this.state.displayProperties.left.getValue() + this.state.displayProperties.width.getValue();
+    }
+
+    public getTopBorder(): number {
+        return this.state.displayProperties.top.getValue();
+    }
+
+    public getBottomBorder(): number {
+        return this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue();
+    }
+
+    public getCenter(): Coordinate {
+        return new Coordinate(
+            this.getLeftBorder() + (this.getRightBorder() - this.getLeftBorder()) / 2,
+            this.getTopBorder() + (this.getBottomBorder() - this.getTopBorder()) / 2,
+        );
+    }
+
+    public getActuallHeight(): number {
+        return this.state.displayProperties.height.getValue() / this.sketchBoard.state.zoom;
+    }
+
+    public getActuallleft(): number {
+        return this.state.displayProperties.left.getValue() / this.sketchBoard.state.zoom;
+    }
+
+    public getActuallTop(): number {
+        return this.state.displayProperties.top.getValue() / this.sketchBoard.state.zoom;
+    }
+
+    public getActuallWidth(): number {
+        return this.state.displayProperties.width.getValue() / this.sketchBoard.state.zoom;
+    }
+
+    public getStyleDecleration(): CssStyleDeclaration {
+        const localDeclaration = new CssStyleDeclaration();
+        this.state.displayProperties.addToStyleDecleration(localDeclaration);
+        return localDeclaration;
+    }
+
+    public updateInits(mode: number = 2): void {
+        if (mode > 0) {
+            this.initValues.height = this.state.displayProperties.height.getValue();
+            this.initValues.width = this.state.displayProperties.width.getValue();
+        }
+        if (mode !== 1) {
+            this.initValues.top = this.state.displayProperties.top.getValue();
+            this.initValues.left = this.state.displayProperties.left.getValue();
+        }
+    }
+
+    public move(left: number, top: number) {
+        this.state.displayProperties.left.setValue(left);
+        this.state.displayProperties.top.setValue(top);
+    }
+
+    public abstract getInlineStyle(): IBoardElementStyle
+
+    public abstract render(): React.ReactNode;
+
+    public abstract toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration, level: number): string;
+
+    protected getInitialState(boardElements: HumbleArray = new HumbleArray()): S {
+        // fill a displayPropertyCollection with inital values
+        const displayProperties = new DisplayPropertyCollection();
+        // top
+        const top = new Top(this);
+        top.setValue(this.sketchBoard.state.tool.mouseState.startY);
+        displayProperties.add(top);
+        // left
+        const left = new Left(this);
+        left.setValue(this.sketchBoard.state.tool.mouseState.startX);
+        displayProperties.add(left);
+        // height
+        const height = new Height(this);
+        height.setValue(0);
+        displayProperties.add(height);
+        // width
+        const width = new Width(this);
+        width.setValue(0);
+        displayProperties.add(width);
+        //
+        // return the state object as instance of IBoardElementState
+        return {
+            displayProperties,
+            inEditMode: false,
+            isSelected: false,
+            refined: false,
+        } as S;
+    }
+
+    protected getInitalName(): string {
+        return this.constructor.name + this.id;
+    };
+}
+
+export {
+    IBoardElementState,
+    IBoardElementStyle,
+    IInitValues,
+    IBoardElement,
+    BoardElement,
+};

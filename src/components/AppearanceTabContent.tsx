@@ -1,8 +1,9 @@
 import { Checkbox } from '@material-ui/core';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
-import { IAppProps, ISketchBoardState } from 'src/datatypes/interfaces';
-import Sketch from './Board/Elements/Sketch';
+import { IAppProps } from 'src/datatypes/interfaces';
+import { Div } from './Board/BoardElements/WindowElements/Div';
+import { ISketchBoardState } from './Board/SketchBoard';
 import DefaultTabContent from './DefaultTabContent';
 import LineSelect from './LineSelect';
 import NumberField from './NumberField';
@@ -50,12 +51,12 @@ class AppearanceTabContent extends DefaultTabContent {
         
     private handleColorChange(color: any) {
         this.setState((prevState: ISketchBoardState) => {
-            if (prevState.selected === null) {
+            if (prevState.selectedBoardElement === null) {
                 throw EvalError("Trying to change color on an element, that is not selected.")
             }
-            prevState.selected.state.displayProperties["background-color"].setValue(`rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`);
+            prevState.selectedBoardElement.state.displayProperties["background-color"].setValue(`rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`);
             return {
-                selected: prevState.selected
+                selectedBoardElement: prevState.selectedBoardElement
             }
         });
     }
@@ -63,14 +64,14 @@ class AppearanceTabContent extends DefaultTabContent {
     private handleBorderChange(event: any) {
         const checked = event.target.checked;
         this.sketchBoard.setState((prevState: ISketchBoardState) => {
-            if (prevState.selected === null) {
+            if (prevState.selectedBoardElement === null) {
                 throw EvalError("selected is null.");
             }
-            if (prevState.selected instanceof Sketch) {
-                prevState.selected.state.borderChecked = checked;
+            if (prevState.selectedBoardElement instanceof Div) {
+                prevState.selectedBoardElement.state.borderChecked = checked;
             }
             return {
-                selected: prevState.selected
+                selectedBoardElement: prevState.selectedBoardElement
             }
         });
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import SketchBoard from './components/Board/SketchBoard';
+import { SketchBoard } from './components/Board/SketchBoard';
 import Info from './components/Info';
 import Menu from './components/Menu';
 import ToolPalate from './components/ToolPalate';

@@ -1,20 +1,25 @@
-import Element from 'src/components/Board/Element';
+import { AbsolutePositionedComponent, IAbsolutePositionedComponentState } from 'src/components/AbsolutePositionedComponent';
+import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
+import { SketchBoard } from 'src/components/Board/SketchBoard';
 import CssStyleDeclaration from '../CssDataTypes/CssStyleDeclaration';
-import { IElementState } from '../interfaces';
 
 abstract class DisplayProperty {
     protected property: string;
     protected value: any;
-    protected element: Element<IElementState>;
-    protected parent: Element<IElementState> | undefined;
-    public constructor(element: Element<IElementState>) {
+    protected element: AbsolutePositionedComponent<IAbsolutePositionedComponentState>;
+    protected parent: AbsolutePositionedComponent<IAbsolutePositionedComponentState> | undefined;
+    public constructor(element: AbsolutePositionedComponent<IAbsolutePositionedComponentState>) {
         this.element = element;
-        if (element.id.length > 1) {
-            this.parent = this.getParent();
+        if (element instanceof BoardElement) {
+            this.parent = this.getParentByBoardElement(element);
         }
     }
     public addRule(cssStyleDeclaration: CssStyleDeclaration) {
-        cssStyleDeclaration.addRule(this.element, this.property, this.convertValue());
+        if (this.element instanceof BoardElement) {
+            cssStyleDeclaration.addRule(this.element, this.property, this.convertValue());
+        } else {
+            throw EvalError("this.element must be instanceof BoardElement to call this method.");
+        }
     }
     public getProperty(): string {
         return this.property;
@@ -28,12 +33,10 @@ abstract class DisplayProperty {
     public getElement() {
         return this.element;
     }
-    protected getSketchBoard() {
-        return this.element.sketchBoard;
-    }
-    protected getParent(): Element<IElementState> {
-        const sketchBoard = this.getSketchBoard();
-        const result = sketchBoard.findElementById(sketchBoard, this.element.id.substr(0, this.element.id.length - 1));
+    protected getParentByBoardElement(boardElement: BoardElement<IBoardElementState>): AbsolutePositionedComponent<IAbsolutePositionedComponentState> {
+        const sketchBoard = SketchBoard.getInstance();
+        const id = boardElement.getId();
+        const result = sketchBoard.findElementById(sketchBoard, id.substr(0, id.length - 1));
         return result;
     }
     protected getNoParentErrorMessage() {

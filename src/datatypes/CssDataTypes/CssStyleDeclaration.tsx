@@ -1,5 +1,4 @@
-import Element from 'src/components/Board/Element';
-import { IElementState } from '../interfaces';
+import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import Class from './Class';
 import CssRule from './CssRule';
 import Id from './Id';
@@ -151,7 +150,7 @@ class CssStyleDeclaration {
         --------------------------------------------
        2.2.1 Das paar kommt zu den regeln unter dem id selektor für a. 
     */
-    public addRule(subject: Element<IElementState>, cssProperty: string, value: string) {
+    public addRule(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string) {
         if (this.existsInSearchTree(subject, cssProperty, value) === true) {
             return;
         }
@@ -197,7 +196,7 @@ class CssStyleDeclaration {
         }
     }
 
-    public getSubjectsId(subject: Element<IElementState>): Id | null {
+    public getSubjectsId(subject: BoardElement<IBoardElementState>): Id | null {
         for (const id of this.ids) {
             if (id.getSubject() === subject) {
                 return id;
@@ -206,7 +205,7 @@ class CssStyleDeclaration {
         return null;
     }
 
-    public getSubjectsClasses(subject: Element<IElementState>): Class[] {
+    public getSubjectsClasses(subject: BoardElement<IBoardElementState>): Class[] {
         const result = [];
         for (const localClass of this.classes) {
             if (localClass.subjects.includes(subject) === true) {
@@ -234,12 +233,12 @@ class CssStyleDeclaration {
         }
     }
 
-    private addPropertyValuePair(subject: Element<IElementState>, cssProperty: string, value: string, rule: CssRule) {
+    private addPropertyValuePair(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string, rule: CssRule) {
         rule.addPropertyValuePair(cssProperty, value);
         this.addToSearchTree(subject, cssProperty, value, rule);
     }
 
-    private removePropertyValuePair(subject: Element<IElementState>, cssProperty: string, value: string, rule: Id | Class) {
+    private removePropertyValuePair(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string, rule: Id | Class) {
         rule.removePropertyValuePair(cssProperty, value);
         if (rule.getPropertyValuePairCount() === 0) {
             this.removeRule(rule);
@@ -253,7 +252,7 @@ class CssStyleDeclaration {
         }
     }
 
-    private addNewClass(subjects: Array<Element<IElementState>>, cssProperty: string, value: string, hasPriority: boolean = false) {
+    private addNewClass(subjects: Array<BoardElement<IBoardElementState>>, cssProperty: string, value: string, hasPriority: boolean = false) {
         const newCommonClass = new Class(subjects);
         newCommonClass.addPropertyValuePair(cssProperty, value);
         if (hasPriority === true) {
@@ -266,7 +265,7 @@ class CssStyleDeclaration {
         }
     }
 
-    private addToSubjectsId(subject: Element<IElementState>, cssProperty: string, value: string) {
+    private addToSubjectsId(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string) {
         let subjectsId = this.getSubjectsId(subject);
         if (subjectsId === null) {
             subjectsId = new Id(subject);
@@ -275,38 +274,41 @@ class CssStyleDeclaration {
         this.addPropertyValuePair(subject, cssProperty, value, subjectsId);
     }
 
-    private addToSearchTree(subject: Element<IElementState>, cssProperty: string, value: string, rule: CssRule) {
-        if (this.searchTree[subject.id] === undefined) {
-            this.searchTree[subject.id] = {};
-            this.subjectDict[subject.id] = subject;
+    private addToSearchTree(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string, rule: CssRule) {
+        const id = subject.getId();
+        if (this.searchTree[id] === undefined) {
+            this.searchTree[id] = {};
+            this.subjectDict[id] = subject;
         }
-        if (this.searchTree[subject.id][cssProperty] === undefined) {
-            this.searchTree[subject.id][cssProperty] = {};
+        if (this.searchTree[id][cssProperty] === undefined) {
+            this.searchTree[id][cssProperty] = {};
         }
-        this.searchTree[subject.id][cssProperty][value] = rule;
+        this.searchTree[id][cssProperty][value] = rule;
     }
 
-    private removeFromSearchTree(subject: Element<IElementState>, cssProperty: string, value: string) {
-        if (this.searchTree[subject.id] === undefined) {
+    private removeFromSearchTree(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string) {
+        const id = subject.getId();
+        if (this.searchTree[id] === undefined) {
             return;
         }
-        if (this.searchTree[subject.id][cssProperty] === undefined) {
+        if (this.searchTree[id][cssProperty] === undefined) {
             return;
         }
-        if (this.searchTree[subject.id][cssProperty][value] === undefined) {
+        if (this.searchTree[id][cssProperty][value] === undefined) {
             return;
         }
-        delete this.searchTree[subject.id][cssProperty][value];
+        delete this.searchTree[id][cssProperty][value];
     }
 
-    private existsInSearchTree(subject: Element<IElementState>, cssProperty: string, value: string) {
-        if (this.searchTree[subject.id] === undefined) {
+    private existsInSearchTree(subject: BoardElement<IBoardElementState>, cssProperty: string, value: string) {
+        const id = subject.getId();
+        if (this.searchTree[id] === undefined) {
             return false;
         }
-        if (this.searchTree[subject.id][cssProperty] === undefined) {
+        if (this.searchTree[id][cssProperty] === undefined) {
             return false;
         }
-        if (this.searchTree[subject.id][cssProperty][value] === undefined) {
+        if (this.searchTree[id][cssProperty][value] === undefined) {
             return false;
         }
         return true;
@@ -325,7 +327,7 @@ class CssStyleDeclaration {
         return null;
     }
 
-    private findIndexInClassesTopset(subjects: Array<Element<IElementState>>): number {
+    private findIndexInClassesTopset(subjects: Array<BoardElement<IBoardElementState>>): number {
         for (let i = this.classes.length - 1; i > -1; --i) {
             const localClass = this.classes[i];
             if (localClass.subjects.every(subject => subjects.includes(subject)) === true) {
@@ -335,7 +337,7 @@ class CssStyleDeclaration {
         return -1;
     }
 
-    private findIndexInClassesSubset(subjects: Array<Element<IElementState>>): number {
+    private findIndexInClassesSubset(subjects: Array<BoardElement<IBoardElementState>>): number {
         for (let i = this.classes.length - 1; i > -1; --i) {
             const localClass = this.classes[i];
             if (subjects.every(subject => localClass.subjects.includes(subject)) === true) {

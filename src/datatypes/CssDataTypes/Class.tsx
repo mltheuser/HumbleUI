@@ -1,13 +1,12 @@
-import Element from 'src/components/Board/Element';
-import { IElementState } from '../interfaces';
+import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import CssRule from "./CssRule";
 
 class Class extends CssRule {
-    public addSubject(subject: Element<IElementState>) {
+    public addSubject(subject: BoardElement<IBoardElementState>) {
         this.subjects.push(subject);
     }
 
-    public removeSubject(subject: Element<IElementState>) {
+    public removeSubject(subject: BoardElement<IBoardElementState>) {
         const index = this.subjects.indexOf(subject);
         if (index > -1) {
             this.subjects.splice(index, 1);
@@ -19,7 +18,7 @@ class Class extends CssRule {
     public getSelectorName() {
         let result = '';
         for (const subject of this.subjects) {
-            result += subject.name.substr(0, 4);
+            result += subject.getName().substr(0, 4);
         }
         return result;
     }

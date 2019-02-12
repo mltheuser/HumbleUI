@@ -1,6 +1,7 @@
 import * as React from 'react';
 import toolCollection from 'src/data/ToolCollection';
-import { IBorderRadiusSelector, ICoordiante } from 'src/datatypes/interfaces';
+import { IBorderRadiusSelector } from 'src/datatypes/interfaces';
+import { SketchBoard } from './Board/SketchBoard';
 
 class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
 
@@ -16,11 +17,11 @@ class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
             left: position.x + 'px',
             top: position.y + 'px',
         }
-        const selected = this.props.sketchBoard.state.selected;
-        if (selected === null) {
+        const selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement;
+        if (selectedBoardElement === null) {
             return;
         }
-        if (selected.state.refined === false) {
+        if (selectedBoardElement.state.refined === false) {
             const tool = this.props.sketchBoard.state.tool;
             if (!(tool === toolCollection.SelectBorderRadius && tool.mouseState.down && tool.selectorID === this.props.selectorID)) {
                 localStyle.display = 'none';
@@ -41,7 +42,7 @@ class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
         );
     }
 
-    private centerDivAtPosition(position: ICoordiante): ICoordiante {
+    private centerDivAtPosition(position: Coordinate): Coordinate {
         position.x -= 4.5;
         position.y -= 10;
         return position;

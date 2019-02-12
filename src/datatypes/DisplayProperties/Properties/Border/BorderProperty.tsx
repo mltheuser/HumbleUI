@@ -1,11 +1,11 @@
-import Sketch from 'src/components/Board/Elements/Sketch';
+import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import DisplayProperty from '../../DisplayProperty';
 
 abstract class BorderProperty extends DisplayProperty{
-    protected element: Sketch;
+    protected element: BoardElement<IBoardElementState>;
     public addRule(cssStyleDeclaration: CssStyleDeclaration) {
-        if (this.element.state.borderChecked === true) {
+        if (this.element.state.displayProperties.borderIsChecked() === true) {
             super.addRule(cssStyleDeclaration);
         }
     }

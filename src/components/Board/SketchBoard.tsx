@@ -1,97 +1,105 @@
 import * as React from 'react';
+import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
+import Left from 'src/datatypes/DisplayProperties/Properties/Left';
+import Top from 'src/datatypes/DisplayProperties/Properties/Top';
 import HumbleArray from 'src/datatypes/HumbleArray';
-import { IAppProps, ICoordiante, IElementState, ISketchBoardState } from 'src/datatypes/interfaces';
+import { IAppProps } from 'src/datatypes/interfaces';
 import toolCollection from '../../data/ToolCollection';
+import { AbsolutePositionedComponent, IAbsolutePositionedComponentState } from '../AbsolutePositionedComponent';
 import Selector from '../Selector';
-import Element from './Element';
-import ElementContainer from './Elements/ElementContainer';
-import Sketch from './Elements/Sketch';
-import WindowSketch from './Elements/WindowSketch';
+import Tool from '../Tool';
+import { BoardElement, IBoardElementState } from './BoardElement';
+import { Window } from './BoardElements/Window';
+import { IWindowElementContainerUserState, StateInstanceOfIWindowElementContainerUserState } from './BoardElements/WindowElementContainer';
 
-class SketchBoard extends React.Component<any, ISketchBoardState> {
+interface ISketchBoardState extends IAbsolutePositionedComponentState, IWindowElementContainerUserState {
+    selectedBoardElement: BoardElement<IBoardElementState> | null,
+    tool: Tool,
+    zoom: number,
+}
 
-    public name = 'sketchBoard';
+class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedComponent<S> {
 
-    public state: ISketchBoardState = {
-        left: 0,
-        selected: null,
-        sketches: new HumbleArray(),
-        tool: toolCollection.Default,
-        top: 64,
-        zoom: 1,
-    };
+    public static getInstance(): SketchBoard<ISketchBoardState> {
+        return this.instance;
+    }
+
+    private static instance: SketchBoard<ISketchBoardState>;
+    
+    public state: S;
 
     public constructor(props: IAppProps) {
-        super(props);
-        this.props.app.sketchBoard = this;
+        super(props.app);
+        this.app.sketchBoard = this;
         toolCollection.bind(this);
+        if (SketchBoard.instance !== null) {
+            throw EvalError("Sketchboard is a Singelton and there for can not have more than one instance.")
+        } else{
+            SketchBoard.instance = this;
+        }
     }
 
     public updateInits(mode = 2) {
-        for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
-            this.state.sketches.data[i].updateInits(mode);
+        const boardElements = this.state.boardElements;
+        for (let i = 0, len = boardElements.data.length; i < len; ++i) {
+            boardElements.data[i].updateInits(mode);
         }
     }
 
-    // Exists in Element as well
-    public getOffset(mode: number) {
-        if (mode === 0) {
-            return this.state.left;
+    public calculateOffSetById(id: string, searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = this, sum: ICoordiante = { x: 0, y: 0 }): Coordinate {
+        const searchSpaceOffSet = searchSpace.getOffset();
+        if (id.length === 0) {
+            return Coordinate.add(sum, searchSpaceOffSet);
         } else {
-            return this.state.top;
+            return this.calculateOffSetById(
+                id.substring(1),
+                searchSpace.state.boardElements.data[id.charAt(0)],
+                Coordinate.add(sum, searchSpaceOffSet)
+            );
         }
     }
 
-    public calculateSketchOffset(id: string, offset: number, searchSpace: SketchBoard | Sketch = this, sum = 0): number {
-        return id.length === 0 ? sum + searchSpace.getOffset(offset) : this.calculateSketchOffset(id.substring(1), offset, searchSpace.state.sketches.data[id.charAt(0)], sum + searchSpace.getOffset(offset));
-    }
-
-    public getSketchOffset(id: string): ICoordiante {
-        return { x: this.calculateSketchOffset(id, 0), y: this.calculateSketchOffset(id, 1) };
-    }
-
-    public findElementById(searchSpace: any = this, id: string = ''): Element<IElementState> {
+    public findElementById(searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = this, id: string = ''): BoardElement<IBoardElementState> {
+        const localBoardElements = searchSpace.state.boardElements;
         if (id.length === 1) {
-            return searchSpace.state.sketches.data[id];
+            return localBoardElements.data[id];
         }
-        return this.findElementById(searchSpace.state.sketches.data[id.charAt(0)], id.substring(1));
+        return this.findElementById(localBoardElements.data[id.charAt(0)], id.substring(1));
     }
 
-    public findAndSelectElementByTargetId(id: string): Element<IElementState> {
+    // refactor this mess
+    public findAndSelectElementByTargetId(id: string): BoardElement<IBoardElementState> {
         let i = 0;
-        if (this.state.selected) {
+        if (this.state.selectedBoardElement) {
             const len = id.length;
-            const len2 = (this.state.selected === null ? 0 : this.state.selected.id.length);
+            const len2 = (this.state.selectedBoardElement === null ? 0 : this.state.selectedBoardElement.getId().length);
             for (; i < len; ++i) {
-                if (i === len2 || id.charAt(i) !== this.state.selected.id.charAt(i)) {
+                if (i === len2 || id.charAt(i) !== this.state.selectedBoardElement.getId().charAt(i)) {
                     break;
                 }
             }
         }
         const element = this.findElementById(this, id.substring(0, i + 1));
-        element.state.selected = true;
+        element.state.isSelected = true;
         return element;
     }
 
-    public updateSelection(element: Element<IElementState>) {
-        if (element !== null) {
-            if (!(element.constructor instanceof Element.constructor)) {
-                throw TypeError(`Expected element to be instance of Element, ${element.constructor.name} given.`);
-            }
-            element = this.findAndSelectElementByTargetId(element.id);
+    public updateSelection(boardElement: BoardElement<IBoardElementState>) {
+        if (boardElement !== null) {
+            boardElement = this.findAndSelectElementByTargetId(boardElement.getId());
         }
-        if (element === this.state.selected) {
+        if (boardElement === this.state.selectedBoardElement) {
             return;
         }
         this.setState((prevState: any) => {
-            if (prevState.selected !== null) {
-                prevState.selected.state.selected = false;
+            if (prevState.selectedBoardElement !== null) {
+                prevState.selectedBoardElement.state.isSelected = false;
             }
             return {
-                selected: element,
-            }
+                selectedBoardElement: boardElement,
+            } as ISketchBoardState
         });
-        this.props.app.setState({});
+        this.app.setState({});
     }
 
     public componentDidMount() {
@@ -107,7 +115,7 @@ class SketchBoard extends React.Component<any, ISketchBoardState> {
             const scrollTargetId = event.target.id[0];
             if (scrollTargetId !== undefined) {
                 const scrollTarget = this.findElementById(this, scrollTargetId);
-                if (scrollTarget instanceof WindowSketch) {
+                if (scrollTarget instanceof Window) {
                     scrollTarget.handleScroll(event);
                     this.setState({});
                 }
@@ -123,35 +131,58 @@ class SketchBoard extends React.Component<any, ISketchBoardState> {
         }
         return (
             <main id="main" style={inline} onMouseDown={this.state.tool.handleMouseDown} onMouseMove={this.state.tool.handleMouseMove} onMouseUp={this.state.tool.handleMouseUp}>
-                {this.state.sketches.render()}
+                {this.state.boardElements.render()}
                 <Selector sketchBoard={this} />
             </main>
         );
     }
 
-    private getCenter() {
+    public getCenter(): Coordinate {
         const main = document.getElementById('main');
         const toolpalate = document.getElementById('tool-palate');
         const info = document.getElementById('info');
         if (toolpalate && toolpalate.offsetWidth && main && info) {
-            return {
-                x: toolpalate.offsetWidth + (main.offsetWidth - info.offsetWidth - toolpalate.offsetWidth) / 2,
-                y: main.offsetHeight / 2
-            };
+            return new Coordinate(
+                toolpalate.offsetWidth + (main.offsetWidth - info.offsetWidth - toolpalate.offsetWidth) / 2,
+                main.offsetHeight / 2,
+            );
         }
         throw Error("getCenter failed.");
     }
 
-    private zoomDomainElements(domain: any, newZoom: number, repositionVector = { x: 0, y: 0 }) {
-        for (let i = 0, len = domain.state.sketches.data.length; i < len; ++i) {
-            const tmp: Element<IElementState> = domain.state.sketches.data[i];
-            tmp.state.displayProperties.top.setValue((tmp.state.displayProperties.top.getValue() / this.state.zoom) * newZoom + repositionVector.y)
-            tmp.state.displayProperties.left.setValue((tmp.state.displayProperties.left.getValue() / this.state.zoom) * newZoom + repositionVector.x);
-            tmp.state.displayProperties.height.setValue((tmp.state.displayProperties.height.getValue() / this.state.zoom) * newZoom);
-            tmp.state.displayProperties.width.setValue((tmp.state.displayProperties.width.getValue() / this.state.zoom) * newZoom);
-            if (tmp instanceof ElementContainer) {
-                tmp.updateElementContainerOffset();
-                this.zoomDomainElements(tmp, newZoom);
+    protected getInitialState(boardElements: HumbleArray = new HumbleArray()): S {
+        // fill a displayPropertyCollection with inital values
+        const displayProperties = new DisplayPropertyCollection();
+        // top
+        const top = new Top(this);
+        top.setValue(64);
+        displayProperties.add(top);
+        // left
+        const left = new Left(this);
+        left.setValue(0);
+        displayProperties.add(left);
+        return {
+            boardElements,
+            displayProperties,
+            selectedBoardElement: null,
+            tool: toolCollection.Default,
+            zoom: 1,
+        } as S;
+    }
+
+    protected getInitalName() {
+        return 'sketchBoard';
+    }
+
+    private zoomDomainElements(domain: AbsolutePositionedComponent<IWindowElementContainerUserState>, newZoom: number, repositionVector = { x: 0, y: 0 }) {
+        for (const boardElement of domain.state.boardElements) {
+            const localDisplayProperties = boardElement.state.displayProperties;
+            localDisplayProperties.top.setValue((localDisplayProperties.top.getValue() / this.state.zoom) * newZoom + repositionVector.y)
+            localDisplayProperties.left.setValue((localDisplayProperties.left.getValue() / this.state.zoom) * newZoom + repositionVector.x);
+            localDisplayProperties.height.setValue((localDisplayProperties.height.getValue() / this.state.zoom) * newZoom);
+            localDisplayProperties.width.setValue((localDisplayProperties.width.getValue() / this.state.zoom) * newZoom);
+            if (boardElement instanceof AbsolutePositionedComponent && StateInstanceOfIWindowElementContainerUserState(boardElement)) {
+                this.zoomDomainElements(boardElement as AbsolutePositionedComponent<IWindowElementContainerUserState>, newZoom);
             }
         }
     }
@@ -161,7 +192,7 @@ class SketchBoard extends React.Component<any, ISketchBoardState> {
         const newZoom = this.state.zoom + event.deltaY / 1600;
         const newCursor = {
             x: event.clientX / this.state.zoom * newZoom,
-            y: (event.clientY - this.state.top) / this.state.zoom * newZoom,
+            y: (event.clientY - this.state.displayProperties.top.getValue()) / this.state.zoom * newZoom,
         };
         const dist = {
             x: center.x - newCursor.x,
@@ -172,4 +203,7 @@ class SketchBoard extends React.Component<any, ISketchBoardState> {
     }
 }
 
-export default SketchBoard;
+export {
+    ISketchBoardState,
+    SketchBoard,
+}

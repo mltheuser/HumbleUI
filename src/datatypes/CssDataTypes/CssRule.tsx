@@ -1,11 +1,12 @@
-import Element from 'src/components/Board/Element';
-import {  ICssPropertyValuePairs, IElementState } from '../interfaces';
+import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
+import { ICssPropertyValuePairs } from '../interfaces';
+
 
 class CssRule {
 
     private propertyValuePairs: ICssPropertyValuePairs = {};
 
-    public constructor(public subjects: Array<Element<IElementState>>) {
+    public constructor(public subjects: Array<BoardElement<IBoardElementState>>) {
 
     }
 
