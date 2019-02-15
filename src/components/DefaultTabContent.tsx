@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { IAppProps } from 'src/datatypes/interfaces';
 
-class DefaultTabContent extends React.Component<IAppProps, any> {
-    protected sketchBoard = this.props.app.sketchBoard;
+class DefaultTabContent extends React.Component {
 
-    public constructor(props: IAppProps) {
+    public constructor(props = {}) {
         super(props);
     }
 

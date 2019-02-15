@@ -1,22 +1,25 @@
 import { Checkbox } from '@material-ui/core';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
-import { IAppProps } from 'src/datatypes/interfaces';
 import { Div } from './Board/BoardElements/WindowElements/Div';
-import { ISketchBoardState } from './Board/SketchBoard';
+import { ISketchBoardState, SketchBoard } from './Board/SketchBoard';
 import DefaultTabContent from './DefaultTabContent';
 import LineSelect from './LineSelect';
 import NumberField from './NumberField';
 
 class AppearanceTabContent extends DefaultTabContent {
 
-    public constructor(props: IAppProps) {
-        super(props);
+    public constructor() {
+        super();
         this.handleBorderChange = this.handleBorderChange.bind(this);
-        this.handleColorChange = this.handleColorChange.bind(this.sketchBoard);
+        this.handleColorChange = this.handleColorChange.bind(SketchBoard.getInstance());
     }
 
     public render() {
+        const selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement;
+        if (selectedBoardElement === null) {
+            throw EvalError("AppearanceTab should not be displayed when ")
+        }
         return (
             <div className="tabContent">
                 <div className="infoItem" id="positioning" />
@@ -26,7 +29,7 @@ class AppearanceTabContent extends DefaultTabContent {
                     </div>
                     <div id="colorPicker" className="infoPaper">
                         <div className="borderControll">
-                            <Checkbox checked={this.sketchBoard.state.selected.state.borderChecked} color="default" value="borderChecked" onChange={this.handleBorderChange} />
+                            <Checkbox checked={selectedBoardElement.state.displayProperties.borderIsChecked()} color="default" value="borderChecked" onChange={this.handleBorderChange} />
                             <div className="borderColor" />
                             <p>Border</p>
                             <div className="picker">
@@ -42,7 +45,7 @@ class AppearanceTabContent extends DefaultTabContent {
                                 <LineSelect />
                             </div>
                         </div>
-                        <ChromePicker color={this.sketchBoard.state.selected.state.color} onChange={this.handleColorChange} />
+                        <ChromePicker color={selectedBoardElement.state.displayProperties["background-color"].getValue()} onChange={this.handleColorChange} />
                     </div>
                 </div>
             </div>
@@ -63,7 +66,7 @@ class AppearanceTabContent extends DefaultTabContent {
             
     private handleBorderChange(event: any) {
         const checked = event.target.checked;
-        this.sketchBoard.setState((prevState: ISketchBoardState) => {
+        SketchBoard.getInstance().setState((prevState: ISketchBoardState) => {
             if (prevState.selectedBoardElement === null) {
                 throw EvalError("selected is null.");
             }

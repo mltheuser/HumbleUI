@@ -1,6 +1,5 @@
 import { FormControlLabel, Switch } from '@material-ui/core';
 import * as React from 'react';
-import { IAppProps } from 'src/datatypes/interfaces';
 import DefaultTabContent from './DefaultTabContent';
 
 class ResponseTabContent extends DefaultTabContent {
@@ -9,8 +8,8 @@ class ResponseTabContent extends DefaultTabContent {
         recChecked: false,
     }
 
-    public constructor(props: IAppProps) {
-        super(props);
+    public constructor() {
+        super();
         this.handleSwitchChange = this.handleSwitchChange.bind(this);
     }
 

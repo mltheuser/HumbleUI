@@ -1,9 +1,9 @@
 import * as React from 'react';
+import App from 'src/App';
 import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
 import Left from 'src/datatypes/DisplayProperties/Properties/Left';
 import Top from 'src/datatypes/DisplayProperties/Properties/Top';
 import HumbleArray from 'src/datatypes/HumbleArray';
-import { IAppProps } from 'src/datatypes/interfaces';
 import toolCollection from '../../data/ToolCollection';
 import { AbsolutePositionedComponent, IAbsolutePositionedComponentState } from '../AbsolutePositionedComponent';
 import Selector from '../Selector';
@@ -25,16 +25,15 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
     }
 
     private static instance: SketchBoard<ISketchBoardState>;
-    
+
     public state: S;
 
-    public constructor(props: IAppProps) {
-        super(props.app);
-        this.app.sketchBoard = this;
+    public constructor() {
+        super();
         toolCollection.bind(this);
-        if (SketchBoard.instance !== null) {
-            throw EvalError("Sketchboard is a Singelton and there for can not have more than one instance.")
-        } else{
+        if (SketchBoard.instance) {
+            throw EvalError("Sketchboard is a Singelton and there for can not have more than one instance.");
+        } else {
             SketchBoard.instance = this;
         }
     }
@@ -99,7 +98,7 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
                 selectedBoardElement: boardElement,
             } as ISketchBoardState
         });
-        this.app.setState({});
+        App.getInstance().setState({});
     }
 
     public componentDidMount() {

@@ -6,18 +6,31 @@ import ToolPalate from './components/ToolPalate';
 
 class App extends React.Component {
 
-    public sketchBoard: any = null;
+    public static getInstance(): App {
+        return this.instance;
+    }
+
+    private static instance: App;
+
+    constructor(props = {}) {
+        super(props);
+        if (App.instance) {
+            throw EvalError("App is a Singelton and there for can not have more than one instance.");
+        } else {
+            App.instance = this;
+        }
+    }
 
     public render() {
         return (
             <div className="container">
                 <div className="layout">
-                    <Menu app={this}/>
+                    <Menu />
                     <div className="layout-top-bar" />
                     <div className="layout-content">
-                        <ToolPalate app={this} />
-                        <SketchBoard app={this} />
-                        <Info app={this} />
+                        <ToolPalate />
+                        <SketchBoard />
+                        <Info />
                     </div>
                 </div>
             </div>

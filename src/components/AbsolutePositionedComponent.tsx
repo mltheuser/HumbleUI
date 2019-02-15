@@ -1,5 +1,4 @@
 import * as React from 'react';
-import App from 'src/App';
 import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
 import HumbleArray from 'src/datatypes/HumbleArray';
 
@@ -10,7 +9,6 @@ interface IAbsolutePositionedComponentState {
 interface IAbsolutePositionedComponent {
     state: IAbsolutePositionedComponentState,
     getName(): string,
-    getApp(): App,
     getOffset(): Coordinate,
     getActuallleft(): number,
     getActuallTop(): number,
@@ -23,22 +21,15 @@ abstract class AbsolutePositionedComponent<S extends IAbsolutePositionedComponen
     public state: S;
 
     protected name: string;
-
-    protected app: App;
     
-    constructor(app: App, boardElements: HumbleArray = new HumbleArray()) {
+    constructor(boardElements: HumbleArray = new HumbleArray()) {
         super({});
-        this.app = app;
         this.state = this.getInitialState(boardElements);
         this.name = this.getInitalName();
     }
 
     public getName(): string {
         return this.name;
-    }
-
-    public getApp(): App {
-        return this.app;
     }
 
     public abstract updateInits(): void;

@@ -7,7 +7,7 @@ import Top from 'src/datatypes/DisplayProperties/Properties/Top';
 import Width from 'src/datatypes/DisplayProperties/Properties/Width';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import { AbsolutePositionedComponent, IAbsolutePositionedComponent, IAbsolutePositionedComponentState } from '../AbsolutePositionedComponent';
-import { ISketchBoardState, SketchBoard } from './SketchBoard';
+import { SketchBoard } from './SketchBoard';
 
 interface IBoardElementState extends IAbsolutePositionedComponentState {
     inEditMode: boolean,
@@ -32,7 +32,6 @@ interface IInitValues {
 interface IBoardElement extends IAbsolutePositionedComponent {
     state: IBoardElementState,
     getId(): string,
-    getSketchBoard(): SketchBoard<ISketchBoardState>,
     getInitValues(): IInitValues
     getLeftBorder(): number,
     getRightBorder(): number,
@@ -53,22 +52,15 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
     
     protected id: string;
 
-    protected sketchBoard: SketchBoard<ISketchBoardState>;
-
     protected initValues: IInitValues;
 
-    constructor(id: string, sketchBoard: SketchBoard<ISketchBoardState>, boardElements: HumbleArray = new HumbleArray()) {
-        super(sketchBoard.getApp(), boardElements);
+    constructor(id: string, boardElements: HumbleArray = new HumbleArray()) {
+        super(boardElements);
         this.id = id;
-        this.sketchBoard = sketchBoard;
     }
 
     public getId(): string {
         return this.id;
-    }
-
-    public getSketchBoard(): SketchBoard<ISketchBoardState> {
-        return this.sketchBoard;
     }
 
     public getInitValues(): IInitValues {
@@ -99,19 +91,19 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
     }
 
     public getActuallHeight(): number {
-        return this.state.displayProperties.height.getValue() / this.sketchBoard.state.zoom;
+        return this.state.displayProperties.height.getValue() / SketchBoard.getInstance().state.zoom;
     }
 
     public getActuallleft(): number {
-        return this.state.displayProperties.left.getValue() / this.sketchBoard.state.zoom;
+        return this.state.displayProperties.left.getValue() / SketchBoard.getInstance().state.zoom;
     }
 
     public getActuallTop(): number {
-        return this.state.displayProperties.top.getValue() / this.sketchBoard.state.zoom;
+        return this.state.displayProperties.top.getValue() / SketchBoard.getInstance().state.zoom;
     }
 
     public getActuallWidth(): number {
-        return this.state.displayProperties.width.getValue() / this.sketchBoard.state.zoom;
+        return this.state.displayProperties.width.getValue() / SketchBoard.getInstance().state.zoom;
     }
 
     public getStyleDecleration(): CssStyleDeclaration {
@@ -147,11 +139,11 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
         const displayProperties = new DisplayPropertyCollection();
         // top
         const top = new Top(this);
-        top.setValue(this.sketchBoard.state.tool.mouseState.startY);
+        top.setValue(SketchBoard.getInstance().state.tool.mouseState.startY);
         displayProperties.add(top);
         // left
         const left = new Left(this);
-        left.setValue(this.sketchBoard.state.tool.mouseState.startX);
+        left.setValue(SketchBoard.getInstance().state.tool.mouseState.startX);
         displayProperties.add(left);
         // height
         const height = new Height(this);

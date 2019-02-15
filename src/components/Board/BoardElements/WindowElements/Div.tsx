@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import { IBoardElementState } from '../../BoardElement';
-import { ISketchBoardState, SketchBoard } from '../../SketchBoard';
 import { IRectangleStyle, IRectangleUser, Rectangle } from '../Rectangle';
 import { WindowElement } from '../WindowElement';
 import { IWindowElementContainerUser, IWindowElementContainerUserState, WindowElementContainer } from '../WindowElementContainer';
@@ -17,8 +16,8 @@ interface IDivStyle extends IRectangleStyle {
 
 class Div<S extends IDivState> extends WindowElement<S> implements IWindowElementContainerUser, IRectangleUser {
 
-    constructor(id: string, sketchBoard: SketchBoard<ISketchBoardState>, offset: ICoordiante, boardElements: HumbleArray = new HumbleArray()) {
-        super(id, sketchBoard, boardElements);
+    constructor(id: string, boardElements: HumbleArray = new HumbleArray()) {
+        super(id, boardElements);
     }
 
     public getRightBorder(): number {

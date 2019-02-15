@@ -3,6 +3,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import * as React from 'react';
 import AppearanceTabContent from './AppearanceTabContent';
+import { SketchBoard } from './Board/SketchBoard';
 import DefaultTabContent from './DefaultTabContent';
 import ResponseTabContent from './ResponseTabContent';
 
@@ -12,14 +13,13 @@ class Info extends React.Component<any, any> {
         value: 0,
     };
 
-    private sketchBoard = this.props.app.sketchBoard;
-
     public render() {
         const { classes } = this.props;
         const { value } = this.state;
-        if (this.sketchBoard.state.selected === null || this.sketchBoard.state.selected.state.refined === false) {
+        const selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement;
+        if (selectedBoardElement === null || selectedBoardElement.state.refined === false) {
             return (
-                <DefaultTabContent app={this.props.app} />
+                <DefaultTabContent />
             );
         }
         return (
@@ -43,8 +43,8 @@ class Info extends React.Component<any, any> {
                             />
                         </Tabs>
                     </div>
-                    {value === 0 && <AppearanceTabContent app={this.props.app} />}
-                    {value === 1 && <ResponseTabContent app={this.props.app} />}
+                    {value === 0 && <AppearanceTabContent />}
+                    {value === 1 && <ResponseTabContent />}
                 </div>
             </div>
         );

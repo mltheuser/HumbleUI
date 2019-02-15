@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import { BoardElement } from '../BoardElement';
-import { ISketchBoardState, SketchBoard } from '../SketchBoard';
+import { SketchBoard } from '../SketchBoard';
 import { IRectangleStyle, IRectangleUser, Rectangle } from './Rectangle';
 import { IWindowElementContainerUser, IWindowElementContainerUserState, WindowElementContainer } from './WindowElementContainer';
 
@@ -12,8 +12,8 @@ interface IWindowState extends IWindowElementContainerUserState {
 
 class Window<S extends IWindowState> extends BoardElement<S> implements IWindowElementContainerUser, IRectangleUser {
 
-    constructor(id: string, sketchBoard: SketchBoard<ISketchBoardState>, offset: ICoordiante, windowElements: HumbleArray = new HumbleArray()) {
-        super(id, sketchBoard, windowElements);
+    constructor(id: string, windowElements: HumbleArray = new HumbleArray()) {
+        super(id, windowElements);
     }
 
     public getRightBorder(): number {
@@ -60,7 +60,7 @@ class Window<S extends IWindowState> extends BoardElement<S> implements IWindowE
     }
 
     public handleScroll(event: any) {
-        let update = - event.deltaY / (this.sketchBoard.state.zoom * 4);
+        let update = - event.deltaY / (SketchBoard.getInstance().state.zoom * 4);
         if (this.state.scroll + update > 0) {
             update = -this.state.scroll;
         }
@@ -78,7 +78,7 @@ class Window<S extends IWindowState> extends BoardElement<S> implements IWindowE
 
     public toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {
         return '<!DOCTYPE HTML>\n<html>\n<head>\n\t<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n'
-            + '<link rel="stylesheet" type="text/css" href="../' + this.sketchBoard.getName() + '_StyleSheet.css">'
+            + '<link rel="stylesheet" type="text/css" href="../' + SketchBoard.getInstance().getName() + '_StyleSheet.css">'
             + '<link rel="stylesheet" type="text/css" href="' + this.name + '_StyleSheet.css">'
             + '</head>\n<body>\n'
             + WindowElementContainer.renderDomElements(this, localStyleDecleration, globalStyleDecleration)

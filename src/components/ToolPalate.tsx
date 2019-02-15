@@ -1,16 +1,16 @@
 import { IconButton } from '@material-ui/core';
 import * as React from 'react';
-import { IAppProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection'
+import { SketchBoard } from './Board/SketchBoard';
 import Tool from './Tool';
 
-class ToolPalate extends React.Component<IAppProps, any> {
+class ToolPalate extends React.Component {
 
     public state = {
-        selected: toolCollection.Default,
+        selectedTool: toolCollection.Default,
     }
 
-    public constructor(props:IAppProps) {
+    public constructor(props = {}) {
         super(props);
         this.setToolToDefault = this.setToolToDefault.bind(this);
         this.setToolToDrawSketch = this.setToolToDrawSketch.bind(this);
@@ -66,7 +66,7 @@ class ToolPalate extends React.Component<IAppProps, any> {
     }
 
     private setToolTo(tool: Tool) {
-        const sketchBoard = this.props.app.sketchBoard;
+        const sketchBoard = SketchBoard.getInstance();
         if (sketchBoard.state.tool === tool) {
             return;
         }
@@ -75,7 +75,7 @@ class ToolPalate extends React.Component<IAppProps, any> {
     }
 
     private colorFromIsCurrentTool(tool: Tool) {
-        if(this.state.selected === tool) {
+        if(this.state.selectedTool === tool) {
             return '#427fd3';
         }
         return 'rgba(0, 0, 0, 0.54)';

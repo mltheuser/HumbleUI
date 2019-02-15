@@ -1,21 +1,26 @@
-import { AbsolutePositionedComponent, IAbsolutePositionedComponentState } from 'src/components/AbsolutePositionedComponent';
-import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import { SketchBoard } from 'src/components/Board/SketchBoard';
 import CssStyleDeclaration from '../CssDataTypes/CssStyleDeclaration';
+
+/*
+    We can not import AbsolutePositionedComponent and BoardElement because that would cause a
+    circular Referenz.
+    That is the reason for element of type any.
+    We assume that element is of type BoardElement if it has an id Property.
+*/
 
 abstract class DisplayProperty {
     protected property: string;
     protected value: any;
-    protected element: AbsolutePositionedComponent<IAbsolutePositionedComponentState>;
-    protected parent: AbsolutePositionedComponent<IAbsolutePositionedComponentState> | undefined;
-    public constructor(element: AbsolutePositionedComponent<IAbsolutePositionedComponentState>) {
+    protected element: any;
+    protected parent: any;
+    public constructor(element: any) {
         this.element = element;
-        if (element instanceof BoardElement) {
+        if (element.id) { // an existing id implies element is instance of BoardElement
             this.parent = this.getParentByBoardElement(element);
         }
     }
     public addRule(cssStyleDeclaration: CssStyleDeclaration) {
-        if (this.element instanceof BoardElement) {
+        if (this.element.id) {
             cssStyleDeclaration.addRule(this.element, this.property, this.convertValue());
         } else {
             throw EvalError("this.element must be instanceof BoardElement to call this method.");
@@ -33,7 +38,7 @@ abstract class DisplayProperty {
     public getElement() {
         return this.element;
     }
-    protected getParentByBoardElement(boardElement: BoardElement<IBoardElementState>): AbsolutePositionedComponent<IAbsolutePositionedComponentState> {
+    protected getParentByBoardElement(boardElement: any) {
         const sketchBoard = SketchBoard.getInstance();
         const id = boardElement.getId();
         const result = sketchBoard.findElementById(sketchBoard, id.substr(0, id.length - 1));

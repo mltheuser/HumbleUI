@@ -111,7 +111,7 @@ const toolCollection = {
                     tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // add the Sketch to the sketchBoard
-                    tmp = new Window(String(this.state.sketches.data.length), this.props.app, this);
+                    tmp = new Window(String(this.state.sketches.data.length), this);
                     this.state.sketches.push(tmp);
                 } else {
                     // first of, find the Sketch that gets a new Component
@@ -128,7 +128,7 @@ const toolCollection = {
                     tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
 
                     // create the new Div with an id of parentId followed by its future position in the parents sketch array
-                    tmp = new Div(String(parentId) + parent.state.sketches.data.length, this.props.app, this);
+                    tmp = new Div(String(parentId) + parent.state.sketches.data.length, this);
 
                     // add the new sketch to its parents sketchRepo
                     parent.state.sketches.push(tmp);

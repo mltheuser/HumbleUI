@@ -1,9 +1,4 @@
-import App from "src/App";
 import { ISketchBoardState, SketchBoard } from 'src/components/Board/SketchBoard';
-
-export interface IAppProps {
-    app: App,
-}
 
 export interface IBorder {
     checked: boolean,
