@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
 import Height from 'src/datatypes/DisplayProperties/Properties/Height';
@@ -52,10 +53,15 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
     
     protected id: string;
 
-    protected initValues: IInitValues;
+    protected initValues: IInitValues = {
+        height: 0,
+        left: 0,
+        top: 0,
+        width: 0,
+    };
 
     constructor(id: string, boardElements: HumbleArray = new HumbleArray()) {
-        super(boardElements);
+        super(id, boardElements);
         this.id = id;
     }
 
@@ -134,16 +140,24 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
 
     public abstract toString(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration, level: number): string;
 
-    protected getInitialState(boardElements: HumbleArray = new HumbleArray()): S {
+    protected getInitialState(id: string = this.id, boardElements: HumbleArray = new HumbleArray()): S {
+        // check if valid id
+        if (!id || typeof id !== 'string' || id.length < 1) {
+            throw ReferenceError("id is invalid.");
+        }
+        // calculate offset by Id
+        console.log(id);
+        const offset = SketchBoard.calculateOffSetById(id);
+        console.log(offset);
         // fill a displayPropertyCollection with inital values
         const displayProperties = new DisplayPropertyCollection();
         // top
         const top = new Top(this);
-        top.setValue(SketchBoard.getInstance().state.tool.mouseState.startY);
+        top.setValue(SketchBoard.getInstance().state.tool.mouseState.startY - offset.y);
         displayProperties.add(top);
         // left
         const left = new Left(this);
-        left.setValue(SketchBoard.getInstance().state.tool.mouseState.startX);
+        left.setValue(SketchBoard.getInstance().state.tool.mouseState.startX - offset.x);
         displayProperties.add(left);
         // height
         const height = new Height(this);

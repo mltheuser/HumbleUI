@@ -1,5 +1,6 @@
 import * as React from 'react';
 import toolCollection from 'src/data/ToolCollection';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import { IBorderRadiusSelector } from 'src/datatypes/interfaces';
 import { SketchBoard } from './Board/SketchBoard';
 

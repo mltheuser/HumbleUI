@@ -17,15 +17,14 @@ class Selector extends React.Component<ISelectorProps, any> {
         if (selectedBoardElement === null) {
             return null;
         }
-        const localOffset = selectedBoardElement.getOffset();
         const inline = {
             background: '',
             borderColor: '#427fd3',
             borderStyle: 'solid',
             borderWidth: 1.7,
             height: selectedBoardElement.state.displayProperties.height.getValue(), // adjust to match borders
-            left:  selectedBoardElement.state.displayProperties.left.getValue() + localOffset.x,
-            top:  selectedBoardElement.state.displayProperties.top.getValue() + localOffset.y - SketchBoard.getInstance().state.displayProperties.top.getValue(),
+            left:  selectedBoardElement.state.displayProperties.left.getValue(),
+            top:  selectedBoardElement.state.displayProperties.top.getValue(),
             width:  selectedBoardElement.state.displayProperties.width.getValue(),
         }
         if (selectedBoardElement instanceof Div) {

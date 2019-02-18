@@ -6,10 +6,6 @@ import Tool from './Tool';
 
 class ToolPalate extends React.Component {
 
-    public state = {
-        selectedTool: toolCollection.Default,
-    }
-
     public constructor(props = {}) {
         super(props);
         this.setToolToDefault = this.setToolToDefault.bind(this);
@@ -70,15 +66,26 @@ class ToolPalate extends React.Component {
         if (sketchBoard.state.tool === tool) {
             return;
         }
-        this.setState({ selected: tool });
-        sketchBoard.setState({ tool });
+        this.setState({});
+        sketchBoard.state.tool = tool;
+        sketchBoard.setState({});
     }
 
     private colorFromIsCurrentTool(tool: Tool) {
-        if(this.state.selectedTool === tool) {
-            return '#427fd3';
+        const sketchBoard = SketchBoard.getInstance();
+        if (sketchBoard === undefined) {
+            if (tool === toolCollection.Default) {
+                return '#427fd3';
+            } else {
+                return 'rgba(0, 0, 0, 0.54)';
+            }
+        } else {
+            if(sketchBoard.state.tool === tool) {
+                return '#427fd3';
+            } else {
+                return 'rgba(0, 0, 0, 0.54)';
+            }
         }
-        return 'rgba(0, 0, 0, 0.54)';
     }
 }
 

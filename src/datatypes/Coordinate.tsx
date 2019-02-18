@@ -1,10 +1,10 @@
 
-interface ICoordiante {
+interface ICoordinate {
     x: number,
     y: number,
 }
 
-class Coordinate implements ICoordiante {
+class Coordinate implements ICoordinate {
 
     public static add(a1: Coordinate, a2: Coordinate) {
         return new Coordinate(
@@ -22,4 +22,9 @@ class Coordinate implements ICoordiante {
         this.y = y;
     }
 
+}
+
+export { 
+    ICoordinate,
+    Coordinate,
 }

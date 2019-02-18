@@ -1,5 +1,6 @@
 import * as React from 'react';
 import App from 'src/App';
+import { Coordinate, ICoordinate } from 'src/datatypes/Coordinate';
 import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
 import Left from 'src/datatypes/DisplayProperties/Properties/Left';
 import Top from 'src/datatypes/DisplayProperties/Properties/Top';
@@ -24,6 +25,19 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
         return this.instance;
     }
 
+    public static calculateOffSetById(id: string, searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = SketchBoard.getInstance(), sum: ICoordinate = { x: 0, y: 0 }): Coordinate {
+        const searchSpaceOffSet = searchSpace.getOffset();
+        if (id.length === 1) {
+            return Coordinate.add(sum, searchSpaceOffSet);
+        } else {
+            return SketchBoard.calculateOffSetById(
+                id.substring(1),
+                searchSpace.state.boardElements.data[id.charAt(0)],
+                Coordinate.add(sum, searchSpaceOffSet)
+            );
+        }
+    }
+
     private static instance: SketchBoard<ISketchBoardState>;
 
     public state: S;
@@ -42,19 +56,6 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
         const boardElements = this.state.boardElements;
         for (let i = 0, len = boardElements.data.length; i < len; ++i) {
             boardElements.data[i].updateInits(mode);
-        }
-    }
-
-    public calculateOffSetById(id: string, searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = this, sum: ICoordiante = { x: 0, y: 0 }): Coordinate {
-        const searchSpaceOffSet = searchSpace.getOffset();
-        if (id.length === 0) {
-            return Coordinate.add(sum, searchSpaceOffSet);
-        } else {
-            return this.calculateOffSetById(
-                id.substring(1),
-                searchSpace.state.boardElements.data[id.charAt(0)],
-                Coordinate.add(sum, searchSpaceOffSet)
-            );
         }
     }
 
@@ -149,7 +150,7 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
         throw Error("getCenter failed.");
     }
 
-    protected getInitialState(boardElements: HumbleArray = new HumbleArray()): S {
+    protected getInitialState(id: string = '', boardElements: HumbleArray = new HumbleArray()): S {
         // fill a displayPropertyCollection with inital values
         const displayProperties = new DisplayPropertyCollection();
         // top

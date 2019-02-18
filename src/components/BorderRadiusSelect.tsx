@@ -1,5 +1,6 @@
 import * as React from 'react';
 import toolCollection from 'src/data/ToolCollection';
+import { ICoordinate } from 'src/datatypes/Coordinate';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import { BoardElement, IBoardElementState } from './Board/BoardElement';
 import { Div } from './Board/BoardElements/WindowElements/Div';
@@ -96,7 +97,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
         return Math.min(center.x - selected.getLeftBorder(), center.y - selected.getTopBorder());
     }
 
-    private passBorderRadiusByKey(position: ICoordiante, maxRadius: number, key: string, borderRadius: number) {
+    private passBorderRadiusByKey(position: ICoordinate, maxRadius: number, key: string, borderRadius: number) {
         const directions = BorderRadiusSelect.directionDict[key];
         if (borderRadius > maxRadius) {
             borderRadius = maxRadius;

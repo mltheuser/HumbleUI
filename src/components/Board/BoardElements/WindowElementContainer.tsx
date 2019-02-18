@@ -32,8 +32,9 @@ abstract class WindowElementContainer {
         Object.getPrototypeOf(windowElementContainerUser.constructor).move.call(windowElementContainerUser, left, top);
     }
 
-    public static updateInits(windowElementContainerUser: IWindowElementContainerUser, mode: number = 2): void { // mode is bad style
-        Object.getPrototypeOf(windowElementContainerUser.constructor).updateInits.call(windowElementContainerUser, mode);
+    public static updateInits(windowElementContainerUser: IWindowElementContainerUser, windowElementContainerUserSuperFunction: (mode: number) => void, mode: number = 2): void { // mode is bad style
+        windowElementContainerUserSuperFunction = windowElementContainerUserSuperFunction.bind(windowElementContainerUser);
+        windowElementContainerUserSuperFunction(mode);
         const windowElements = windowElementContainerUser.state.boardElements;
         if (mode > 2) {
             for (let i = 0, len = windowElements.data.length; i < len; ++i) {
@@ -64,7 +65,7 @@ abstract class WindowElementContainer {
         const id = windowElementContainerUser.getId();
         const boardElements = windowElementContainerUser.state.boardElements;
         return (
-            <div key={id} className={this.constructor.name} style={windowElementContainerUser.getInlineStyle()} id={id}>
+            <div key={id} className={windowElementContainerUser.constructor.name} style={windowElementContainerUser.getInlineStyle()} id={id}>
                 {boardElements.render()}
             </div>
         );

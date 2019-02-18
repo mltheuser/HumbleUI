@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import { IBoardElementState } from '../../BoardElement';
@@ -33,7 +34,7 @@ class Div<S extends IDivState> extends WindowElement<S> implements IWindowElemen
     }
 
     public updateInits(mode: number): void { // mode is bad style
-        WindowElementContainer.updateInits(this, mode);
+        WindowElementContainer.updateInits(this, super.updateInits, mode);
     }
 
     public resizeChildren() {
@@ -67,9 +68,10 @@ class Div<S extends IDivState> extends WindowElement<S> implements IWindowElemen
         }
     }
 
-    protected getInitialState(boardElements: HumbleArray): S {
-        const state = super.getInitialState();
+    protected getInitialState(id: string = this.id, boardElements: HumbleArray): S {
+        const state = super.getInitialState(id);
         state.boardElements = boardElements;
+        Rectangle.decorateInitialState(this, state, {withBorderRadius: true});
         return state as S;
     }
 

@@ -1,4 +1,5 @@
 import { ISketchBoardState, SketchBoard } from 'src/components/Board/SketchBoard';
+import { ICoordinate } from './Coordinate';
 
 export interface IBorder {
     checked: boolean,
@@ -12,7 +13,7 @@ export interface ISelectorProps {
 }
 
 export interface IBorderRadiusSelector extends ISelectorProps{
-    position: ICoordiante,
+    position: ICoordinate,
     selectorID: string,
 }
 

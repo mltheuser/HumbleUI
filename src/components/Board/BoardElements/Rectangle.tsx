@@ -1,8 +1,13 @@
 import * as React from 'react';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import BackgroundColor from 'src/datatypes/DisplayProperties/Properties/BackgroundColor';
 import BorderColor from 'src/datatypes/DisplayProperties/Properties/Border/BorderColor';
 import BorderStyle from 'src/datatypes/DisplayProperties/Properties/Border/BorderStyle';
 import BorderWidth from 'src/datatypes/DisplayProperties/Properties/Border/BorderWidth';
+import BorderBottomLeftRadius from 'src/datatypes/DisplayProperties/Properties/BorderRadius/BorderBottomLeftRadius';
+import BorderBottomRightRadius from 'src/datatypes/DisplayProperties/Properties/BorderRadius/BorderBottomRightRadius';
+import BorderTopLeftRadius from 'src/datatypes/DisplayProperties/Properties/BorderRadius/BorderTopLeftRadius';
+import BorderTopRightRadius from 'src/datatypes/DisplayProperties/Properties/BorderRadius/BorderTopRightRadius';
 import { BoardElement, IBoardElement, IBoardElementState, IBoardElementStyle } from "../BoardElement";
 
 interface IRectangleStyle extends IBoardElementStyle {
@@ -18,9 +23,13 @@ interface IRectangleUser extends IBoardElement {
     getOffset(): Coordinate,
 }
 
+interface IDecorateInitalStateParams {
+    withBorderRadius?: boolean,
+}
+
 abstract class Rectangle {
 
-    public static decorateInitialState(boardElement: BoardElement<IBoardElementState>, initalState: IBoardElementState) {
+    public static decorateInitialState(boardElement: BoardElement<IBoardElementState>, initalState: IBoardElementState, params: IDecorateInitalStateParams = {}) {
         // background-color
         const backgroundColor = new BackgroundColor(boardElement);
         backgroundColor.setValue('#fff');
@@ -37,6 +46,28 @@ abstract class Rectangle {
         const borderStyle = new BorderStyle(boardElement);
         borderStyle.setValue('solid'); // will be set to none if disabled
         initalState.displayProperties.add(borderStyle);
+
+        if (params) {
+            if (params.withBorderRadius) {
+                // border-radius
+                // border-top-left-radius
+                const borderTopLeftRadius = new BorderTopLeftRadius(boardElement);
+                borderTopLeftRadius.setValue(0);
+                initalState.displayProperties.add(borderTopLeftRadius);
+                // border-top-right-radius
+                const borderTopRightRadius = new BorderTopRightRadius(boardElement);
+                borderTopRightRadius.setValue(0);
+                initalState.displayProperties.add(borderTopRightRadius);
+                // border-bottom-left-radius
+                const borderBottomLeftRadius = new BorderBottomLeftRadius(boardElement);
+                borderBottomLeftRadius.setValue(0);
+                initalState.displayProperties.add(borderBottomLeftRadius);
+                // border-bottom-right-radius
+                const borderBottomRightRadius = new BorderBottomRightRadius(boardElement);
+                borderBottomRightRadius.setValue(0);
+                initalState.displayProperties.add(borderBottomRightRadius);
+            }
+        }
     }
 
     public static getRightBorder(boardElement: IRectangleUser): number {

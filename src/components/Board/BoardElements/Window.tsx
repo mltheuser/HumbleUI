@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import { BoardElement } from '../BoardElement';
@@ -29,15 +30,15 @@ class Window<S extends IWindowState> extends BoardElement<S> implements IWindowE
     }
 
     public updateInits(mode: number): void { // mode is bad style
-        WindowElementContainer.updateInits(this, mode);
+        WindowElementContainer.updateInits(this, super.updateInits, mode);
     }
 
     public canItersectByHeightWith(window: Window<IWindowState>) {
-        return ((this.state.displayProperties.top.getValue() >= window.state.displayProperties.top.getValue() 
-        && this.state.displayProperties.top.getValue() <= window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue()) || (this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue() >= window.state.displayProperties.top.getValue() 
-        && this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue() <= window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue())) || ((window.state.displayProperties.top.getValue() >= this.state.displayProperties.top.getValue() 
-        && window.state.displayProperties.top.getValue() <= this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue()) || (window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue() >= this.state.displayProperties.top.getValue() 
-        && window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue() <= this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue()));
+        return ((this.state.displayProperties.top.getValue() >= window.state.displayProperties.top.getValue()
+            && this.state.displayProperties.top.getValue() <= window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue()) || (this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue() >= window.state.displayProperties.top.getValue()
+                && this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue() <= window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue())) || ((window.state.displayProperties.top.getValue() >= this.state.displayProperties.top.getValue()
+                    && window.state.displayProperties.top.getValue() <= this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue()) || (window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue() >= this.state.displayProperties.top.getValue()
+                        && window.state.displayProperties.top.getValue() + window.state.displayProperties.height.getValue() <= this.state.displayProperties.top.getValue() + this.state.displayProperties.height.getValue()));
     }
 
     public canItersectByWidthWith(window: Window<IWindowState>) {
@@ -45,10 +46,10 @@ class Window<S extends IWindowState> extends BoardElement<S> implements IWindowE
         const localWidth = this.state.displayProperties.width.getValue();
         const elementLeft = window.state.displayProperties.left.getValue();
         const elementWidth = window.state.displayProperties.width.getValue();
-        return ((localLeft >= elementLeft && localLeft <= elementLeft + elementWidth) 
-        || (localLeft + localWidth >= elementLeft && localLeft + localWidth <= elementLeft + elementWidth)) 
-        || ((elementLeft >= localLeft && elementLeft <= localLeft + localWidth) 
-        || (elementLeft + elementWidth >= localLeft && elementLeft + elementWidth <= localLeft + localWidth));
+        return ((localLeft >= elementLeft && localLeft <= elementLeft + elementWidth)
+            || (localLeft + localWidth >= elementLeft && localLeft + localWidth <= elementLeft + elementWidth))
+            || ((elementLeft >= localLeft && elementLeft <= localLeft + localWidth)
+                || (elementLeft + elementWidth >= localLeft && elementLeft + elementWidth <= localLeft + localWidth));
     }
 
     public resizeChildren() {
@@ -85,8 +86,8 @@ class Window<S extends IWindowState> extends BoardElement<S> implements IWindowE
             + '</body>\n</html>';
     }
 
-    protected getInitialState(boardElements: HumbleArray): S {
-        const state = super.getInitialState();
+    protected getInitialState(id: string = this.id, boardElements: HumbleArray): S {
+        const state = super.getInitialState(id);
         state.boardElements = boardElements;
         Rectangle.decorateInitialState(this, state);
         state.scroll = 0;

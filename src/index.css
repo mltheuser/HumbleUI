@@ -45,7 +45,7 @@ nav {
   -webkit-overflow-scrolling: touch;
 }
 
-.Sketch {
+.Div {
   width: 0px;
   height: 0px;
   position: absolute;
@@ -53,7 +53,7 @@ nav {
   overflow: hidden;
 }
 
-.WindowSketch {
+.Window {
   width: 0px;
   height: 0px;
   position: absolute;

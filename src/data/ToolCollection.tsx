@@ -1,3 +1,5 @@
+import App from 'src/App';
+import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import { IWindowState, Window } from 'src/components/Board/BoardElements/Window';
 import { Div, IDivState } from 'src/components/Board/BoardElements/WindowElements/Div';
 import { ISketchBoardState } from 'src/components/Board/SketchBoard';
@@ -20,17 +22,20 @@ const toolCollection = {
                         tool.target = null;
                         break;
                     case 'DIV':
-                        const target = this.findElementById(this, e.target.getAttribute("id"));
+                        const target: BoardElement<IBoardElementState> = this.findElementById(this, e.target.getAttribute("id"));
                         tool.target = target;
 
-                        if (this.state.selected === null) {
+                        if (this.state.selectedBoardElement === null) {
                             return;
                         }
 
-                        this.state.selected.updateInits(0);
+                        this.state.selectedBoardElement.updateInits(0);
 
-                        if (target.isFamilyMemberOf(this.state.selected) === false) {
-                            return;
+                        // if target is not familly member of selectedBoardElement, return.
+                        for (let i = 0, len = this.state.selectedBoardElement.id.length, len2 = target.getId().length; i < len; ++i) {
+                            if (i >= len2 || target.getId()[i] !== this.state.selectedBoardElement.id[i]) {
+                                return;
+                            }
                         }
                         break;
                     default: return;
@@ -68,12 +73,12 @@ const toolCollection = {
 
                 // calculate change and update state
                 if (tool.target === undefined || tool.target === null) {
-                    for (let i = 0, len = this.state.sketches.data.length; i < len; ++i) {
-                        const sketch = this.state.sketches.data[i];
+                    for (let i = 0, len = this.state.boardElements.data.length; i < len; ++i) {
+                        const sketch = this.state.boardElements.data[i];
                         sketch.move(sketch.initLeft + updateX, sketch.initTop + updateY)
                     }
                 } else {
-                    this.state.selected.move(this.state.selected.initLeft + updateX, this.state.selected.initTop + updateY)
+                    this.state.selectedBoardElement.move(this.state.selectedBoardElement.initLeft + updateX, this.state.selectedBoardElement.initTop + updateY)
                 }
                 this.setState({});
             },
@@ -101,46 +106,36 @@ const toolCollection = {
                 let tmp: Window<IWindowState> | Div<IDivState>;
                 const tool = this.state.tool;
                 if (e.target.tagName === 'MAIN') {
-                    // calculate the sketches offset
-                    const offset = this.calculateOffsetById('');
-                    toolCollection.DrawSketch.offsetLeft = offset.x;
-                    toolCollection.DrawSketch.offsetTop = offset.y;
-
                     // save the starting x/y of the rectangle
-                    tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
-                    tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
+                    tool.mouseState.startX = parseInt(e.clientX, 10);
+                    tool.mouseState.startY = parseInt(e.clientY, 10);
 
                     // add the Sketch to the sketchBoard
-                    tmp = new Window(String(this.state.sketches.data.length), this);
-                    this.state.sketches.push(tmp);
+                    tmp = new Window(String(this.state.boardElements.data.length));
+                    this.state.boardElements.push(tmp);
                 } else {
                     // first of, find the Sketch that gets a new Component
                     const parentId = e.target.getAttribute("id");
                     const parent = this.findElementById(this, parentId);
 
-                    // calculate the sketches offset
-                    const offset = this.calculateOffsetById(parentId);
-                    toolCollection.DrawSketch.offsetLeft = offset.x;
-                    toolCollection.DrawSketch.offsetTop = offset.y;
-
                     // save the starting x/y of the rectangle
-                    tool.mouseState.startX = parseInt(e.clientX, 10) - tool.offsetLeft;
-                    tool.mouseState.startY = parseInt(e.clientY, 10) - tool.offsetTop;
+                    tool.mouseState.startX = parseInt(e.clientX, 10);
+                    tool.mouseState.startY = parseInt(e.clientY, 10);
 
                     // create the new Div with an id of parentId followed by its future position in the parents sketch array
-                    tmp = new Div(String(parentId) + parent.state.sketches.data.length, this);
+                    tmp = new Div(String(parentId) + parent.state.boardElements.data.length);
 
                     // add the new sketch to its parents sketchRepo
-                    parent.state.sketches.push(tmp);
+                    parent.state.boardElements.push(tmp);
                 }
 
-                this.setState((prevState: any) => {
-                    if (prevState.selected && prevState.selected.state) {
-                        prevState.selected.state.selected = false;
+                this.setState((prevState: ISketchBoardState) => {
+                    if (prevState.selectedBoardElement && prevState.selectedBoardElement.state) {
+                        prevState.selectedBoardElement.state.isSelected = false;
                     }
                     return {
-                        selected: tmp,
-                        sketches: prevState.sketches
+                        boardElements: prevState.boardElements,
+                        selectedBoardElement: tmp,
                     };
                 });
 
@@ -158,8 +153,8 @@ const toolCollection = {
                 }
 
                 // get the current mouse position
-                tool.mouseState.currentX = parseInt(e.clientX, 10) - tool.offsetLeft;
-                tool.mouseState.currentY = parseInt(e.clientY, 10) - tool.offsetTop;
+                tool.mouseState.currentX = parseInt(e.clientX, 10);
+                tool.mouseState.currentY = parseInt(e.clientY, 10);
 
                 // calculate changes and update state
                 this.setState((prevState: ISketchBoardState) => {
@@ -188,15 +183,18 @@ const toolCollection = {
                 // the drag is over, clear the dragging flag
                 tool.mouseState.down = false;
 
-                this.setState((prevState: any) => {
-                    prevState.selected.state.refined = true;
-                    prevState.selected.state.selected = true;
+                this.setState((prevState: ISketchBoardState) => {
+                    if (prevState.selectedBoardElement === null) {
+                        throw EvalError("selectedBoardElement is null.");
+                    }
+                    prevState.selectedBoardElement.state.refined = true;
+                    prevState.selectedBoardElement.state.isSelected = true;
                     return {
-                        selected: prevState.selected
+                        selectedBoardElement: prevState.selectedBoardElement,
                     }
                 });
 
-                this.props.app.setState({});
+                App.getInstance().setState({});
             }
         }
     ),
@@ -208,11 +206,11 @@ const toolCollection = {
             tool.mouseState.startX = parseInt(e.clientX, 10);
             tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
 
-            this.state.selected.updateInits(3);
+            this.state.selectedBoardElement.updateInits(3);
 
             this.updateInits(0);
 
-            this.state.selected.state.refined = false;
+            this.state.selectedBoardElement.state.refined = false;
             tool.mouseState.down = true;
         },
         handleMouseMove(e: any) {
@@ -363,7 +361,7 @@ const toolCollection = {
                         break;
                 }
 
-                this.state.selected.resizeChildren(this.state.selected.id.length === 1);
+                this.state.selectedBoardElement.resizeChildren(this.state.selectedBoardElement.id.length === 1);
 
                 return {
                     selectedBoardElement: prevState.selectedBoardElement
@@ -377,7 +375,7 @@ const toolCollection = {
 
             const tool = this.state.tool;
 
-            this.state.selected.state.refined = true;
+            this.state.selectedBoardElement.state.refined = true;
             tool.mouseState.down = false;
 
             if (document.querySelector('#' + tool.selectorID + ':hover') === null) {
@@ -393,7 +391,7 @@ const toolCollection = {
         handleMouseDown(e: any) {
             const tool = this.state.tool;
 
-            const displayProperties: DisplayPropertyCollection = this.state.selected.state.displayProperties;
+            const displayProperties: DisplayPropertyCollection = this.state.selectedBoardElement.state.displayProperties;
 
             // save initBorderRadius
             tool.initBorderRadius = {
@@ -407,7 +405,7 @@ const toolCollection = {
             tool.mouseState.startX = parseInt(e.clientX, 10);
             tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
 
-            this.state.selected.state.refined = false;
+            this.state.selectedBoardElement.state.refined = false;
             tool.mouseState.down = true;
         },
         handleMouseMove(e: any) {
@@ -470,10 +468,10 @@ const toolCollection = {
 
             const tool = this.state.tool;
 
-            this.state.selected.state.refined = true;
+            this.state.selectedBoardElement.state.refined = true;
             tool.mouseState.down = false;
 
-            this.setState({ selected: this.state.selected });
+            this.setState({ selected: this.state.selectedBoardElement });
 
             if (document.querySelector('#' + tool.selectorID + ':hover') === null) {
                 if (tool.toolRepo === null || tool.mouseState.down === true) {

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
 import HumbleArray from 'src/datatypes/HumbleArray';
 
@@ -17,14 +18,14 @@ interface IAbsolutePositionedComponent {
 }
 
 abstract class AbsolutePositionedComponent<S extends IAbsolutePositionedComponentState> extends React.Component<any, S> implements IAbsolutePositionedComponent {
-    
+
     public state: S;
 
     protected name: string;
-    
-    constructor(boardElements: HumbleArray = new HumbleArray()) {
+
+    constructor(id: string = '', boardElements: HumbleArray = new HumbleArray()) {
         super({});
-        this.state = this.getInitialState(boardElements);
+        this.state = this.getInitialState(id, boardElements);
         this.name = this.getInitalName();
     }
 
@@ -52,7 +53,7 @@ abstract class AbsolutePositionedComponent<S extends IAbsolutePositionedComponen
 
     public abstract getCenter(): Coordinate;
 
-    protected abstract getInitialState(boardElements?: HumbleArray): S;
+    protected abstract getInitialState(id?: string, boardElements?: HumbleArray): S;
 
     protected abstract getInitalName(): string;
 
