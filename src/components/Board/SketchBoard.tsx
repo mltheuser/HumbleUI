@@ -93,15 +93,14 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
         return element;
     }
 
-    public updateSelection(boardElement: BoardElement<IBoardElementState>) {
-        let tmp: BoardElement<IBoardElementState> | null = boardElement;
-        if (tmp !== null) {
-            tmp = this.findAndSelectElementByTargetId(tmp.getId());
-            if (tmp == null) {
+    public updateSelection(boardElement: BoardElement<IBoardElementState> | null) {
+        if (boardElement !== null) {
+            boardElement = this.findAndSelectElementByTargetId(boardElement.getId());
+            if (boardElement == null) {
                 throw EvalError("An unhandeled Exception occured while updating the selection.");
             }
         }
-        if (tmp === this.state.selectedBoardElement) {
+        if (boardElement === this.state.selectedBoardElement) {
             return;
         }
         this.setState((prevState: any) => {
@@ -109,7 +108,7 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
                 prevState.selectedBoardElement.state.isSelected = false;
             }
             return {
-                selectedBoardElement: tmp,
+                selectedBoardElement: boardElement,
             } as ISketchBoardState
         });
         App.getInstance().setState({});

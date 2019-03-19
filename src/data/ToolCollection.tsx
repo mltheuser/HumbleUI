@@ -85,8 +85,11 @@ const toolCollection = {
                         boardElement.move(localInitValues.left + updateX, localInitValues.top + updateY)
                     }
                 } else {
-                    const targetInitValues = tool.mouseState.target.getInitValues();
-                    tool.mouseState.target.move(targetInitValues.left + updateX, targetInitValues.top + updateY)
+                    if (this.state.selectedBoardElement === null) {
+                        throw EvalError("Trying to move a specific element with no element selected.");
+                    }
+                    const targetInitValues = this.state.selectedBoardElement.getInitValues();
+                    this.state.selectedBoardElement.move(targetInitValues.left + updateX, targetInitValues.top + updateY)
                 }
                 this.setState({});
             },
@@ -96,7 +99,7 @@ const toolCollection = {
 
                 const tool = this.state.tool;
 
-                if (tool.mouseState.dragged === false && tool.mouseState.target !== null) {
+                if (tool.mouseState.dragged === false) {
                     this.updateSelection(tool.mouseState.target);
                 }
 
