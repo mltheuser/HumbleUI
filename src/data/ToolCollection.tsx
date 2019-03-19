@@ -1,8 +1,9 @@
 import App from 'src/App';
 import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import { IWindowState, Window } from 'src/components/Board/BoardElements/Window';
+import { implementsIWindowElementContainerUser } from 'src/components/Board/BoardElements/WindowElementContainer';
 import { Div, IDivState } from 'src/components/Board/BoardElements/WindowElements/Div';
-import { ISketchBoardState } from 'src/components/Board/SketchBoard';
+import { ISketchBoardState, SketchBoard } from 'src/components/Board/SketchBoard';
 import Tool from 'src/components/Tool';
 import DisplayPropertyCollection from 'src/datatypes/DisplayProperties/DisplayPropertyCollection';
 
@@ -10,20 +11,25 @@ const toolCollection = {
     Default: new Tool(
         {
             cursor: 'default',
-            handleMouseDown(e: any) {
+            handleMouseDown(this: SketchBoard<ISketchBoardState>, e: any) {
                 const tool = this.state.tool;
 
-                tool.dragged = 0;
+                tool.mouseState.dragged = false;
 
                 switch (e.target.tagName) {
                     case 'MAIN':
                         this.updateInits(0);
 
-                        tool.target = null;
+                        tool.mouseState.target = null;
                         break;
                     case 'DIV':
-                        const target: BoardElement<IBoardElementState> = this.findElementById(this, e.target.getAttribute("id"));
-                        tool.target = target;
+                        const target: BoardElement<IBoardElementState> | null = this.findElementById(this, e.target.getAttribute("id"));
+
+                        if (target === null) {
+                            throw EvalError("FindElementById for target id returned null.");
+                        }
+
+                        tool.mouseState.target = target;
 
                         if (this.state.selectedBoardElement === null) {
                             return;
@@ -32,8 +38,8 @@ const toolCollection = {
                         this.state.selectedBoardElement.updateInits(0);
 
                         // if target is not familly member of selectedBoardElement, return.
-                        for (let i = 0, len = this.state.selectedBoardElement.id.length, len2 = target.getId().length; i < len; ++i) {
-                            if (i >= len2 || target.getId()[i] !== this.state.selectedBoardElement.id[i]) {
+                        for (let i = 0, len = this.state.selectedBoardElement.getId().length, len2 = target.getId().length; i < len; ++i) {
+                            if (i >= len2 || target.getId()[i] !== this.state.selectedBoardElement.getId()[i]) {
                                 return;
                             }
                         }
@@ -42,12 +48,12 @@ const toolCollection = {
                 }
 
                 tool.mouseState.startX = parseInt(e.clientX, 10);
-                tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+                tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
                 tool.mouseState.down = true;
                 tool.cursor = 'grabbing';
             },
-            handleMouseMove(e: any) {
+            handleMouseMove(this: SketchBoard<ISketchBoardState>, e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -60,73 +66,72 @@ const toolCollection = {
 
                 // get the current mouse position
                 tool.mouseState.currentX = parseInt(e.clientX, 10);
-                tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
+                tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
                 const updateY = (tool.mouseState.currentY - tool.mouseState.startY);
                 const updateX = (tool.mouseState.currentX - tool.mouseState.startX);
 
-                if (tool.dragged === 0) {
+                if (tool.mouseState.dragged === false) {
                     if (updateX !== 0 || updateY !== 0) {
-                        tool.dragged = 1;
+                        tool.mouseState.dragged = true;
                     }
                 }
 
                 // calculate change and update state
-                if (tool.target === undefined || tool.target === null) {
+                if (tool.mouseState.target === null) {
                     for (let i = 0, len = this.state.boardElements.data.length; i < len; ++i) {
-                        const sketch = this.state.boardElements.data[i];
-                        sketch.move(sketch.initLeft + updateX, sketch.initTop + updateY)
+                        const boardElement: BoardElement<IBoardElementState> = this.state.boardElements.data[i];
+                        const localInitValues = boardElement.getInitValues();
+                        boardElement.move(localInitValues.left + updateX, localInitValues.top + updateY)
                     }
                 } else {
-                    this.state.selectedBoardElement.move(this.state.selectedBoardElement.initLeft + updateX, this.state.selectedBoardElement.initTop + updateY)
+                    const targetInitValues = tool.mouseState.target.getInitValues();
+                    tool.mouseState.target.move(targetInitValues.left + updateX, targetInitValues.top + updateY)
                 }
                 this.setState({});
             },
-            handleMouseUp(e: any) {
+            handleMouseUp(this: SketchBoard<ISketchBoardState>, e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 const tool = this.state.tool;
 
-                if (tool.dragged === 0 && tool.target !== undefined) {
-                    this.updateSelection(tool.target);
+                if (tool.mouseState.dragged === false && tool.mouseState.target !== null) {
+                    this.updateSelection(tool.mouseState.target);
                 }
 
                 // the drag is over, clear the dragging flag
                 tool.mouseState.down = false;
                 tool.cursor = 'default';
-                tool.target = undefined;
+                tool.mouseState.target = null;
             },
         }
     ),
     DrawSketch: new Tool(
         {
             cursor: 'crosshair',
-            handleMouseDown(e: any) {
+            handleMouseDown(this: SketchBoard<ISketchBoardState>, e: any) {
                 let tmp: Window<IWindowState> | Div<IDivState>;
                 const tool = this.state.tool;
-                if (e.target.tagName === 'MAIN') {
-                    // save the starting x/y of the rectangle
-                    tool.mouseState.startX = parseInt(e.clientX, 10);
-                    tool.mouseState.startY = parseInt(e.clientY, 10);
 
-                    // add the Sketch to the sketchBoard
-                    tmp = new Window(String(this.state.boardElements.data.length));
-                    this.state.boardElements.push(tmp);
-                } else {
-                    // first of, find the Sketch that gets a new Component
-                    const parentId = e.target.getAttribute("id");
-                    const parent = this.findElementById(this, parentId);
+                // save the starting x/y of the rectangle
+                tool.mouseState.startX = parseInt(e.clientX, 10);
+                tool.mouseState.startY = parseInt(e.clientY, 10);
 
-                    // save the starting x/y of the rectangle
-                    tool.mouseState.startX = parseInt(e.clientX, 10);
-                    tool.mouseState.startY = parseInt(e.clientY, 10);
+                // first of, find what gets a new Component
+                const parentId = e.target.getAttribute("id");
+                const parent = this.findElementById(this, parentId);
 
+                if (parent !== null && implementsIWindowElementContainerUser(parent)) {
                     // create the new Div with an id of parentId followed by its future position in the parents sketch array
                     tmp = new Div(String(parentId) + parent.state.boardElements.data.length);
 
                     // add the new sketch to its parents sketchRepo
                     parent.state.boardElements.push(tmp);
+                } else {
+                    // add the Sketch to the sketchBoard
+                    tmp = new Window(String(this.state.boardElements.data.length));
+                    this.state.boardElements.push(tmp);
                 }
 
                 this.setState((prevState: ISketchBoardState) => {
@@ -141,7 +146,7 @@ const toolCollection = {
 
                 tool.mouseState.down = true;
             },
-            handleMouseMove(e: any) {
+            handleMouseMove(this: SketchBoard<ISketchBoardState>, e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -174,7 +179,7 @@ const toolCollection = {
                     }
                 });
             },
-            handleMouseUp(e: any) {
+            handleMouseUp(this: SketchBoard<ISketchBoardState>, e: any) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -199,12 +204,17 @@ const toolCollection = {
         }
     ),
     Resize: new Tool({
-        handleMouseDown(e: any) {
+        handleMouseDown(this: SketchBoard<ISketchBoardState>, e: any) {
+
+            if (this.state.selectedBoardElement === null) {
+                throw EvalError("Trying to resize with no element selected.");
+            }
+
             const tool = this.state.tool;
 
             // save the starting x/y of the rectangle
             tool.mouseState.startX = parseInt(e.clientX, 10);
-            tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+            tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
             this.state.selectedBoardElement.updateInits(3);
 
@@ -213,7 +223,7 @@ const toolCollection = {
             this.state.selectedBoardElement.state.refined = false;
             tool.mouseState.down = true;
         },
-        handleMouseMove(e: any) {
+        handleMouseMove(this: SketchBoard<ISketchBoardState>, e: any) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -226,7 +236,7 @@ const toolCollection = {
 
             // get the current mouse position
             tool.mouseState.currentX = parseInt(e.clientX, 10);
-            tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
+            tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
             // calculate changes and update state
             this.setState((prevState: ISketchBoardState) => {
@@ -249,14 +259,14 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentX - tool.mouseState.startX <= 0) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
                                     }
                                 }
                             } else if ((tool.mouseState.currentX - tool.mouseState.startX) > initValues.width) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
@@ -275,14 +285,14 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentX - tool.mouseState.startX >= 0) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
                                     }
                                 }
                             } else if (displayProperties.width.getValue() < 0) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) + initValues.width);
@@ -312,14 +322,14 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentY - tool.mouseState.startY <= 0) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
                                     }
                                 }
                             } else if (tool.mouseState.currentY - tool.mouseState.startY > initValues.height) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
@@ -338,14 +348,14 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentY - tool.mouseState.startY >= 0) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
                                     }
                                 }
                             } else if (displayProperties.height.getValue() < 0) {
-                                for (const child of prevState.selectedBoardElement.state.WindowElements) {
+                                for (const child of prevState.selectedBoardElement.state.boardElements) {
                                     if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
                                         const childInitValues = child.getInitValues();
                                         child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) + initValues.height);
@@ -361,7 +371,13 @@ const toolCollection = {
                         break;
                 }
 
-                this.state.selectedBoardElement.resizeChildren(this.state.selectedBoardElement.id.length === 1);
+                if (this.state.selectedBoardElement === null) {
+                    throw EvalError("Trying to resize with no element selected.");
+                }
+
+                if (implementsIWindowElementContainerUser(this.state.selectedBoardElement)) {
+                    this.state.selectedBoardElement.resizeChildren();
+                }
 
                 return {
                     selectedBoardElement: prevState.selectedBoardElement
@@ -369,9 +385,13 @@ const toolCollection = {
 
             });
         },
-        handleMouseUp(e: any) {
+        handleMouseUp(this: SketchBoard<ISketchBoardState>, e: any) {
             e.preventDefault();
             e.stopPropagation();
+
+            if (this.state.selectedBoardElement === null) {
+                throw EvalError("Trying to resize with no element selected.");
+            }
 
             const tool = this.state.tool;
 
@@ -379,7 +399,7 @@ const toolCollection = {
             tool.mouseState.down = false;
 
             if (document.querySelector('#' + tool.selectorID + ':hover') === null) {
-                if (tool.toolRepo === null || tool.mouseState.down === true) {
+                if (tool.toolRepo === null) {
                     return;
                 }
                 this.setState({ tool: tool.toolRepo });
@@ -388,13 +408,18 @@ const toolCollection = {
         }
     }),
     SelectBorderRadius: new Tool({
-        handleMouseDown(e: any) {
+        handleMouseDown(this: SketchBoard<ISketchBoardState>, e: any) {
+
+            if (this.state.selectedBoardElement === null) {
+                throw EvalError("Trying to select borderRadius with no element selected.");
+            }
+
             const tool = this.state.tool;
 
             const displayProperties: DisplayPropertyCollection = this.state.selectedBoardElement.state.displayProperties;
 
             // save initBorderRadius
-            tool.initBorderRadius = {
+            tool.mouseState.initBorderRadius = {
                 bottomLeft: displayProperties["border-bottom-left-radius"].getValue(),
                 bottomRight: displayProperties["border-bottom-right-radius"].getValue(),
                 topLeft: displayProperties["border-top-left-radius"].getValue(),
@@ -403,12 +428,12 @@ const toolCollection = {
 
             // save the starting x/y of the rectangle
             tool.mouseState.startX = parseInt(e.clientX, 10);
-            tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.top;
+            tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
             this.state.selectedBoardElement.state.refined = false;
             tool.mouseState.down = true;
         },
-        handleMouseMove(e: any) {
+        handleMouseMove(this: SketchBoard<ISketchBoardState>, e: any) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -421,13 +446,14 @@ const toolCollection = {
 
             // get the current mouse position
             tool.mouseState.currentX = parseInt(e.clientX, 10);
-            tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.top;
+            tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
             // calculate changes and update state
             this.setState((prevState: ISketchBoardState) => {
                 const selectedBoardElement = prevState.selectedBoardElement;
+
                 if (selectedBoardElement === null || !(selectedBoardElement instanceof Div)) {
-                    return;
+                    throw EvalError("Trying to select borderRadius with no element selected.")
                 }
 
                 const updates = new Array(2);
@@ -452,29 +478,33 @@ const toolCollection = {
 
                 const update = Math.max(...updates);
 
-                selectedBoardElement.state.displayProperties["border-top-left-radius"].setValue(tool.initBorderRadius.topLeft + update);
-                selectedBoardElement.state.displayProperties["border-top-right-radius"].setValue(tool.initBorderRadius.topRight + update);
-                selectedBoardElement.state.displayProperties["border-bottom-left-radius"].setValue(tool.initBorderRadius.bottomLeft + update);
-                selectedBoardElement.state.displayProperties["border-bottom-right-radius"].setValue(tool.initBorderRadius.bottomRight + update);
+                selectedBoardElement.state.displayProperties["border-top-left-radius"].setValue(tool.mouseState.initBorderRadius.topLeft + update);
+                selectedBoardElement.state.displayProperties["border-top-right-radius"].setValue(tool.mouseState.initBorderRadius.topRight + update);
+                selectedBoardElement.state.displayProperties["border-bottom-left-radius"].setValue(tool.mouseState.initBorderRadius.bottomLeft + update);
+                selectedBoardElement.state.displayProperties["border-bottom-right-radius"].setValue(tool.mouseState.initBorderRadius.bottomRight + update);
 
                 return {
                     selectedBoardElement: prevState.selectedBoardElement
                 }
             });
         },
-        handleMouseUp(e: any) {
+        handleMouseUp(this: SketchBoard<ISketchBoardState>, e: any) {
             e.preventDefault();
             e.stopPropagation();
+
+            if (this.state.selectedBoardElement === null) {
+                throw EvalError("Trying to select borderRadius with no element selected.");
+            }
 
             const tool = this.state.tool;
 
             this.state.selectedBoardElement.state.refined = true;
             tool.mouseState.down = false;
 
-            this.setState({ selected: this.state.selectedBoardElement });
+            this.setState({ selectedBoardElement: this.state.selectedBoardElement });
 
             if (document.querySelector('#' + tool.selectorID + ':hover') === null) {
-                if (tool.toolRepo === null || tool.mouseState.down === true) {
+                if (tool.toolRepo === null) {
                     return;
                 }
                 this.setState({ tool: tool.toolRepo });

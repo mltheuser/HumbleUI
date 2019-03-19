@@ -62,16 +62,20 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
         }
     }
 
-    public findElementById(searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = this, id: string = ''): BoardElement<IBoardElementState> {
+    public findElementById(searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = this, id: string = ''): BoardElement<IBoardElementState> | null {
         const localBoardElements = searchSpace.state.boardElements;
-        if (id.length === 1) {
-            return localBoardElements.data[id];
+        if (id.length <= 1) {
+            if (localBoardElements.data[id] !== undefined) {
+                return localBoardElements.data[id];
+            } else {
+                return null;
+            }
         }
         return this.findElementById(localBoardElements.data[id.charAt(0)], id.substring(1));
     }
 
     // refactor this mess
-    public findAndSelectElementByTargetId(id: string): BoardElement<IBoardElementState> {
+    public findAndSelectElementByTargetId(id: string): BoardElement<IBoardElementState> | null {
         let i = 0;
         if (this.state.selectedBoardElement) {
             const len = id.length;
@@ -83,15 +87,21 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
             }
         }
         const element = this.findElementById(this, id.substring(0, i + 1));
-        element.state.isSelected = true;
+        if (element !== null) {
+            element.state.isSelected = true;
+        }
         return element;
     }
 
     public updateSelection(boardElement: BoardElement<IBoardElementState>) {
-        if (boardElement !== null) {
-            boardElement = this.findAndSelectElementByTargetId(boardElement.getId());
+        let tmp: BoardElement<IBoardElementState> | null = boardElement;
+        if (tmp !== null) {
+            tmp = this.findAndSelectElementByTargetId(tmp.getId());
+            if (tmp == null) {
+                throw EvalError("An unhandeled Exception occured while updating the selection.");
+            }
         }
-        if (boardElement === this.state.selectedBoardElement) {
+        if (tmp === this.state.selectedBoardElement) {
             return;
         }
         this.setState((prevState: any) => {
@@ -99,7 +109,7 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
                 prevState.selectedBoardElement.state.isSelected = false;
             }
             return {
-                selectedBoardElement: boardElement,
+                selectedBoardElement: tmp,
             } as ISketchBoardState
         });
         App.getInstance().setState({});

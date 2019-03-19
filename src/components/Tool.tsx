@@ -1,3 +1,23 @@
+import { BoardElement, IBoardElementState } from './Board/BoardElement';
+
+interface IBorderRadius {
+    bottomLeft: number,
+    bottomRight: number,
+    topLeft: number,
+    topRight: number,
+}
+
+interface IMouseState {
+    currentX: number,
+    currentY: number,
+    initBorderRadius: IBorderRadius,
+    down: boolean,
+    dragged: boolean,
+    startX: number,
+    startY: number,
+    target: BoardElement<IBoardElementState> | null,
+}
+
 class Tool {
 
     public cursor = 'default';
@@ -14,12 +34,20 @@ class Tool {
 
     public selectorID: string;
 
-    public mouseState = {
+    public mouseState: IMouseState = {
         currentX: 0,
         currentY: 0,
         down: false,
+        dragged: false,
+        initBorderRadius: {
+            bottomLeft: 0,
+            bottomRight: 0,
+            topLeft: 0,
+            topRight: 0,
+        },
         startX: 0,
         startY: 0,
+        target: null,
     }
 
     public constructor(params: any = {}) {
