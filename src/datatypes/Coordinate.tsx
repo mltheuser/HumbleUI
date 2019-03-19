@@ -13,6 +13,13 @@ class Coordinate implements ICoordinate {
         );
     }
 
+    public static sub(a1: Coordinate, a2: Coordinate) {
+        return new Coordinate(
+            a1.x - a2.x,
+            a1.y - a2.y,
+        );
+    }
+
     public x: number;
 
     public y: number;

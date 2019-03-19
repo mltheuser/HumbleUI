@@ -26,6 +26,9 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
     }
 
     public static calculateOffSetById(id: string, searchSpace: AbsolutePositionedComponent<IWindowElementContainerUserState> = SketchBoard.getInstance(), sum: ICoordinate = { x: 0, y: 0 }): Coordinate {
+        if (id.length === 0) {
+            throw EvalError("An empty string is no valid id.");
+        }
         const searchSpaceOffSet = searchSpace.getOffset();
         if (id.length === 1) {
             return Coordinate.add(sum, searchSpaceOffSet);

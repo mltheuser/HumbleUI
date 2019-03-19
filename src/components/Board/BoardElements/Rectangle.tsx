@@ -40,7 +40,7 @@ abstract class Rectangle {
         initalState.displayProperties.add(borderColor);
         // border-width
         const borderWidth = new BorderWidth(boardElement);
-        borderWidth.setValue(1);
+        borderWidth.setValue(8);
         initalState.displayProperties.add(borderWidth);
         // border-style
         const borderStyle = new BorderStyle(boardElement);
@@ -102,10 +102,10 @@ abstract class Rectangle {
             borderColor: localDisplayProperties["border-color"].getValue(),
             borderStyle: localDisplayProperties["border-style"].getValue(),
             borderWidth: localDisplayProperties["border-width"].getValue(),
-            height: localDisplayProperties.height.getValue(),
+            height: localDisplayProperties.height.getValue() - 2 * localDisplayProperties["border-width"].getValue(),
             left: localDisplayProperties.left.getValue(),
             top: localDisplayProperties.top.getValue(),
-            width: localDisplayProperties.width.getValue(),
+            width: localDisplayProperties.width.getValue() - 2 * localDisplayProperties["border-width"].getValue(),
         }
         if (localState.refined === true) {
             inline.background = localDisplayProperties["background-color"].getValue();

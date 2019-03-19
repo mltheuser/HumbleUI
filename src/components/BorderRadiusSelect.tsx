@@ -39,7 +39,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
         );
         const topRight = this.passBorderRadiusByKey(
             {
-            x: selectedBoardElement.getRightBorder() - selectedBoardElement.getLeftBorder(),
+            x: selectedBoardElement.getRightBorder() - selectedBoardElement.getLeftBorder() - 2 * displayProperties["border-width"].getValue(),
             y: 0,
             },
             maxRadius,
@@ -49,7 +49,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
         const bottomLeft = this.passBorderRadiusByKey(
             {
             x: 0,
-            y: selectedBoardElement.getBottomBorder() - selectedBoardElement.getTopBorder(),
+            y: selectedBoardElement.getBottomBorder() - selectedBoardElement.getTopBorder() - 2 * displayProperties["border-width"].getValue(),
             },
             maxRadius,
             'bottomLeft',
@@ -57,8 +57,8 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
         );
         const bottomRight = this.passBorderRadiusByKey(
             {
-            x: selectedBoardElement.getRightBorder() - selectedBoardElement.getLeftBorder(),
-            y: selectedBoardElement.getBottomBorder() - selectedBoardElement.getTopBorder(),
+            x: selectedBoardElement.getRightBorder() - selectedBoardElement.getLeftBorder() - 2 * displayProperties["border-width"].getValue(),
+            y: selectedBoardElement.getBottomBorder() - selectedBoardElement.getTopBorder() - 2 * displayProperties["border-width"].getValue(),
             },
             maxRadius,
             'bottomRight',

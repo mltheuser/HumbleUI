@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Coordinate } from 'src/datatypes/Coordinate';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
 import { Div } from './Board/BoardElements/WindowElements/Div';
@@ -17,20 +18,27 @@ class Selector extends React.Component<ISelectorProps, any> {
         if (selectedBoardElement === null) {
             return null;
         }
+
+        // calculate the selctors offset
+        const selectedBoardElementOffSet = SketchBoard.calculateOffSetById(selectedBoardElement.getId());
+        const sketchBoardElementOffSet = SketchBoard.calculateOffSetById("0");
+        const selctorOffSet = Coordinate.sub(selectedBoardElementOffSet, sketchBoardElementOffSet);
+
+        const selectorCageBorderWidth = 1.7;
+
         const inline = {
             background: '',
             borderColor: '#427fd3',
             borderStyle: 'solid',
-            borderWidth: 1.7,
-            height: selectedBoardElement.state.displayProperties.height.getValue(), // adjust to match borders
-            left:  selectedBoardElement.state.displayProperties.left.getValue(),
-            top:  selectedBoardElement.state.displayProperties.top.getValue(),
-            width:  selectedBoardElement.state.displayProperties.width.getValue(),
+            borderWidth: selectorCageBorderWidth,
+            height: selectedBoardElement.state.displayProperties.height.getValue() - selectorCageBorderWidth,
+            left: selectedBoardElement.state.displayProperties.left.getValue() + selctorOffSet.x,
+            top: selectedBoardElement.state.displayProperties.top.getValue() + selctorOffSet.y,
+            width: selectedBoardElement.state.displayProperties.width.getValue() - selectorCageBorderWidth,
         }
+        
         if (selectedBoardElement instanceof Div) {
-            inline.height += 2 * selectedBoardElement.state.displayProperties["border-width"].getValue() - 2;
-            inline.width += 2 * selectedBoardElement.state.displayProperties["border-width"].getValue() - 2;
-            if (selectedBoardElement.state.borderChecked === false) {
+            if (selectedBoardElement.state.displayProperties.borderIsChecked() === false) {
                 inline.top += selectedBoardElement.state.displayProperties["border-width"].getValue();
                 inline.left += selectedBoardElement.state.displayProperties["border-width"].getValue();
                 inline.height -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();

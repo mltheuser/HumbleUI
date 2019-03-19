@@ -146,9 +146,7 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
             throw ReferenceError("id is invalid.");
         }
         // calculate offset by Id
-        console.log(id);
         const offset = SketchBoard.calculateOffSetById(id);
-        console.log(offset);
         // fill a displayPropertyCollection with inital values
         const displayProperties = new DisplayPropertyCollection();
         // top
