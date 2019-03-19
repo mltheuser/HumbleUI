@@ -259,17 +259,25 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentX - tool.mouseState.startX <= 0) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             } else if ((tool.mouseState.currentX - tool.mouseState.startX) > initValues.width) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             }
@@ -285,17 +293,25 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentX - tool.mouseState.startX >= 0) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             } else if (displayProperties.width.getValue() < 0) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) + initValues.width);
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) + initValues.width);
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             }
@@ -322,17 +338,25 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentY - tool.mouseState.startY <= 0) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
-                                    }
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
+                                    }    
                                 }
                             } else if (tool.mouseState.currentY - tool.mouseState.startY > initValues.height) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             }
@@ -348,17 +372,25 @@ const toolCollection = {
                         // [consider rewriting this code]
                         if (prevState.selectedBoardElement instanceof Window) {
                             if (tool.mouseState.currentY - tool.mouseState.startY >= 0) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
+                                for (const child of this.state.boardElements) {
+                                    if (child instanceof Window) {
+                                        if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             } else if (displayProperties.height.getValue() < 0) {
                                 for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                        const childInitValues = child.getInitValues();
-                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) + initValues.height);
+                                    if (child instanceof Window) {
+                                        if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
+                                            const childInitValues = child.getInitValues();
+                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) + initValues.height);
+                                        }
+                                    } else {
+                                        throw EvalError("All direct children od sketchboard should be windows.");
                                     }
                                 }
                             }
