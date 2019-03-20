@@ -10,6 +10,7 @@ import { AbsolutePositionedComponent, IAbsolutePositionedComponentState } from '
 import Selector from '../Selector';
 import Tool from '../Tool';
 import { BoardElement, IBoardElementState } from './BoardElement';
+import { implementsIRectangleUser, usesBorderRadius } from './BoardElements/Rectangle';
 import { Window } from './BoardElements/Window';
 import { IWindowElementContainerUserState, StateInstanceOfIWindowElementContainerUserState } from './BoardElements/WindowElementContainer';
 
@@ -193,8 +194,19 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
             localDisplayProperties.left.setValue((localDisplayProperties.left.getValue() / this.state.zoom) * newZoom + repositionVector.x);
             localDisplayProperties.height.setValue((localDisplayProperties.height.getValue() / this.state.zoom) * newZoom);
             localDisplayProperties.width.setValue((localDisplayProperties.width.getValue() / this.state.zoom) * newZoom);
-            if (boardElement instanceof AbsolutePositionedComponent && StateInstanceOfIWindowElementContainerUserState(boardElement)) {
-                this.zoomDomainElements(boardElement as AbsolutePositionedComponent<IWindowElementContainerUserState>, newZoom);
+            if (boardElement instanceof AbsolutePositionedComponent) {
+                if (StateInstanceOfIWindowElementContainerUserState(boardElement)) {
+                    this.zoomDomainElements(boardElement as AbsolutePositionedComponent<IWindowElementContainerUserState>, newZoom);
+                }
+                if (implementsIRectangleUser(boardElement)) {
+                    localDisplayProperties['border-width'].setValue((localDisplayProperties['border-width'].getValue() / this.state.zoom) * newZoom);
+                    if (usesBorderRadius(boardElement)) {
+                        localDisplayProperties["border-top-left-radius"].setValue((localDisplayProperties['border-top-left-radius'].getValue() / this.state.zoom) * newZoom);
+                        localDisplayProperties["border-top-right-radius"].setValue((localDisplayProperties['border-top-right-radius'].getValue() / this.state.zoom) * newZoom);
+                        localDisplayProperties["border-bottom-left-radius"].setValue((localDisplayProperties['border-bottom-left-radius'].getValue() / this.state.zoom) * newZoom);
+                        localDisplayProperties["border-bottom-right-radius"].setValue((localDisplayProperties['border-bottom-right-radius'].getValue() / this.state.zoom) * newZoom);
+                    }
+                }
             }
         }
     }

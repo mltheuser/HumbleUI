@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { IAbsolutePositionedComponent } from 'src/components/AbsolutePositionedComponent';
 import { Coordinate } from 'src/datatypes/Coordinate';
 import BackgroundColor from 'src/datatypes/DisplayProperties/Properties/BackgroundColor';
 import BorderColor from 'src/datatypes/DisplayProperties/Properties/Border/BorderColor';
@@ -21,6 +22,19 @@ interface IRectangleUser extends IBoardElement {
     getRightBorder(): number,
     getBottomBorder(): number,
     getOffset(): Coordinate,
+}
+
+// make this correct
+export function implementsIRectangleUser(object: IAbsolutePositionedComponent): object is IRectangleUser {
+    return 'getRightBorder' in object;
+}
+
+export function usesBorderRadius(object: IRectangleUser) {
+    const localDisplayProperties = object.state.displayProperties;
+    return "border-top-left-radius" in localDisplayProperties
+        && "border-top-right-radius" in localDisplayProperties
+        && "border-bottom-left-radius" in localDisplayProperties
+        && "border-bottom-right-radius" in localDisplayProperties;
 }
 
 interface IDecorateInitalStateParams {
