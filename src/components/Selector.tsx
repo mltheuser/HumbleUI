@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Coordinate } from 'src/datatypes/Coordinate';
 import { ISelectorProps } from 'src/datatypes/interfaces';
 import toolCollection from '../data/ToolCollection';
-import { Div } from './Board/BoardElements/WindowElements/Div';
 import { SketchBoard } from './Board/SketchBoard';
 import BorderRadiusSelect from './BorderRadiusSelect';
 
@@ -35,15 +34,6 @@ class Selector extends React.Component<ISelectorProps, any> {
             left: selectedBoardElement.state.displayProperties.left.getValue() + selctorOffSet.x,
             top: selectedBoardElement.state.displayProperties.top.getValue() + selctorOffSet.y,
             width: selectedBoardElement.state.displayProperties.width.getValue() - selectorCageBorderWidth,
-        }
-        
-        if (selectedBoardElement instanceof Div) {
-            if (selectedBoardElement.state.displayProperties.borderIsChecked() === false) {
-                inline.top += selectedBoardElement.state.displayProperties["border-width"].getValue();
-                inline.left += selectedBoardElement.state.displayProperties["border-width"].getValue();
-                inline.height -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
-                inline.width -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
-            }
         }
         const inline1 = {
             marginRight: (inline.width / 2 - 8) + 'px',

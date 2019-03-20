@@ -1,7 +1,6 @@
 import { Checkbox } from '@material-ui/core';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
-import { Div } from './Board/BoardElements/WindowElements/Div';
 import { ISketchBoardState, SketchBoard } from './Board/SketchBoard';
 import DefaultTabContent from './DefaultTabContent';
 import LineSelect from './LineSelect';
@@ -67,14 +66,19 @@ class AppearanceTabContent extends DefaultTabContent {
     private handleBorderChange(event: any) {
         const checked = event.target.checked;
         SketchBoard.getInstance().setState((prevState: ISketchBoardState) => {
-            if (prevState.selectedBoardElement === null) {
+            const selectedBoardElement = prevState.selectedBoardElement;
+            if (selectedBoardElement === null) {
                 throw EvalError("selected is null.");
             }
-            if (prevState.selectedBoardElement instanceof Div) {
-                prevState.selectedBoardElement.state.borderChecked = checked;
+            if ("border-style" in selectedBoardElement.state.displayProperties) {
+                if (checked) {
+                    selectedBoardElement.state.displayProperties["border-style"].setValue("solid");
+                } else {
+                    selectedBoardElement.state.displayProperties["border-style"].setValue("none");
+                }
             }
             return {
-                selectedBoardElement: prevState.selectedBoardElement
+                selectedBoardElement,
             }
         });
 
