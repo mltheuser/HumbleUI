@@ -10,7 +10,6 @@ import BorderBottomRightRadius from 'src/datatypes/DisplayProperties/Properties/
 import BorderTopLeftRadius from 'src/datatypes/DisplayProperties/Properties/BorderRadius/BorderTopLeftRadius';
 import BorderTopRightRadius from 'src/datatypes/DisplayProperties/Properties/BorderRadius/BorderTopRightRadius';
 import { BoardElement, IBoardElement, IBoardElementState, IBoardElementStyle } from "../BoardElement";
-import { SketchBoard } from '../SketchBoard';
 
 interface IRectangleStyle extends IBoardElementStyle {
     background: string,
@@ -103,24 +102,13 @@ abstract class Rectangle {
 
     public static getOffset(boardElement: IRectangleUser): Coordinate {
         const localDisplayProperties = boardElement.state.displayProperties;
-        let result = new Coordinate(
-            localDisplayProperties.left.getValue(),
-            localDisplayProperties.top.getValue(),
-        )
-        if (boardElement.state.displayProperties.borderIsChecked()) {
-            result = Coordinate.add(
-                result, 
-                new Coordinate(
-                    localDisplayProperties["border-width"].getValue(), 
-                    localDisplayProperties["border-width"].getValue()
-                ),
-            )
-        }
-        return result;
+        return new Coordinate(
+            localDisplayProperties.left.getValue() + localDisplayProperties["border-width"].getValue(),
+            localDisplayProperties.top.getValue() + localDisplayProperties["border-width"].getValue(),
+        );
     }
 
     public static getInlineStyle(boardElement: IRectangleUser): IRectangleStyle {
-        console.log(SketchBoard.calculateOffSetById(boardElement.getId()));
         const localState = boardElement.state;
         const localDisplayProperties = localState.displayProperties;
         const inline = {
@@ -128,17 +116,17 @@ abstract class Rectangle {
             borderColor: localDisplayProperties["border-color"].getValue(),
             borderStyle: localDisplayProperties["border-style"].getValue(),
             borderWidth: localDisplayProperties["border-width"].getValue(),
-            height: localDisplayProperties.height.getValue(),
+            height: localDisplayProperties.height.getValue() - 2 * localDisplayProperties["border-width"].getValue(),
             left: localDisplayProperties.left.getValue(),
             top: localDisplayProperties.top.getValue(),
-            width: localDisplayProperties.width.getValue(),
+            width: localDisplayProperties.width.getValue() - 2 * localDisplayProperties["border-width"].getValue(),
         }
         if (localState.refined === true) {
             inline.background = localDisplayProperties["background-color"].getValue();
         }
-        if (localDisplayProperties.borderIsChecked()) {
-            inline.height -= 2 * localDisplayProperties["border-width"].getValue();
-            inline.width -= 2 * localDisplayProperties["border-width"].getValue();
+        if (localDisplayProperties.borderIsChecked() === false) {
+            inline.top += inline.borderWidth;
+            inline.left += inline.borderWidth;
         }
         return inline;
     }

@@ -35,6 +35,12 @@ class Selector extends React.Component<ISelectorProps, any> {
             top: selectedBoardElement.state.displayProperties.top.getValue() + selctorOffSet.y,
             width: selectedBoardElement.state.displayProperties.width.getValue() - selectorCageBorderWidth,
         }
+        if (selectedBoardElement.state.displayProperties.borderIsChecked() === false) {
+            inline.top += selectedBoardElement.state.displayProperties["border-width"].getValue();
+            inline.left += selectedBoardElement.state.displayProperties["border-width"].getValue();
+            inline.height -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
+            inline.width -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
+        }
         const inline1 = {
             marginRight: (inline.width / 2 - 8) + 'px',
         }
