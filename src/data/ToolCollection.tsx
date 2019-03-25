@@ -195,7 +195,7 @@ const toolCollection = {
                     if (prevState.selectedBoardElement === null) {
                         throw EvalError("selectedBoardElement is null.");
                     }
-                    prevState.selectedBoardElement.state.refined = true;
+                    prevState.selectedBoardElement.refine();
                     prevState.selectedBoardElement.state.isSelected = true;
                     return {
                         selectedBoardElement: prevState.selectedBoardElement,

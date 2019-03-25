@@ -39,8 +39,10 @@ interface IBoardElement extends IAbsolutePositionedComponent {
     getTopBorder(): number,
     getBottomBorder(): number,
     getActuallHeight(): number,
-    getActuallWidth(): number
+    getActuallWidth(): number,
+    getParent(): BoardElement<IBoardElementState> | null,
     getStyleDecleration(): CssStyleDeclaration,
+    refine(): void,
     move(left: number, top: number): void,
     getInlineStyle(): IBoardElementStyle,
     render(): React.ReactNode,
@@ -112,10 +114,21 @@ abstract class BoardElement<S extends IBoardElementState> extends AbsolutePositi
         return this.state.displayProperties.width.getValue() / SketchBoard.getInstance().state.zoom;
     }
 
+    public getParent(): BoardElement<IBoardElementState> | null {
+        const sketchBoard = SketchBoard.getInstance();
+        const id = this.getId();
+        const result = sketchBoard.findElementById(sketchBoard, id.substr(0, id.length - 1));     
+        return result;
+    }
+
     public getStyleDecleration(): CssStyleDeclaration {
         const localDeclaration = new CssStyleDeclaration();
         this.state.displayProperties.addToStyleDecleration(localDeclaration);
         return localDeclaration;
+    }
+
+    public refine(): void {
+        this.state.refined = true;
     }
 
     public updateInits(mode: number = 2): void {

@@ -23,8 +23,6 @@ class DisplayPropertyCollection {
 
     public width: Width;
 
-    public position: Position;
-
     public "background-color": BackgroundColor;
 
     public "border-top-right-radius": BorderTopRightRadius;
@@ -53,6 +51,21 @@ class DisplayPropertyCollection {
 
     public borderIsChecked() {
         return this["border-style"] instanceof BorderStyle && this["border-style"].getValue() !== "none";
+    }
+
+    public clone(): DisplayPropertyCollection {
+        const clone = new DisplayPropertyCollection();
+        for (const property in this) {
+            if (this.hasOwnProperty(property)) {
+                if (this[property] instanceof DisplayProperty === false) {
+                    console.log(property);
+                    continue;
+                }
+                const displayProperty = this[property] as unknown as DisplayProperty;
+                clone.add(displayProperty.clone());
+            }
+        }
+        return clone;
     }
 
 }

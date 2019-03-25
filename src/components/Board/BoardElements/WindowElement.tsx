@@ -1,7 +1,18 @@
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
+import HumbleArray from 'src/datatypes/HumbleArray';
+import KeyFrameCollection from 'src/datatypes/KeyFrames/KeyFrameCollection';
 import { BoardElement, IBoardElementState } from "../BoardElement";
 
-abstract class WindowElement<S extends IBoardElementState> extends BoardElement<S> {
+interface IWindowElementState extends IBoardElementState {
+    keyFrameCollection: KeyFrameCollection,
+}
+
+abstract class WindowElement<S extends IWindowElementState> extends BoardElement<S> {
+
+    public refine(): void {
+        super.refine();
+        this.state.keyFrameCollection.init();
+    }
 
     protected getTabLevel(level: number): string {
         let result = '';
@@ -20,6 +31,12 @@ abstract class WindowElement<S extends IBoardElementState> extends BoardElement<
         }
         result += this.renderClasses(localStyleDecleration, globalStyleDecleration);
         return result;
+    }
+
+    protected getInitialState(id: string = this.id, boardElements: HumbleArray = new HumbleArray()): S {
+        const state = super.getInitialState(id, boardElements);
+        state.keyFrameCollection = new KeyFrameCollection(this, id);
+        return state as S;
     }
 
     private renderId(localStyleDecleration: CssStyleDeclaration, globalStyleDecleration: CssStyleDeclaration): string {
@@ -63,5 +80,6 @@ abstract class WindowElement<S extends IBoardElementState> extends BoardElement<
 }
 
 export {
+    IWindowElementState,
     WindowElement,
 }

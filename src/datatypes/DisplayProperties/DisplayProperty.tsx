@@ -1,4 +1,3 @@
-import { SketchBoard } from 'src/components/Board/SketchBoard';
 import CssStyleDeclaration from '../CssDataTypes/CssStyleDeclaration';
 
 /*
@@ -10,15 +9,20 @@ import CssStyleDeclaration from '../CssDataTypes/CssStyleDeclaration';
 
 abstract class DisplayProperty {
     protected property: string;
+
     protected value: any;
+
     protected element: any;
+
     protected parent: any;
+
     public constructor(element: any) {
         this.element = element;
         if (element.id) { // an existing id implies element is instance of BoardElement
-            this.parent = this.getParentByBoardElement(element);
+            this.parent = element.getParent();
         }
     }
+
     public addRule(cssStyleDeclaration: CssStyleDeclaration) {
         if (this.element.id) {
             cssStyleDeclaration.addRule(this.element, this.property, this.convertValue());
@@ -26,30 +30,41 @@ abstract class DisplayProperty {
             throw EvalError("this.element must be instanceof BoardElement to call this method.");
         }
     }
+
     public getProperty(): string {
         return this.property;
     }
+
     public setValue(value: any) {
         this.value = value;
     }
+
     public getValue() {
         return this.value;
     }
+
     public getElement() {
         return this.element;
     }
-    protected getParentByBoardElement(boardElement: any) {
-        const sketchBoard = SketchBoard.getInstance();
-        const id = boardElement.getId();
-        const result = sketchBoard.findElementById(sketchBoard, id.substr(0, id.length - 1));
-        return result;
+
+    public clone(): DisplayProperty {
+        const clone = Object.create(Object.getPrototypeOf(this)) as DisplayProperty;
+        clone.property = this.property;
+        clone.value = this.value;
+        clone.element = this.element;
+        if (this.parent !== undefined) {
+            clone.parent = this.parent;
+        }
+        return clone;
     }
+
     protected getNoParentErrorMessage() {
         return `
         This DisplayProperty has no parent. 
         (in this case element should be instance of WindowSketch)
         `;
     }
+
     protected abstract convertValue(): string;
 }
 

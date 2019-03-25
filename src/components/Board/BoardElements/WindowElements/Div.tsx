@@ -2,13 +2,12 @@ import { ReactNode } from 'react';
 import { Coordinate } from 'src/datatypes/Coordinate';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
-import { IBoardElementState } from '../../BoardElement';
 import { IRectangleStyle, IRectangleUser, Rectangle } from '../Rectangle';
-import { WindowElement } from '../WindowElement';
+import { IWindowElementState, WindowElement } from '../WindowElement';
 import { IWindowElementContainerUser, IWindowElementContainerUserState, WindowElementContainer } from '../WindowElementContainer';
 
-interface IDivState extends IBoardElementState, IWindowElementContainerUserState {
-
+interface IDivState extends IWindowElementState, IWindowElementContainerUserState {
+    
 }
 
 interface IDivStyle extends IRectangleStyle {
