@@ -2,9 +2,11 @@ import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration'
 import HumbleArray from 'src/datatypes/HumbleArray';
 import KeyFrameCollection from 'src/datatypes/KeyFrames/KeyFrameCollection';
 import { BoardElement, IBoardElementState } from "../BoardElement";
+import { implementsIWindowElementContainerUser } from './WindowElementContainer';
 
 interface IWindowElementState extends IBoardElementState {
     keyFrameCollection: KeyFrameCollection,
+    record: boolean,
 }
 
 abstract class WindowElement<S extends IWindowElementState> extends BoardElement<S> {
@@ -12,6 +14,20 @@ abstract class WindowElement<S extends IWindowElementState> extends BoardElement
     public refine(): void {
         super.refine();
         this.state.keyFrameCollection.init();
+    }
+
+    public requestKeyFrameCreation(): void {
+        if (this.state.record === true) {
+            this.state.keyFrameCollection.mapCurrentFrame();
+        }
+        if (implementsIWindowElementContainerUser(this)) {
+            for(const child of this.state.boardElements) {
+                if (child instanceof WindowElement === false) {
+                    throw new EvalError("Every children of a WindowElement should be a WindowElement as well.");
+                }
+                (child as WindowElement<IWindowElementState>).requestKeyFrameCreation();
+            }
+        }
     }
 
     protected getTabLevel(level: number): string {
@@ -36,6 +52,7 @@ abstract class WindowElement<S extends IWindowElementState> extends BoardElement
     protected getInitialState(id: string = this.id, boardElements: HumbleArray = new HumbleArray()): S {
         const state = super.getInitialState(id, boardElements);
         state.keyFrameCollection = new KeyFrameCollection(this, id);
+        state.record = true;
         return state as S;
     }
 

@@ -1,6 +1,7 @@
 import App from 'src/App';
 import { BoardElement, IBoardElementState } from 'src/components/Board/BoardElement';
 import { IWindowState, Window } from 'src/components/Board/BoardElements/Window';
+import { WindowElement } from 'src/components/Board/BoardElements/WindowElement';
 import { implementsIWindowElementContainerUser } from 'src/components/Board/BoardElements/WindowElementContainer';
 import { Div, IDivState } from 'src/components/Board/BoardElements/WindowElements/Div';
 import { ISketchBoardState, SketchBoard } from 'src/components/Board/SketchBoard';
@@ -101,12 +102,19 @@ const toolCollection = {
 
                 if (tool.mouseState.dragged === false) {
                     this.updateSelection(tool.mouseState.target);
+                } else {
+                    const selectedBoardElement = this.state.selectedBoardElement;
+                    if (selectedBoardElement !== null && selectedBoardElement instanceof WindowElement) {
+                        selectedBoardElement.requestKeyFrameCreation();
+                    }
                 }
 
                 // the drag is over, clear the dragging flag
                 tool.mouseState.down = false;
                 tool.cursor = 'default';
                 tool.mouseState.target = null;
+
+
             },
         }
     ),
@@ -359,7 +367,7 @@ const toolCollection = {
                                             child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
                                         }
                                     } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                                        throw EvalError("All direct children of sketchboard should be windows.");
                                     }
                                 }
                             }
@@ -426,6 +434,10 @@ const toolCollection = {
 
             if (this.state.selectedBoardElement === null) {
                 throw EvalError("Trying to resize with no element selected.");
+            }
+
+            if (this.state.selectedBoardElement instanceof WindowElement) {
+                this.state.selectedBoardElement.requestKeyFrameCreation();
             }
 
             const tool = this.state.tool;

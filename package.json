@@ -4,16 +4,20 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
+    "2d-bicubic-interpolate": "1.0.6",
     "@material-ui/core": "^3.4.0",
+    "@tensorflow/tfjs": "^1.0.2",
     "@types/file-saver": "^2.0.0",
     "@types/jszip": "^3.1.4",
     "@types/react-color": "^2.13.6",
+    "@types/regression": "^2.0.0",
     "file-saver": "^2.0.0",
     "jszip": "^3.1.5",
     "react": "^16.6.1",
     "react-color": "^2.14.1",
     "react-dom": "^16.6.1",
-    "react-scripts-ts": "3.1.0"
+    "react-scripts-ts": "3.1.0",
+    "regression": "^2.0.1"
   },
   "devDependencies": {
     "@types/jest": "^23.3.9",

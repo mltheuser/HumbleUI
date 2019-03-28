@@ -8,6 +8,7 @@ import CssStyleDeclaration from '../CssDataTypes/CssStyleDeclaration';
 */
 
 abstract class DisplayProperty {
+
     protected property: string;
 
     protected value: any;

@@ -1,7 +1,9 @@
+import * as regression from 'regression';
 import { IWindowState, Window } from 'src/components/Board/BoardElements/Window';
 import { IWindowElementState, WindowElement } from 'src/components/Board/BoardElements/WindowElement';
 import { SketchBoard } from 'src/components/Board/SketchBoard';
-import { Coordinate } from "../Coordinate";
+import { IInterpulationDataElement, Interpulation } from 'src/utilities/Interpulation/Interpulation';
+import { Coordinate } from '../Coordinate';
 import DisplayPropertyCollection from '../DisplayProperties/DisplayPropertyCollection';
 
 class KeyFrameCollection {
@@ -11,6 +13,8 @@ class KeyFrameCollection {
     private window: Window<IWindowState>;
 
     private collection: Map<Coordinate, DisplayPropertyCollection> = new Map<Coordinate, DisplayPropertyCollection>();
+
+    private functionCache: Map<string, Interpulation> = new Map<string, Interpulation>();
 
     constructor(element: WindowElement<IWindowElementState>, elementID: string) {
         this.element = element;
@@ -22,25 +26,41 @@ class KeyFrameCollection {
     }
 
     public mapCurrentFrame() {
-        const currentWindowState = new Coordinate(
+        const currentFrameState = new Coordinate(
             this.window.state.displayProperties.width.getValue(),
             this.window.state.displayProperties.height.getValue(),
-        );
+        )
         this.add(
-            currentWindowState,
+            currentFrameState,
             this.element.state.displayProperties.clone(),
         );
+        this.updateResponseFunctions();
     }
 
     public init() {
         this.collection.clear();
         this.mapCurrentFrame();
         this.mapZeroFrame();
-        console.log(this.collection);
+        this.updateResponseFunctions();
+    }
+
+    public updateResponseFunctions() {
+        for(const propertyKey in this.functionCache) {
+            if (this.functionCache.hasOwnProperty(propertyKey)) {
+                this.createResponseFunction(propertyKey);
+            }
+        }
+    }
+
+    public getResponseFunctionForProperty(propertyKey: string): regression.Result {
+        if (this.functionCache[propertyKey] === undefined) {
+            this.createResponseFunction(propertyKey);
+        }
+        return this.functionCache[propertyKey];
     }
 
     private mapZeroFrame() {
-        const zeroWindowState = new Coordinate(
+        const zeroFrameState = new Coordinate(
             0,
             0,
         );
@@ -48,9 +68,21 @@ class KeyFrameCollection {
         displayPropertiesClone.width.setValue(0);
         displayPropertiesClone.left.setValue(0);
         this.add(
-            zeroWindowState,
+            zeroFrameState,
             displayPropertiesClone,
         );
+    }
+
+    private createResponseFunction(propertyKey: string) {
+        const data = new Array<IInterpulationDataElement>();
+        for(const keyFrame of this.collection) {
+            data.push({
+                x: keyFrame[0].x,
+                y: keyFrame[0].y,
+                z: keyFrame[1][propertyKey].getValue(),
+            });
+        }
+        this.functionCache[propertyKey] = new Interpulation(data);
     }
 
     private assignParentWindowById(elementID: string) {
