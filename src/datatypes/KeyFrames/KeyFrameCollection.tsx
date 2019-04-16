@@ -1,8 +1,7 @@
-import * as regression from 'regression';
+import {Grid, I3DCoordinate} from '2diminterpulator';
 import { IWindowState, Window } from 'src/components/Board/BoardElements/Window';
 import { IWindowElementState, WindowElement } from 'src/components/Board/BoardElements/WindowElement';
 import { SketchBoard } from 'src/components/Board/SketchBoard';
-import { IInterpulationDataElement, Interpulation } from 'src/utilities/Interpulation/Interpulation';
 import { Coordinate } from '../Coordinate';
 import DisplayPropertyCollection from '../DisplayProperties/DisplayPropertyCollection';
 
@@ -14,7 +13,7 @@ class KeyFrameCollection {
 
     private collection: Map<Coordinate, DisplayPropertyCollection> = new Map<Coordinate, DisplayPropertyCollection>();
 
-    private functionCache: Map<string, Interpulation> = new Map<string, Interpulation>();
+    private functionCache: Map<string, Grid> = new Map<string, Grid>();
 
     constructor(element: WindowElement<IWindowElementState>, elementID: string) {
         this.element = element;
@@ -23,6 +22,16 @@ class KeyFrameCollection {
 
     public add(key: Coordinate, value: DisplayPropertyCollection) {
         this.collection.set(key, value);
+        for (const propertyKey in this.functionCache) {
+            if (this.functionCache.hasOwnProperty(propertyKey) && value.hasOwnProperty(propertyKey)) {
+                const grid: Grid = this.functionCache[propertyKey];
+                grid.add({
+                    x: key.x,
+                    y: key.y,
+                    z: value[propertyKey].getValue(),
+                })
+            }
+        }
     }
 
     public mapCurrentFrame() {
@@ -34,25 +43,25 @@ class KeyFrameCollection {
             currentFrameState,
             this.element.state.displayProperties.clone(),
         );
-        this.updateResponseFunctions();
     }
 
     public init() {
         this.collection.clear();
         this.mapCurrentFrame();
         this.mapZeroFrame();
-        this.updateResponseFunctions();
     }
 
+    /*
     public updateResponseFunctions() {
-        for(const propertyKey in this.functionCache) {
+        for (const propertyKey in this.functionCache) {
             if (this.functionCache.hasOwnProperty(propertyKey)) {
                 this.createResponseFunction(propertyKey);
             }
         }
     }
+    */
 
-    public getResponseFunctionForProperty(propertyKey: string): regression.Result {
+    public getResponseFunctionForProperty(propertyKey: string): Grid {
         if (this.functionCache[propertyKey] === undefined) {
             this.createResponseFunction(propertyKey);
         }
@@ -60,29 +69,35 @@ class KeyFrameCollection {
     }
 
     private mapZeroFrame() {
-        const zeroFrameState = new Coordinate(
-            0,
-            0,
-        );
         const displayPropertiesClone = this.element.state.displayProperties.clone();
         displayPropertiesClone.width.setValue(0);
         displayPropertiesClone.left.setValue(0);
         this.add(
-            zeroFrameState,
+            new Coordinate(
+                0,
+                0,
+            ),
+            displayPropertiesClone,
+        );
+        this.add(
+            new Coordinate(
+                0,
+                1080,
+            ),
             displayPropertiesClone,
         );
     }
 
     private createResponseFunction(propertyKey: string) {
-        const data = new Array<IInterpulationDataElement>();
-        for(const keyFrame of this.collection) {
+        const data = new Array<I3DCoordinate>();
+        for (const keyFrame of this.collection) {
             data.push({
                 x: keyFrame[0].x,
                 y: keyFrame[0].y,
                 z: keyFrame[1][propertyKey].getValue(),
             });
         }
-        this.functionCache[propertyKey] = new Interpulation(data);
+        this.functionCache[propertyKey] = new Grid(data);
     }
 
     private assignParentWindowById(elementID: string) {

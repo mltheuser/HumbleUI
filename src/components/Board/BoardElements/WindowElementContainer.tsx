@@ -98,7 +98,10 @@ abstract class WindowElementContainer {
 
 
                     const responseFunction = localKeyFrameCollection.getResponseFunctionForProperty(property);
-                    const response = responseFunction.predict(window.state.displayProperties.width.getValue())[1];
+                    const response = responseFunction.predict({
+                        x: window.state.displayProperties.width.getValue(),
+                        y: window.state.displayProperties.height.getValue(),
+                    });
                     (localDisplayProperties[property] as DisplayProperty).setValue(response);
                 }
             }
