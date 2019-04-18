@@ -1,4 +1,3 @@
-import { ISketchBoardState, SketchBoard } from 'src/components/Board/SketchBoard';
 import { ICoordinate } from './Coordinate';
 
 export interface IBorder {
@@ -8,11 +7,7 @@ export interface IBorder {
     style: string,
 }
 
-export interface ISelectorProps {
-    sketchBoard: SketchBoard<ISketchBoardState>,
-}
-
-export interface IBorderRadiusSelector extends ISelectorProps{
+export interface IBorderRadiusSelector {
     position: ICoordinate,
     selectorID: string,
 }

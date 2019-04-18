@@ -21,17 +21,9 @@ class KeyFrameCollection {
     }
 
     public add(key: Coordinate, value: DisplayPropertyCollection) {
-        this.collection.set(key, value);
-        for (const propertyKey in this.functionCache) {
-            if (this.functionCache.hasOwnProperty(propertyKey) && value.hasOwnProperty(propertyKey)) {
-                const grid: Grid = this.functionCache[propertyKey];
-                grid.add({
-                    x: key.x,
-                    y: key.y,
-                    z: value[propertyKey].getValue(),
-                })
-            }
-        }
+        const clonedValue = value.clone();
+        this.addToCollection(key, clonedValue);
+        this.addToGrids(key, clonedValue);
     }
 
     public mapCurrentFrame() {
@@ -49,23 +41,22 @@ class KeyFrameCollection {
         this.collection.clear();
         this.mapCurrentFrame();
         this.mapZeroFrame();
+        console.log(this);
     }
-
-    /*
-    public updateResponseFunctions() {
-        for (const propertyKey in this.functionCache) {
-            if (this.functionCache.hasOwnProperty(propertyKey)) {
-                this.createResponseFunction(propertyKey);
-            }
-        }
-    }
-    */
 
     public getResponseFunctionForProperty(propertyKey: string): Grid {
         if (this.functionCache[propertyKey] === undefined) {
             this.createResponseFunction(propertyKey);
         }
         return this.functionCache[propertyKey];
+    }
+
+    public getKeyCoordinates() {
+        const data = [];
+        for(const keyFrame of this.collection) {
+            data.push(keyFrame[0])
+        }
+        return data;
     }
 
     private mapZeroFrame() {
@@ -107,6 +98,31 @@ class KeyFrameCollection {
             throw new EvalError("Every WindowElement should live in a Window.")
         }
         this.window = window as Window<IWindowState>;
+    }
+
+    private addToCollection(key: Coordinate, value: DisplayPropertyCollection) {
+        console.log('altering collection with');
+        console.log(value.height.getValue());
+        for (const keyFrame of this.collection) {
+            if (keyFrame[0].x === key.x && keyFrame[0].y === key.y) {
+                this.collection.set(keyFrame[0], value);
+                return;
+            }
+        }
+        this.collection.set(key, value);
+    }
+
+    private addToGrids(key: Coordinate, value: DisplayPropertyCollection) {
+        for (const propertyKey in this.functionCache) {
+            if (this.functionCache.hasOwnProperty(propertyKey) && value.hasOwnProperty(propertyKey)) {
+                const grid: Grid = this.functionCache[propertyKey];
+                grid.add({
+                    x: key.x,
+                    y: key.y,
+                    z: value[propertyKey].getValue(),
+                })
+            }
+        }
     }
 
 }

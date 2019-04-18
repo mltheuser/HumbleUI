@@ -12,6 +12,7 @@ class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
     }
 
     public render() {
+        const sketchBoard = SketchBoard.getInstance();
         const position = this.centerDivAtPosition(this.props.position);
         const localStyle = {
             display: 'block',
@@ -23,7 +24,7 @@ class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
             return;
         }
         if (selectedBoardElement.state.refined === false) {
-            const tool = this.props.sketchBoard.state.tool;
+            const tool = sketchBoard.state.tool;
             if (!(tool === toolCollection.SelectBorderRadius && tool.mouseState.down && tool.selectorID === this.props.selectorID)) {
                 localStyle.display = 'none';
             }
@@ -50,22 +51,24 @@ class BorderRadiusSelector extends React.Component<IBorderRadiusSelector, any> {
     }
 
     private handleMouseEnter() {
-        if (this.props.sketchBoard.state.tool === toolCollection.SelectBorderRadius) {
+        const sketchBoard = SketchBoard.getInstance();
+        if (sketchBoard.state.tool === toolCollection.SelectBorderRadius) {
             return;
         }
-        toolCollection.SelectBorderRadius.toolRepo = this.props.sketchBoard.state.tool;
+        toolCollection.SelectBorderRadius.toolRepo = sketchBoard.state.tool;
         toolCollection.SelectBorderRadius.selectorID = this.props.selectorID;
-        this.props.sketchBoard.setState({
+        sketchBoard.setState({
             tool: toolCollection.SelectBorderRadius,
         });
     }
 
     private handleMouseLeave() {
-        const tool = this.props.sketchBoard.state.tool;
+        const sketchBoard = SketchBoard.getInstance();
+        const tool = sketchBoard.state.tool;
         if (tool.toolRepo === null || tool.mouseState.down === true) {
             return;
         }
-        this.props.sketchBoard.setState({ tool: tool.toolRepo });
+        sketchBoard.setState({ tool: tool.toolRepo });
         tool.toolRepo = null;
     }
 

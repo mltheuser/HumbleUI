@@ -7,12 +7,13 @@ import Top from 'src/datatypes/DisplayProperties/Properties/Top';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import toolCollection from '../../data/ToolCollection';
 import { AbsolutePositionedComponent, IAbsolutePositionedComponentState } from '../AbsolutePositionedComponent';
-import Selector from '../Selector';
 import Tool from '../Tool';
 import { BoardElement, IBoardElementState } from './BoardElement';
 import { implementsIRectangleUser, usesBorderRadius } from './BoardElements/Rectangle';
 import { Window } from './BoardElements/Window';
 import { IWindowElementContainerUserState, StateInstanceOfIWindowElementContainerUserState } from './BoardElements/WindowElementContainer';
+import { Selector } from './Selectors/Selector';
+import WindowSelector from './Selectors/WindowSelector';
 
 interface ISketchBoardState extends IAbsolutePositionedComponentState, IWindowElementContainerUserState {
     selectedBoardElement: BoardElement<IBoardElementState> | null,
@@ -145,7 +146,8 @@ class SketchBoard<S extends ISketchBoardState> extends AbsolutePositionedCompone
         return (
             <main id="main" style={inline} onMouseDown={this.state.tool.handleMouseDown} onMouseMove={this.state.tool.handleMouseMove} onMouseUp={this.state.tool.handleMouseUp}>
                 {this.state.boardElements.render()}
-                <Selector sketchBoard={this} />
+                <Selector />
+                <WindowSelector />
             </main>
         );
     }

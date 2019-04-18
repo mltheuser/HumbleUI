@@ -1,19 +1,22 @@
 import * as React from 'react';
 import { Coordinate } from 'src/datatypes/Coordinate';
-import { ISelectorProps } from 'src/datatypes/interfaces';
-import toolCollection from '../data/ToolCollection';
-import { SketchBoard } from './Board/SketchBoard';
-import BorderRadiusSelect from './BorderRadiusSelect';
+import toolCollection from '../../../data/ToolCollection';
+import BorderRadiusSelect from '../../BorderRadiusSelect';
+import { BoardElement, IBoardElementState } from '../BoardElement';
+import { SketchBoard } from '../SketchBoard';
 
-class Selector extends React.Component<ISelectorProps, any> {
+interface ISelectedBoardElement {
+    selectedBoardElement: BoardElement<IBoardElementState>
+}
 
-    public constructor(props: ISelectorProps) {
+class Selector extends React.Component<any, any> {
+
+    public constructor(props = {}) {
         super(props);
         this.bindHandlers();
     }
 
-    public render() {
-        const selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement;
+    public render(selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement) {
         if (selectedBoardElement === null) {
             return null;
         }
@@ -75,7 +78,7 @@ class Selector extends React.Component<ISelectorProps, any> {
             return (
                 <div className="select-area" style={inline}>
                     <div className="ruler" style={rulerStyle}>{Math.round(selectedBoardElement.getActuallWidth())}x{Math.round(selectedBoardElement.getActuallHeight())}</div>
-                    < BorderRadiusSelect sketchBoard={this.props.sketchBoard} />
+                    < BorderRadiusSelect selectedBoardElement = {selectedBoardElement} />
                 </div>
             )
         } else {
@@ -92,31 +95,33 @@ class Selector extends React.Component<ISelectorProps, any> {
                         <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={this.handleMouseEnterBottomRight} onMouseLeave={this.handleMouseLeave} />
                         <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={this.handleMouseEnterBottomMiddle} onMouseLeave={this.handleMouseLeave} />
                     </div>
-                    < BorderRadiusSelect sketchBoard={this.props.sketchBoard} />
+                    < BorderRadiusSelect selectedBoardElement = {selectedBoardElement} />
                 </div>
             );
         }
     }
 
     private handleMouseEnter(horizontalMode: number, verticalMode: number, selectorID: string) {
-        if (this.props.sketchBoard.state.tool === toolCollection.Resize) {
+        const sketchBoard = SketchBoard.getInstance();
+        if (sketchBoard.state.tool === toolCollection.Resize) {
             return;
         }
-        toolCollection.Resize.toolRepo = this.props.sketchBoard.state.tool;
+        toolCollection.Resize.toolRepo = sketchBoard.state.tool;
         toolCollection.Resize.horizontal = horizontalMode;
         toolCollection.Resize.vertical = verticalMode;
         toolCollection.Resize.selectorID = selectorID;
-        this.props.sketchBoard.setState({
+        sketchBoard.setState({
             tool: toolCollection.Resize,
         });
     }
 
     private handleMouseLeave() {
-        const tool = this.props.sketchBoard.state.tool;
+        const sketchBoard = SketchBoard.getInstance();
+        const tool = sketchBoard.state.tool;
         if (tool.toolRepo === null || tool.mouseState.down === true) {
             return;
         }
-        this.props.sketchBoard.setState({ tool: tool.toolRepo });
+        sketchBoard.setState({ tool: tool.toolRepo });
         tool.toolRepo = null;
     }
 
@@ -165,4 +170,7 @@ class Selector extends React.Component<ISelectorProps, any> {
     }
 }
 
-export default Selector;
+export {
+    ISelectedBoardElement,
+    Selector,
+};

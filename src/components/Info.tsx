@@ -2,21 +2,36 @@ import { withStyles } from '@material-ui/core';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import * as React from 'react';
-import AppearanceTabContent from './AppearanceTabContent';
 import { Window } from './Board/BoardElements/Window';
 import { WindowElement } from './Board/BoardElements/WindowElement';
 import { SketchBoard } from './Board/SketchBoard';
-import DefaultTabContent from './DefaultTabContent';
-import ResponseTabContent from './ResponseTabContent';
+import AppearanceTabContent from './Tabs/AppearanceTabContent';
+import DefaultTabContent from './Tabs/DefaultTabContent';
+import { ResponseTabContent } from './Tabs/ResponseTab/ResponseTabContent';
 
 /**
  * @todo improve the templating
  */
 class Info extends React.Component<any, any> {
 
+    public static getInstance() {
+        return Info.instance;
+    }
+
+    private static instance: Info;
+
     public state = {
         value: 0,
     };
+
+    public constructor(props = {}) {
+        super(props);
+        if (Info.instance) {
+            throw EvalError("Info is a Singelton and there for can not have more than one instance.");
+        } else {
+            Info.instance = this;
+        }
+    }
 
     /**
      * This is an absolute mess and must be reworked.
@@ -91,26 +106,30 @@ class Info extends React.Component<any, any> {
     };
 }
 
+interface IStyledInfo extends React.ComponentClass<any> {
+    getInstance(): Info;
+}
+
 export default withStyles(
-    (theme) => ({
-        labelContainer: {
-            paddingLeft: '12px',
-            paddingRight: '12px',
-        },
-        tabRoot: {
-            '&$tabSelected': {
-                color: 'rgba(0, 0, 0, 0.75)',
-            },
-            fontSize: '13px',
-            minWidth: 72,
-            textTransform: 'initial',
-        },
-        tabSelected: {},
-        tabsIndicator: {
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        },
-        tabsRoot: {
-            borderBottom: '1px solid #e8e8e8',
-        },
-    })
-)(Info);
+            (theme) => ({
+                labelContainer: {
+                    paddingLeft: '12px',
+                    paddingRight: '12px',
+                },
+                tabRoot: {
+                    '&$tabSelected': {
+                        color: 'rgba(0, 0, 0, 0.75)',
+                    },
+                    fontSize: '13px',
+                    minWidth: 72,
+                    textTransform: 'initial',
+                },
+                tabSelected: {},
+                tabsIndicator: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                },
+                tabsRoot: {
+                    borderBottom: '1px solid #e8e8e8',
+                },
+            })
+        )(Info) as IStyledInfo;

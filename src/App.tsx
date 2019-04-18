@@ -30,7 +30,7 @@ class App extends React.Component {
                     <div className="layout-content">
                         <ToolPalate />
                         <SketchBoard />
-                        <Info />
+                        <Info/>
                     </div>
                 </div>
             </div>

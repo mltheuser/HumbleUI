@@ -1,7 +1,10 @@
+import Info from 'src/components/Info';
 import CssStyleDeclaration from 'src/datatypes/CssDataTypes/CssStyleDeclaration';
 import HumbleArray from 'src/datatypes/HumbleArray';
 import KeyFrameCollection from 'src/datatypes/KeyFrames/KeyFrameCollection';
 import { BoardElement, IBoardElementState } from "../BoardElement";
+import { SketchBoard } from '../SketchBoard';
+import { IWindowState, Window } from './Window';
 import { implementsIWindowElementContainerUser } from './WindowElementContainer';
 
 interface IWindowElementState extends IBoardElementState {
@@ -16,12 +19,25 @@ abstract class WindowElement<S extends IWindowElementState> extends BoardElement
         this.state.keyFrameCollection.init();
     }
 
+    public getWindow(): Window<IWindowState> {
+        const sketchBoard = SketchBoard.getInstance();
+        const window = sketchBoard.findElementById(sketchBoard, this.id.substr(0, 1));
+        if (window === null || window instanceof Window === false) {
+            throw new EvalError("The parent window could not be found.");
+        } else {
+            return window as Window<IWindowState>;
+        }
+    }
+
     public requestKeyFrameCreation(): void {
         if (this.state.record === true) {
             this.state.keyFrameCollection.mapCurrentFrame();
+            Info.getInstance().setState({});
+            console.log('keyFrame created');
+            console.log(this.state.keyFrameCollection);
         }
         if (implementsIWindowElementContainerUser(this)) {
-            for(const child of this.state.boardElements) {
+            for (const child of this.state.boardElements) {
                 if (child instanceof WindowElement === false) {
                     throw new EvalError("Every children of a WindowElement should be a WindowElement as well.");
                 }

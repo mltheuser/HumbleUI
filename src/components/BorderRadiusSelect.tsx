@@ -1,13 +1,13 @@
 import * as React from 'react';
 import toolCollection from 'src/data/ToolCollection';
 import { ICoordinate } from 'src/datatypes/Coordinate';
-import { ISelectorProps } from 'src/datatypes/interfaces';
 import { BoardElement, IBoardElementState } from './Board/BoardElement';
 import { Div } from './Board/BoardElements/WindowElements/Div';
+import { ISelectedBoardElement } from './Board/Selectors/Selector';
 import { SketchBoard } from './Board/SketchBoard';
 import BorderRadiusSelector from './BorderRadiusSelector';
 
-class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
+class BorderRadiusSelect extends React.Component<ISelectedBoardElement, any> {
 
     protected static directionDict = {
         bottomLeft: { x: 1, y: -1 },
@@ -16,12 +16,8 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
         topRight: { x: -1, y: 1 },
     }
 
-    public constructor(props: ISelectorProps) {
-        super(props);
-    }
-
     public render() {
-        const selectedBoardElement: BoardElement<IBoardElementState> | null = SketchBoard.getInstance().state.selectedBoardElement;
+        const selectedBoardElement = this.props.selectedBoardElement;
         if (selectedBoardElement === null || !(selectedBoardElement instanceof Div) || selectedBoardElement instanceof Window) {
             return null;
         }
@@ -70,22 +66,18 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             <div className="BorderRadiusSelect">
                 <BorderRadiusSelector
                     position={topLeft}
-                    sketchBoard={this.props.sketchBoard}
                     selectorID={'topLeftRadius'}
                 />
                 <BorderRadiusSelector
                     position={topRight}
-                    sketchBoard={this.props.sketchBoard}
                     selectorID={'topRightRadius'}
                 />
                 <BorderRadiusSelector
                     position={bottomLeft}
-                    sketchBoard={this.props.sketchBoard}
                     selectorID={'bottomLeftRadius'}
                 />
                 <BorderRadiusSelector
                     position={bottomRight}
-                    sketchBoard={this.props.sketchBoard}
                     selectorID={'bottomRightRadius'}
                 />
             </div>
@@ -103,7 +95,7 @@ class BorderRadiusSelect extends React.Component<ISelectorProps, any> {
             borderRadius = maxRadius;
         }
         if (borderRadius < 20) {
-            const tool = this.props.sketchBoard.state.tool;
+            const tool = SketchBoard.getInstance().state.tool;
             if (borderRadius < 0) {
                 borderRadius = 0;
             }

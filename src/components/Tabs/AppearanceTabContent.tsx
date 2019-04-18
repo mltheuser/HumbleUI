@@ -1,10 +1,10 @@
 import { Checkbox } from '@material-ui/core';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
-import { ISketchBoardState, SketchBoard } from './Board/SketchBoard';
+import { ISketchBoardState, SketchBoard } from '../Board/SketchBoard';
+import LineSelect from '../LineSelect';
+import NumberField from '../NumberField';
 import DefaultTabContent from './DefaultTabContent';
-import LineSelect from './LineSelect';
-import NumberField from './NumberField';
 
 class AppearanceTabContent extends DefaultTabContent {
 
