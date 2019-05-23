@@ -217,21 +217,23 @@ const toolCollection = {
     Resize: new Tool({
         handleMouseDown(this: SketchBoard<ISketchBoardState>, e: any) {
 
-            if (this.state.selectedBoardElement === null) {
+            const tool = this.state.tool;
+
+            const elementToResize = tool.mouseState.target;
+
+            if (elementToResize === null) {
                 throw EvalError("Trying to resize with no element selected.");
             }
-
-            const tool = this.state.tool;
 
             // save the starting x/y of the rectangle
             tool.mouseState.startX = parseInt(e.clientX, 10);
             tool.mouseState.startY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
-            this.state.selectedBoardElement.updateInits(3);
+            elementToResize.updateInits(3);
 
             this.updateInits(0);
 
-            this.state.selectedBoardElement.state.refined = false;
+            elementToResize.state.refined = false;
             tool.mouseState.down = true;
         },
         handleMouseMove(this: SketchBoard<ISketchBoardState>, e: any) {
@@ -249,200 +251,193 @@ const toolCollection = {
             tool.mouseState.currentX = parseInt(e.clientX, 10);
             tool.mouseState.currentY = parseInt(e.clientY, 10) - this.state.displayProperties.top.getValue();
 
-            // calculate changes and update state
-            this.setState((prevState: ISketchBoardState) => {
-                if (prevState.selectedBoardElement === null) {
-                    throw EvalError("Trying to resize a not selected Element.");
-                }
-                const displayProperties: DisplayPropertyCollection = prevState.selectedBoardElement.state.displayProperties;
-                const initValues = prevState.selectedBoardElement.getInitValues();
-                // change horizontal
-                switch (tool.horizontal) {
-                    case 1:
-                        displayProperties.left.setValue(initValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
-                        displayProperties.width.setValue(initValues.width - (tool.mouseState.currentX - tool.mouseState.startX));
-                        if ((tool.mouseState.currentX - tool.mouseState.startX) > initValues.width) {
-                            displayProperties.left.setValue(initValues.left + initValues.width);
-                            displayProperties.width.setValue((tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
-                        }
+            const elementToResize = tool.mouseState.target;
+            if (elementToResize === null) {
+                throw EvalError("Trying to resize a not selected Element.");
+            }
+            const displayProperties: DisplayPropertyCollection = elementToResize.state.displayProperties;
+            const initValues = elementToResize.getInitValues();
+            // change horizontal
+            switch (tool.horizontal) {
+                case 1:
+                    displayProperties.left.setValue(initValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
+                    displayProperties.width.setValue(initValues.width - (tool.mouseState.currentX - tool.mouseState.startX));
+                    if ((tool.mouseState.currentX - tool.mouseState.startX) > initValues.width) {
+                        displayProperties.left.setValue(initValues.left + initValues.width);
+                        displayProperties.width.setValue((tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
+                    }
 
-                        // reposition other sketches to prevent intersection
-                        // [consider rewriting this code]
-                        if (prevState.selectedBoardElement instanceof Window) {
-                            if (tool.mouseState.currentX - tool.mouseState.startX <= 0) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                    // reposition other sketches to prevent intersection
+                    // [consider rewriting this code]
+                    if (elementToResize instanceof Window) {
+                        if (tool.mouseState.currentX - tool.mouseState.startX <= 0) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && elementToResize.canItersectByHeightWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
                                 }
-                            } else if ((tool.mouseState.currentX - tool.mouseState.startX) > initValues.width) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                            }
+                        } else if ((tool.mouseState.currentX - tool.mouseState.startX) > initValues.width) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && elementToResize.canItersectByHeightWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) - initValues.width);
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
                                 }
                             }
                         }
-                        break;
-                    case 2:
-                        displayProperties.width.setValue(initValues.width + (tool.mouseState.currentX - tool.mouseState.startX));
-                        if (displayProperties.width.getValue() < 0) {
-                            displayProperties.left.setValue(initValues.left + displayProperties.width.getValue());
-                        }
+                    }
+                    break;
+                case 2:
+                    displayProperties.width.setValue(initValues.width + (tool.mouseState.currentX - tool.mouseState.startX));
+                    if (displayProperties.width.getValue() < 0) {
+                        displayProperties.left.setValue(initValues.left + displayProperties.width.getValue());
+                    }
 
-                        // reposition other sketches to prevent intersection
-                        // [consider rewriting this code]
-                        if (prevState.selectedBoardElement instanceof Window) {
-                            if (tool.mouseState.currentX - tool.mouseState.startX >= 0) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                    // reposition other sketches to prevent intersection
+                    // [consider rewriting this code]
+                    if (elementToResize instanceof Window) {
+                        if (tool.mouseState.currentX - tool.mouseState.startX >= 0) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.left.getValue() < child.state.displayProperties.left.getValue() && elementToResize.canItersectByHeightWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX));
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
                                 }
-                            } else if (displayProperties.width.getValue() < 0) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && prevState.selectedBoardElement.canItersectByHeightWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) + initValues.width);
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                            }
+                        } else if (displayProperties.width.getValue() < 0) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.left.getValue() > child.state.displayProperties.left.getValue() && elementToResize.canItersectByHeightWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.left.setValue(childInitValues.left + (tool.mouseState.currentX - tool.mouseState.startX) + initValues.width);
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
                                 }
                             }
                         }
-                        displayProperties.width.setValue(Math.abs(displayProperties.width.getValue()));
-                        break;
-                    default:
+                    }
+                    displayProperties.width.setValue(Math.abs(displayProperties.width.getValue()));
+                    break;
+                default:
 
-                        break;
-                }
+                    break;
+            }
 
-                // change vertical
-                switch (tool.vertical) {
-                    case 1:
-                        displayProperties.top.setValue(initValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
-                        displayProperties.height.setValue(initValues.height - (tool.mouseState.currentY - tool.mouseState.startY));
+            // change vertical
+            switch (tool.vertical) {
+                case 1:
+                    displayProperties.top.setValue(initValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
+                    displayProperties.height.setValue(initValues.height - (tool.mouseState.currentY - tool.mouseState.startY));
 
-                        if ((tool.mouseState.currentY - tool.mouseState.startY) > initValues.height) {
-                            displayProperties.top.setValue(initValues.top + initValues.height);
-                            displayProperties.height.setValue((tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
-                        }
+                    if ((tool.mouseState.currentY - tool.mouseState.startY) > initValues.height) {
+                        displayProperties.top.setValue(initValues.top + initValues.height);
+                        displayProperties.height.setValue((tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
+                    }
 
-                        // reposition other sketches to prevent intersection
-                        // [consider rewriting this code]
-                        if (prevState.selectedBoardElement instanceof Window) {
-                            if (tool.mouseState.currentY - tool.mouseState.startY <= 0) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
-                                    }    
-                                }
-                            } else if (tool.mouseState.currentY - tool.mouseState.startY > initValues.height) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children of sketchboard should be windows.");
+                    // reposition other sketches to prevent intersection
+                    // [consider rewriting this code]
+                    if (elementToResize instanceof Window) {
+                        if (tool.mouseState.currentY - tool.mouseState.startY <= 0) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && elementToResize.canItersectByWidthWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
+                                }
+                            }
+                        } else if (tool.mouseState.currentY - tool.mouseState.startY > initValues.height) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && elementToResize.canItersectByWidthWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) - initValues.height);
+                                    }
+                                } else {
+                                    throw EvalError("All direct children of sketchboard should be windows.");
                                 }
                             }
                         }
-                        break;
-                    case 2:
-                        displayProperties.height.setValue(initValues.height + (tool.mouseState.currentY - tool.mouseState.startY));
-                        if (displayProperties.height.getValue() < 0) {
-                            displayProperties.top.setValue(initValues.top + displayProperties.height.getValue());
-                        }
+                    }
+                    break;
+                case 2:
+                    displayProperties.height.setValue(initValues.height + (tool.mouseState.currentY - tool.mouseState.startY));
+                    if (displayProperties.height.getValue() < 0) {
+                        displayProperties.top.setValue(initValues.top + displayProperties.height.getValue());
+                    }
 
-                        // reposition other sketches to prevent intersection
-                        // [consider rewriting this code]
-                        if (prevState.selectedBoardElement instanceof Window) {
-                            if (tool.mouseState.currentY - tool.mouseState.startY >= 0) {
-                                for (const child of this.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                    // reposition other sketches to prevent intersection
+                    // [consider rewriting this code]
+                    if (elementToResize instanceof Window) {
+                        if (tool.mouseState.currentY - tool.mouseState.startY >= 0) {
+                            for (const child of this.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.top.getValue() < child.state.displayProperties.top.getValue() && elementToResize.canItersectByWidthWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY));
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
                                 }
-                            } else if (displayProperties.height.getValue() < 0) {
-                                for (const child of prevState.selectedBoardElement.state.boardElements) {
-                                    if (child instanceof Window) {
-                                        if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && prevState.selectedBoardElement.canItersectByWidthWith(child)) {
-                                            const childInitValues = child.getInitValues();
-                                            child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) + initValues.height);
-                                        }
-                                    } else {
-                                        throw EvalError("All direct children od sketchboard should be windows.");
+                            }
+                        } else if (displayProperties.height.getValue() < 0) {
+                            for (const child of elementToResize.state.boardElements) {
+                                if (child instanceof Window) {
+                                    if (displayProperties.top.getValue() > child.state.displayProperties.top.getValue() && elementToResize.canItersectByWidthWith(child)) {
+                                        const childInitValues = child.getInitValues();
+                                        child.state.displayProperties.top.setValue(childInitValues.top + (tool.mouseState.currentY - tool.mouseState.startY) + initValues.height);
                                     }
+                                } else {
+                                    throw EvalError("All direct children od sketchboard should be windows.");
                                 }
                             }
                         }
+                    }
 
-                        displayProperties.height.setValue(Math.abs(displayProperties.height.getValue()));
-                        break;
-                    default:
+                    displayProperties.height.setValue(Math.abs(displayProperties.height.getValue()));
+                    break;
+                default:
+                    // fill
+                    break;
+            }
 
-                        break;
-                }
+            if (implementsIWindowElementContainerUser(elementToResize)) {
+                elementToResize.resizeChildren();
+            }
 
-                if (this.state.selectedBoardElement === null) {
-                    throw EvalError("Trying to resize with no element selected.");
-                }
+            SketchBoard.getInstance().setState({});
 
-                if (implementsIWindowElementContainerUser(this.state.selectedBoardElement)) {
-                    this.state.selectedBoardElement.resizeChildren();
-                }
-
-                return {
-                    selectedBoardElement: prevState.selectedBoardElement
-                }
-
-            });
         },
         handleMouseUp(this: SketchBoard<ISketchBoardState>, e: any) {
             e.preventDefault();
             e.stopPropagation();
 
-            if (this.state.selectedBoardElement === null) {
+            const tool = this.state.tool;
+            const elementToResize = tool.mouseState.target;
+
+            if (elementToResize === null) {
                 throw EvalError("Trying to resize with no element selected.");
             }
 
-            if (this.state.selectedBoardElement instanceof WindowElement) {
-                this.state.selectedBoardElement.requestKeyFrameCreation();
+            if (elementToResize instanceof WindowElement) {
+                elementToResize.requestKeyFrameCreation();
             }
 
-            const tool = this.state.tool;
-
-            this.state.selectedBoardElement.state.refined = true;
+            elementToResize.state.refined = true;
             tool.mouseState.down = false;
 
             if (document.querySelector('#' + tool.selectorID + ':hover') === null) {

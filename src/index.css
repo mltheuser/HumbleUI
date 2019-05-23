@@ -284,7 +284,8 @@ a {
   border-radius: 50%;
   width: 7px;
   height: 7px;
-  border: solid 1px #427fd3;
+  border-style: solid;
+  border-width: 1px;
   position: relative;
   background: #fff;
   pointer-events: all;

@@ -1,4 +1,4 @@
-import { Chart } from 'chart.js';
+import { Chart, ChartOptions } from 'chart.js';
 import * as React from 'react';
 import { ISelectedWindowElementProps } from '../ResponseTabContent';
 
@@ -28,7 +28,9 @@ class ResponseOverview extends React.Component<ISelectedWindowElementProps, any>
     private displayKeyFrameData() {
         const ctx = (document.getElementById('responseOverview')! as HTMLCanvasElement).getContext('2d')!;
 
-        const keyFrameCollection = this.props.selectedWindowElement.state.keyFrameCollection;
+        const selectedWindowElement = this.props.selectedWindowElement;
+
+        const keyFrameCollection = selectedWindowElement.state.keyFrameCollection;
         const keyCoordinates = keyFrameCollection.getKeyCoordinates();
 
         const scatterChart = new Chart(ctx, {
@@ -43,17 +45,23 @@ class ResponseOverview extends React.Component<ISelectedWindowElementProps, any>
                     display: false
                 },
                 maintainAspectRatio: false,
-                responsive: true, 
+                responsive: true,
                 scales: {
                     xAxes: [{
                         position: 'bottom',
                         type: 'linear',
-                    }]
+                    }],
+                    yAxes: [{
+                        display: true,
+                        type: 'linear',
+                    }],
                 },
             },
             type: 'scatter',
         });
+
         console.log(scatterChart);
+
     }
 }
 

@@ -16,7 +16,8 @@ class Selector extends React.Component<any, any> {
         this.bindHandlers();
     }
 
-    public render(selectedBoardElement = SketchBoard.getInstance().state.selectedBoardElement) {
+    public render() {
+        const selectedBoardElement = this.getSelectedBoardElement();
         if (selectedBoardElement === null) {
             return null;
         }
@@ -30,7 +31,7 @@ class Selector extends React.Component<any, any> {
 
         const inline = {
             background: '',
-            borderColor: '#427fd3',
+            borderColor: this.getBorderColor(),
             borderStyle: 'solid',
             borderWidth: selectorCageBorderWidth,
             height: selectedBoardElement.state.displayProperties.height.getValue() - selectorCageBorderWidth,
@@ -44,32 +45,11 @@ class Selector extends React.Component<any, any> {
             inline.height -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
             inline.width -= 2 * selectedBoardElement.state.displayProperties["border-width"].getValue();
         }
-        const inline1 = {
-            marginRight: (inline.width / 2 - 8) + 'px',
-        }
-        const inline2 = {
-            top: (inline.height / 2 - 5 - 9) + 'px'
-        }
-        const inline3 = {
-            top: (inline.height / 2 - 5 - 2 * 9) + 'px'
-        }
-        const inline4 = {
-            cursor: 'nesw-resize',
-            top: (inline.height - 21) + 'px',
-        }
-        const inline5 = {
-            cursor: 'nwse-resize',
-            top: (inline.height - 30) + 'px',
-        }
-        const inline6 = {
-            marginRight: (inline.width / 2 - 8) + 'px',
-            top: (inline.height - 30) + 'px',
-        }
         const cageStyle = {
             display: 'block',
         }
         const rulerStyle = {
-            backgroundColor: 'rgba(66, 127, 211, 0.54)',
+            backgroundColor: this.getRulerBackgroundColor(),
             display: 'block',
         }
         if (selectedBoardElement.state.refined === false) {
@@ -78,27 +58,76 @@ class Selector extends React.Component<any, any> {
             return (
                 <div className="select-area" style={inline}>
                     <div className="ruler" style={rulerStyle}>{Math.round(selectedBoardElement.getActuallWidth())}x{Math.round(selectedBoardElement.getActuallHeight())}</div>
-                    < BorderRadiusSelect selectedBoardElement = {selectedBoardElement} />
+                    < BorderRadiusSelect selectedBoardElement={selectedBoardElement} />
                 </div>
             )
         } else {
+            const inlineTopLeft = {
+                borderColor: this.getSelectorColor(),
+            }
+            const inlineTopRight = {
+                borderColor: this.getSelectorColor(),
+            }
+            const inlineTopMiddle = {
+                borderColor: this.getSelectorColor(),
+                marginRight: (inline.width / 2 - 8) + 'px',
+            }
+            const inlineMiddleLeft = {
+                borderColor: this.getSelectorColor(),
+                top: (inline.height / 2 - 5 - 9) + 'px'
+            }
+            const inlineMiddleRight = {
+                borderColor: this.getSelectorColor(),
+                top: (inline.height / 2 - 5 - 2 * 9) + 'px'
+            }
+            const inlineBottomLeft = {
+                borderColor: this.getSelectorColor(),
+                cursor: 'nesw-resize',
+                top: (inline.height - 21) + 'px',
+            }
+            const inlineBottomRight = {
+                borderColor: this.getSelectorColor(),
+                cursor: 'nwse-resize',
+                top: (inline.height - 30) + 'px',
+            }
+            const inlineBottomMiddle = {
+                borderColor: this.getSelectorColor(),
+                marginRight: (inline.width / 2 - 8) + 'px',
+                top: (inline.height - 30) + 'px',
+            }
             return (
                 <div className="select-area" style={inline}>
                     <div className="ruler" style={rulerStyle}>{Math.round(selectedBoardElement.getActuallWidth())}x{Math.round(selectedBoardElement.getActuallHeight())}</div>
                     <div className="selectCage" style={cageStyle}>
-                        <div id="selector-top-left" className="selector left" onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-top-right" className="selector right" onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-top-middle" className="selector middel middel-horizontal" style={inline1} onMouseEnter={this.handleMouseEnterTopMiddle} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-middle-left" className="selector left middel-vertical" style={inline2} onMouseEnter={this.handleMouseEnterMiddleLeft} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-middle-right" className="selector right middel-vertical" style={inline3} onMouseEnter={this.handleMouseEnterMiddleRight} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-bottom-left" className="selector left" style={inline4} onMouseEnter={this.handleMouseEnterBottomLeft} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-bottom-right" className="selector right" style={inline5} onMouseEnter={this.handleMouseEnterBottomRight} onMouseLeave={this.handleMouseLeave} />
-                        <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inline6} onMouseEnter={this.handleMouseEnterBottomMiddle} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-top-left" className="selector left" style={inlineTopLeft} onMouseEnter={this.handleMouseEnterTopLeft} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-top-right" className="selector right" style={inlineTopRight} onMouseEnter={this.handleMouseEnterTopRight} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-top-middle" className="selector middel middel-horizontal" style={inlineTopMiddle} onMouseEnter={this.handleMouseEnterTopMiddle} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-middle-left" className="selector left middel-vertical" style={inlineMiddleLeft} onMouseEnter={this.handleMouseEnterMiddleLeft} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-middle-right" className="selector right middel-vertical" style={inlineMiddleRight} onMouseEnter={this.handleMouseEnterMiddleRight} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-bottom-left" className="selector left" style={inlineBottomLeft} onMouseEnter={this.handleMouseEnterBottomLeft} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-bottom-right" className="selector right" style={inlineBottomRight} onMouseEnter={this.handleMouseEnterBottomRight} onMouseLeave={this.handleMouseLeave} />
+                        <div id="selector-bottom-middle" className="selector middel middel-horizontal" style={inlineBottomMiddle} onMouseEnter={this.handleMouseEnterBottomMiddle} onMouseLeave={this.handleMouseLeave} />
                     </div>
-                    < BorderRadiusSelect selectedBoardElement = {selectedBoardElement} />
+                    < BorderRadiusSelect selectedBoardElement={selectedBoardElement} />
                 </div>
             );
         }
+    }
+
+    protected getSelectedBoardElement(): BoardElement<IBoardElementState> | null {
+        return SketchBoard.getInstance().state.selectedBoardElement;
+    }
+
+    protected getBorderColor(): string {
+        return '#427fd3';
+    }
+
+    protected getRulerBackgroundColor(): string {
+        return 'rgba(66, 127, 211, 0.54)';
+    }
+
+    protected getSelectorColor(): string {
+        return '#427fd3';
     }
 
     private handleMouseEnter(horizontalMode: number, verticalMode: number, selectorID: string) {
@@ -110,6 +139,7 @@ class Selector extends React.Component<any, any> {
         toolCollection.Resize.horizontal = horizontalMode;
         toolCollection.Resize.vertical = verticalMode;
         toolCollection.Resize.selectorID = selectorID;
+        toolCollection.Resize.mouseState.target = this.getSelectedBoardElement();
         sketchBoard.setState({
             tool: toolCollection.Resize,
         });
@@ -118,9 +148,16 @@ class Selector extends React.Component<any, any> {
     private handleMouseLeave() {
         const sketchBoard = SketchBoard.getInstance();
         const tool = sketchBoard.state.tool;
+        if (tool !== toolCollection.Resize) {
+            throw new EvalError(`
+            While the mouse is over a selector, the tool should not change. 
+            Therefore, when exiting, the Resize tool is still expected to be selected.
+            `);
+        }
         if (tool.toolRepo === null || tool.mouseState.down === true) {
             return;
         }
+        toolCollection.Resize.mouseState.target = null;
         sketchBoard.setState({ tool: tool.toolRepo });
         tool.toolRepo = null;
     }

@@ -102,7 +102,9 @@ class Info extends React.Component<any, any> {
     }
 
     private handleChange = (event: any, value: any) => {
-        this.setState({ value });
+        this.setState({ value }, () => {
+            SketchBoard.getInstance().setState({});
+        });
     };
 }
 
