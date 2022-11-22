@@ -1,4 +1,12 @@
-Was supposed to be an Adobe XD inspired web app with support for direct code export. Finished sketch board with simple shapes, border radius, colours and the like, then abandoned it while working on the HTML exporter. I learned a lot about software design from this project and I'm still happy with the code I wrote.
+Was supposed to be an Adobe XD inspired web app with support for direct code export. Finished sketch board prototype with simple shapes, border radius, colours and the like, then abandoned it while working on the HTML exporter. I learned a lot about software design from this project and I'm still happy with the code I wrote.
+
+
+
+
+https://user-images.githubusercontent.com/25958978/203348909-d19a6450-959f-47bc-8316-e043fa3972b8.mp4
+
+
+
 
 # HubleUI
 
