@@ -1,3 +1,5 @@
+Was supposed to be an Adobe XD inspired web app with support for direct code export. Finished sketch board with simple shapes, border radius, colours and the like, then abandoned it while working on the HTML exporter. I learned a lot about software design from this project and I'm still happy with the code I wrote.
+
 # HubleUI
 
 With HumbleUI from an idea, painless, to finished html and css.
@@ -36,26 +38,6 @@ Make sure it is up to date. Backwards compatibility was no concern during develo
 yarn dev
 ```
 
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 ## Deployment
 
 Add additional notes about how to deploy this on a live system
@@ -64,14 +46,6 @@ Add additional notes about how to deploy this on a live system
 
 * [React](https://reactjs.org/docs/) - The web framework used
 * [Yarn](https://yarnpkg.com/en/docs/) - Dependency Management
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
@@ -82,9 +56,3 @@ See also the list of [contributors](https://github.com/your/project/contributors
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
