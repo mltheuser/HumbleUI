@@ -1,4 +1,4 @@
-Was supposed to be an Adobe XD inspired web app with support for direct code export. Finished sketch board prototype with simple shapes, border radius, colours and the like, then abandoned it while working on the HTML exporter. I learned a lot about software design from this project and I'm still happy with the code I wrote.
+Was supposed to be an Adobe XD inspired web app with support for direct code export. Finished sketch board prototype with simple shapes, border radius, colours and the like, then abandoned it while working on the HTML exporter. I learned a lot about software design from this project.
 
 
 
